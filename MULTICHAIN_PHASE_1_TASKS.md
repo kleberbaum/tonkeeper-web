@@ -39,7 +39,7 @@ being in place.
 
 ---
 
-## Track A — `packages/core/src/chains/` facade
+## Track A — `packages/core/src/chains/` facade ✅
 
 **Depends on:** Phase 0 (chain-kit `.tgz` available in monorepo).
 
@@ -48,19 +48,26 @@ being in place.
 Hide chain-kit's Kotlin/JS ergonomics (`Companion.from(...)`, `Res<T,E>`, `await ready()`,
 `Int8Array` vs `Uint8Array`) behind a clean TS interface that the rest of `uikit` can use.
 
-### Files to create
+### Shape
 
-| File                                       | Purpose                                                                                                                                                                                                                                                                                  |
-| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `packages/core/src/chains/index.ts`        | Re-exports `ChainAdapter`, `ChainId`, `getAdapter(chain)`.                                                                                                                                                                                                                               |
-| `packages/core/src/chains/types.ts`        | `ChainId` enum (`'ton' \| 'evm' \| 'btc' \| 'tron' \| 'sol'`), `ChainAdapter<TMessage, TSignature>` interface, `Address`, `Amount`, `Fee` types in our shape.                                                                                                                            |
-| `packages/core/src/chains/ready.ts`        | Singleton `ensureReady()` wrapping chain-kit's `await ready()`. Idempotent. Called by every adapter method.                                                                                                                                                                              |
-| `packages/core/src/chains/result.ts`       | `unwrap<T>(res: Res<T,E>): T` helper that throws on `Err`. Centralizes the result-type translation.                                                                                                                                                                                      |
-| `packages/core/src/chains/ton/adapter.ts`  | First concrete adapter — wraps existing TON code paths (`walletContract`, `mnemonicToKeypair`, `Cell` signing). Initially this is **just a wrapper around current logic, not chain-kit's TON module**. Switching the TON internals to chain-kit is a follow-up not in scope for Phase 1. |
-| `packages/core/src/chains/evm/adapter.ts`  | Stub; methods throw `NotImplemented`. Phase 2/3 fills it in.                                                                                                                                                                                                                             |
-| `packages/core/src/chains/btc/adapter.ts`  | Same.                                                                                                                                                                                                                                                                                    |
-| `packages/core/src/chains/tron/adapter.ts` | Same. (Existing TRON code in `walletService.ts` is NOT migrated here in Phase 1.)                                                                                                                                                                                                        |
-| `packages/core/src/chains/sol/adapter.ts`  | Same; marked clearly as "blocked on chain-kit".                                                                                                                                                                                                                                          |
+A `ChainkitAdapter` class implements `ChainAdapter` for every `ChainId`. `validateAddress`,
+`formatAmount`, and `parseAmount` work uniformly through chain-kit (or a static decimals table).
+`deriveAddress` and the write-side methods throw `NotImplementedError` because chain-kit's
+`wallet.getAddress(chain)` doesn't expose a `(publicKey, WalletVersion)` pair — TON's version-aware
+derivation lives in `walletContract()` (Track C) and tx flows in the per-strategy signer modules
+(Track B).
+
+### Files
+
+| File                                                           | Purpose                                                                                                                                                                              |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `packages/core/src/chains/types.ts`                            | `ChainId` (`'ton' \| 'evm' \| 'btc' \| 'tron' \| 'sol'`), `ChainAdapter<TMessage, TSignature>` interface, `BuildTxArgs`, `Fee`, `NotImplementedError`.                               |
+| `packages/core/src/chains/ready.ts`                            | `ensureReady()` — memoised, single-shared-promise wrapper around `chainkit.ready()`. Awaited at app startup and in test `beforeAll`.                                                 |
+| `packages/core/src/chains/result.ts`                           | `unwrap<T,E>(res: Res<T,E>): T` helper that throws on `Err`. Centralises the chain-kit `Res` translation.                                                                            |
+| `packages/core/src/chains/adapter.ts`                          | `ChainkitAdapter` class — single implementation for every chain. `chainOf(id)` maps `ChainId → chainkit.Chain.X.Mainnet`; throws for `sol` ("chain-kit 0.0.1-alpha1 has no Solana"). |
+| `packages/core/src/chains/index.ts`                            | `getAdapter(chain)` with a `Map<ChainId, ChainAdapter>` memo. Re-exports types + `ensureReady` + `unwrap`.                                                                           |
+| `packages/core/src/chains/__tests__/adapter.test.ts`           | 20 assertions across `validateAddress`, amount roundtrips, NotImplementedError stubs, and registry memoisation.                                                                      |
+| `packages/core/src/chains/__tests__/chainkit-resolves.test.ts` | A1 smoke — `import('chainkit')` resolves and `await ready()` returns in ~25ms under vitest Node.                                                                                     |
 
 ### `ChainAdapter` interface shape
 
@@ -68,11 +75,11 @@ Hide chain-kit's Kotlin/JS ergonomics (`Companion.from(...)`, `Res<T,E>`, `await
 export interface ChainAdapter<TMessage = unknown, TSignature = unknown> {
     readonly chain: ChainId;
 
-    deriveAddress(args: { publicKey: Uint8Array; opts?: unknown }): Promise<string>;
     validateAddress(addr: string): boolean;
     formatAmount(amount: bigint, opts?: { decimals?: number }): string;
     parseAmount(human: string, opts?: { decimals?: number }): bigint;
 
+    deriveAddress(args: { publicKey: Uint8Array; opts?: unknown }): Promise<string>;
     estimateFee(args: { from: string; to: string; amount: bigint; data?: unknown }): Promise<Fee>;
     buildTransaction(args: BuildTxArgs): Promise<TMessage>;
     signTransaction(args: { message: TMessage; signer: ChainSigner }): Promise<TSignature>;
@@ -80,31 +87,46 @@ export interface ChainAdapter<TMessage = unknown, TSignature = unknown> {
 }
 ```
 
-`ChainSigner` is intentionally generic — see Track B.
+`ChainSigner` is a placeholder (`unknown`) in Phase 1 — Track B replaces it with a discriminated
+union (`{ type: 'cell' | 'eth-typed' | … }`) without touching the adapter shape.
 
 ### Tasks
 
--   [ ] **A1.** Add chain-kit `.tgz` dependency to `packages/core/package.json` (or workspace
-        alias). Smoke-test `import { ready } from 'chainkit'` resolves and `await ready()` works in
-        a unit test.
--   [ ] **A2.** Create directory + index files. Type-check passes empty.
--   [ ] **A3.** Implement `ensureReady()` and `unwrap()`. Unit-tested.
--   [ ] **A4.** Implement `TonAdapter` wrapping current code paths. **Crucial:**
-        `TonAdapter.signTransaction` must call into the same signer instance returned by
-        `getSigner()` — Track B owns the factory; A4 just adapts the interface.
--   [ ] **A5.** Stub EVM/BTC/TRON/SOL adapters; document blocking issues in JSDoc.
--   [ ] **A6.** `getAdapter(chain: ChainId): ChainAdapter` registry. Throws on unknown chain. Used
-        by all downstream code.
--   [ ] **A7.** Tests: unit-test that `getAdapter('ton').validateAddress()` accepts known TON
-        addresses and rejects known-bad ones. Use throwaway fixture seed (per project memory — TON
-        testnet unreliable).
+-   [x] **A1.** Add chain-kit `.tgz` dependency to `packages/core/package.json` and smoke-test that
+        `import { ready } from 'chainkit'` resolves and `await ready()` returns. `ready()` is ~25ms
+        under Node CJS — no `wallet-core.wasm` fetch shim needed (that's browser-only).
+-   [x] **A2.** Scaffold `index.ts`, `types.ts`, `ready.ts`, `result.ts`, `adapter.ts`. Five files.
+-   [x] **A3.** `ensureReady()` memoises into a single shared promise; `unwrap()` translates
+        `Res<T,E>` into a regular thrown `Error`. Exercised via the adapter tests.
+-   [x] **A4.** `ChainkitAdapter` class, parameterised by `ChainId`:
+    -   `validateAddress` → `chainkit.Address.Companion.from(addr, chainOf(this.chain)) != null` for
+        ton/evm/btc/tron; `false` for sol (chain-kit lacks the module).
+    -   `formatAmount` / `parseAmount` → static decimals table
+        `{ ton:9, evm:18, btc:8, tron:6, sol:9 }`, with `opts.decimals` override for jettons /
+        ERC-20.
+    -   `deriveAddress` → `throw NotImplementedError`. TON uses `walletContract()` (Track C); other
+        chains wait on Phase 2+.
+    -   `signTransaction`, `buildTransaction`, `estimateFee`, `broadcast` →
+        `throw NotImplementedError` with phase pointers (TON sign → Track B; everything else → Phase
+        2+).
+-   [x] **A5.** `getAdapter(chain)`: `Map<ChainId, ChainAdapter>` memo in `index.ts`;
+        `buildAdapter(chain)` constructs the adapter on first access. The `chainOf()` switch is
+        TS-exhaustive over `ChainId`, so adding a chain id forces a compile error here.
+-   [x] **A6.** Tests: 20 adapter assertions in `packages/core/src/chains/__tests__/adapter.test.ts`
+        covering `validateAddress` per chain (good address + garbage + cross-chain rejection +
+        sol-throws), amount roundtrips per chain with default decimals, NotImplementedError contract
+        on every Phase 1 stub method per chain, and registry memoisation. Full core suite is now 189
+        tests (was 167 before Track G, 183 after the first cut of Track A). All green; the 62 signer
+        snapshots remain byte-identical.
 
-### Done when
+### Done
 
 -   `import { getAdapter } from '@tonkeeper/core/dist/chains'` works from `uikit`.
--   `getAdapter('ton')` returns a working adapter; other chains return stubs that throw with a clear
-    message.
--   No existing TON behavior is routed through the adapter yet (that's track B → onwards).
+-   `getAdapter('ton'|'evm'|'btc'|'tron')` returns a chain-kit-backed adapter that validates
+    addresses and formats amounts; `getAdapter('sol')` returns an adapter that throws on validate
+    (chain-kit alpha lacks the module).
+-   `deriveAddress` and the write-side methods throw `NotImplementedError` everywhere — no existing
+    TON behaviour is routed through the adapter yet (that's Track B → onwards).
 
 ---
 
@@ -406,8 +428,8 @@ Track progress by milestone, not week. Each milestone gates the next; don't skip
 
 1. **M1 — Harness in place.** ✅ Track G complete: snapshot harness running green on main against
    current code. Pinned baseline.
-2. **M2 — Facade ready.** Track A complete: chain-kit `.tgz` resolves; `getAdapter('ton')` returns a
-   working adapter; other chains stub clearly.
+2. **M2 — Facade ready.** ✅ Track A complete: chain-kit `.tgz` resolves; `getAdapter('ton')`
+   returns a working adapter; other chains stub clearly.
 3. **M3 — Signer factory.** Track B complete: `getSigner()` is delegation-only (~20 lines); all
    snapshot tests green; manual smoke-test of TON send on all 4 apps passes.
 4. **M4 — Contract factory.** Track C complete: `walletContract()` is delegation-only; snapshots

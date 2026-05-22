@@ -4666,6 +4666,7 @@ __metadata:
     aes-js: "npm:^3.1.2"
     bignumber.js: "npm:^9.1.1"
     bip39: "npm:^3.1.0"
+    chainkit: "file:/Users/nataliastus/.npm_local/chainkit/chainkit-0.0.1-alpha1.tgz"
     crc-32: "npm:^1.2.2"
     ethers: "npm:^6.13.4"
     js-yaml: "npm:^4.1.0"
@@ -8655,6 +8656,17 @@ __metadata:
     loupe: "npm:^3.1.0"
     pathval: "npm:^2.0.0"
   checksum: 10/0d0ef63106083b05c7ba510697cd9991a02b8df5984a7d010ab4af10205c7a1f27d1c06bfa4679540894295ac4dcc22aa2a281e2e4cfe5133c1db379626689a2
+  languageName: node
+  linkType: hard
+
+"chainkit@file:/Users/nataliastus/.npm_local/chainkit/chainkit-0.0.1-alpha1.tgz::locator=%40tonkeeper%2Fcore%40workspace%3Apackages%2Fcore":
+  version: 0.0.1-alpha1
+  resolution: "chainkit@file:/Users/nataliastus/.npm_local/chainkit/chainkit-0.0.1-alpha1.tgz#/Users/nataliastus/.npm_local/chainkit/chainkit-0.0.1-alpha1.tgz::hash=d73e3b&locator=%40tonkeeper%2Fcore%40workspace%3Apackages%2Fcore"
+  dependencies:
+    "@js-joda/core": "npm:3.2.0"
+    "@trustwallet/wallet-core": "npm:4.6.0"
+    ws: "npm:8.18.3"
+  checksum: 10/fc798d591d3330cffc0062be8b67587aad935892c0566a2b38ea9d6595d924ab50970b4530d21bc41a32937ae116c0e4fe7c36b465b024e1c1b6c136f72c955e
   languageName: node
   linkType: hard
 
