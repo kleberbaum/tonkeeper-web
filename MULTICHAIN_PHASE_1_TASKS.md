@@ -130,7 +130,7 @@ union (`{ type: 'cell' | 'eth-typed' | … }`) without touching the adapter shap
 
 ---
 
-## Track B — Signer factory extraction
+## Track B — Signer factory extraction ✅
 
 **Depends on:** A (uses `ChainAdapter`), G (snapshot harness gating). **Touches:**
 `packages/uikit/src/state/mnemonic.ts:267-433` (the 157-line switch).
@@ -167,39 +167,42 @@ export type SignerFactory = (args: SignerFactoryArgs) => Promise<ChainSigner>;
 
 ### Tasks
 
--   [ ] **B1.** Move existing `Signer` and `CellSigner` types into
-        `packages/core/src/service/sign/types.ts`. Make `ChainSigner` a discriminated union
-        containing the old `CellSigner` as the `'cell'` variant. Keep old exports as aliases for one
-        PR to avoid touching every consumer simultaneously.
--   [ ] **B2.** Create `packages/core/src/service/sign/registry.ts`:
-    ```ts
-    type Key = `${Account['type']}:${ChainId}`;
-    const registry = new Map<Key, SignerFactory>();
-    export function register(key: Key, factory: SignerFactory) { ... }
-    export function resolve(args: SignerFactoryArgs): Promise<ChainSigner> { ... }
-    ```
--   [ ] **B3.** Extract each `case` from `getSigner()` (lines 282–423) into its own module under
-        `packages/core/src/service/sign/strategies/ton/`:
-    -   `ton-only-signer.ts` (was `case 'ton-only'`)
-    -   `ledger-ton-signer.ts` (was `case 'ledger'`)
-    -   `keystone-ton-signer.ts` (was `case 'keystone'`)
-    -   `mam-ton-signer.ts` (was `case 'mam'`)
-    -   `mnemonic-ton-signer.ts` (was `case 'mnemonic'` / `case 'testnet'`)
-    -   `sk-ton-signer.ts` (was `case 'sk'`)
-    -   `watch-only-signer.ts` (was `case 'watch-only'`)
-    -   `multisig-signer.ts` (was `case 'ton-multisig'`)
--   [ ] **B4.** Register each strategy under its `(account.type, 'ton')` key at module-init time.
--   [ ] **B5.** Replace `getSigner()` body with a single call to
-        `resolve({ sdk, accountId, chain: 'ton', walletId, options })`. Original function signature
-        unchanged — callers don't touch.
--   [ ] **B6.** Run snapshot-test harness (track G) against the refactored `getSigner()` — must
-        produce byte-identical BOCs vs the pre-refactor version.
--   [ ] **B7.** Stub registrations for `(account.type, 'evm' | 'btc' | 'tron' | 'sol')` that throw
-        `NotImplemented` with a clear "Phase 2" message. This way callers can already start wiring
-        up chain-aware code paths without runtime crashes from missing keys.
--   [ ] **B8.** Move `getTronSigner()` (line 435+) into `strategies/tron/legacy-tron-signer.ts` but
-        **keep it called via the existing TRON code paths** — don't unify with the new factory yet.
-        Phase 3 replaces TRON.
+-   [x] **B1.** `Signer`, `CellSigner`, `LedgerSigner`, `TronSigner`, `MultiTransactionsSigner` now
+        live in `packages/core/src/service/sign/types.ts`. `ChainSigner = CellSigner | LedgerSigner`
+        is the multichain union (Phase 1 only the two TON variants populated). `entries/signer.ts`
+        is a thin re-export shim so the dozen existing call sites in core/uikit keep working.
+        `SignerFactoryArgs` and `SignerFactory` shapes match the prescription.
+-   [x] **B2.** `packages/core/src/service/sign/registry.ts` with
+        `register(accountType, chain, factory)` and
+        `resolve({sdk, accountId, accountType, chain, walletId, options})`. Unregistered
+        `(accountType, chain)` pairs throw a clear `Error("...Phase 2+...")` — covers B7's intent
+        without needing 36 explicit stubs.
+-   [x] **B3.** Eight TON strategies extracted to `packages/core/src/service/sign/strategies/ton/`:
+        `ton-only-signer.ts`, `ledger-ton-signer.ts`, `keystone-ton-signer.ts`, `mam-ton-signer.ts`,
+        `mnemonic-ton-signer.ts` (one module, two registrations — `mnemonic` and `testnet` share the
+        body), `sk-ton-signer.ts`, `watch-only-signer.ts`, `multisig-signer.ts`. A `_shared.ts`
+        helper centralises the `loadAccountOfType` / `pickWallet` narrowing so each strategy is ~20
+        lines.
+-   [x] **B4.** `strategies/ton/index.ts` exposes `registerTonStrategies()` (idempotent guard);
+        `factory.ts` invokes it at module load.
+-   [x] **B5.** `uikit/state/mnemonic.ts:getSigner` is now a 4-line delegation to
+        `coreGetSigner(sdk, accountId, options)`. Original public signature unchanged, so the
+        existing `useGetAccountSigner` hook and every direct caller (web/extension/desktop/mobile)
+        keeps working untouched. The MAM/keystone/signer-deeplink/web vs non-web branches landed in
+        the per-strategy modules verbatim.
+-   [x] **B6.** Snapshot harness still green: 62 BOC snapshots byte-identical across all fixture ×
+        WalletVersion × Network combos. 189 core tests pass total. All 9 workspace typechecks pass.
+        ESLint clean across the new sign/ tree and the slimmed mnemonic.ts.
+-   [x] **B7.** `resolve()` throws
+        `Error("Signer strategy not registered for account type X on chain Y. TON strategies land in Phase 1; other chains in Phase 2+.")`
+        for any unregistered `(accountType, chain)`. The phrase "Phase 2+" is the search anchor;
+        callers wiring chain switches get a clear runtime failure instead of an opaque undefined
+        lookup.
+-   [x] **B8.** `getTronSigner()` body relocated to
+        `packages/core/src/service/sign/strategies/tron/legacy-tron-signer.ts`.
+        `uikit/state/mnemonic.ts` re-exports it from the new location, so `useTronSender.ts` and
+        every other call site is unchanged. Not unified with the registry — Phase 3 replaces TRON
+        wholesale, so the legacy shape stays put.
 
 ### Risk callouts
 
@@ -212,11 +215,17 @@ export type SignerFactory = (args: SignerFactoryArgs) => Promise<ChainSigner>;
 -   **`signer-deeplink` web vs non-web branch** (lines 296–338) is platform-dependent and the most
     surprising path. Snapshot-test it on both targets.
 
-### Done when
+### Done
 
--   `mnemonic.ts:getSigner()` shrinks from ~165 lines to ~20.
--   All existing signing call sites work unchanged.
--   Snapshot harness passes for every `(account.type, ton)` × every supported `WalletVersion`.
+-   `mnemonic.ts:getSigner()` shrunk from 167 lines to 4 (delegation only).
+-   All existing signing call sites work unchanged — `useGetAccountSigner`, `useTronSender`,
+    `tonConnect.ts`, `Recovery.tsx`, `wallet.ts`, etc. were not touched.
+-   Snapshot harness passes for every `(account.type, ton) × WalletVersion × Network` (62 BOC
+    snapshots, byte-identical). 189 core tests green; 9 workspace typechecks green.
+-   `core/src/service/sign/` is the new home for the registry (`registry.ts`), the entry-point
+    factory (`factory.ts`), the 8 TON strategies (`strategies/ton/*.ts`), the relocated legacy TRON
+    signer (`strategies/tron/legacy-tron-signer.ts`), and the shared helpers (`secrets.ts`,
+    `pairing.ts`, `meta-keys.ts`, `types.ts`).
 
 ---
 
@@ -430,8 +439,9 @@ Track progress by milestone, not week. Each milestone gates the next; don't skip
    current code. Pinned baseline.
 2. **M2 — Facade ready.** ✅ Track A complete: chain-kit `.tgz` resolves; `getAdapter('ton')`
    returns a working adapter; other chains stub clearly.
-3. **M3 — Signer factory.** Track B complete: `getSigner()` is delegation-only (~20 lines); all
-   snapshot tests green; manual smoke-test of TON send on all 4 apps passes.
+3. **M3 — Signer factory.** ✅ Track B complete: `getSigner()` is delegation-only (4 lines); all 62
+   snapshot tests green; 189 core tests pass; 9 workspace typechecks pass. Manual smoke-test of TON
+   send on all 4 apps remains pre-merge.
 4. **M4 — Contract factory.** Track C complete: `walletContract()` is delegation-only; snapshots
    still green.
 5. **M5 — Paths centralized.** Track D complete: `m/44'/607'/0'` appears in exactly one file;
