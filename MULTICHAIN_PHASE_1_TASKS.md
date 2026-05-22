@@ -229,7 +229,7 @@ export type SignerFactory = (args: SignerFactoryArgs) => Promise<ChainSigner>;
 
 ---
 
-## Track C — Wallet contract factory
+## Track C — Wallet contract factory ✅
 
 **Depends on:** A, G. **Touches:** `packages/core/src/service/wallet/contractService.ts`.
 
@@ -240,27 +240,38 @@ its existing `WalletContractVxxx` path; other chains stub out and throw.
 
 ### Tasks
 
--   [ ] **C1.** Create `packages/core/src/service/wallet/contracts/types.ts` with
-        `WalletContractStrategy<TWallet>` interface:
-    ```ts
-    export interface WalletContractStrategy<TWallet = unknown> {
-        chain: ChainId;
-        create(args: { wallet: TWallet; network: Network }): WalletContractLike;
-    }
-    ```
-    `WalletContractLike` is the minimal interface today's TON code uses (`address`, `init`,
-    `createTransfer`, `createRequest` for V5).
--   [ ] **C2.** Move the existing TON switch into
-        `packages/core/src/service/wallet/contracts/ton-strategy.ts`. Move the `const workchain = 0`
-        constant into this module — out of the top-level file.
--   [ ] **C3.** Create a registry similar to track B's: `register(chain, strategy)`,
-        `getStrategy(chain)`.
--   [ ] **C4.** Replace `walletContractFromState()` body with a delegation to
-        `getStrategy(wallet.network === Network.TESTNET ? 'ton' : 'ton').create(...)` — note
-        `network` is now an arg, not a global assumption.
--   [ ] **C5.** Stub EVM/BTC/TRON/SOL strategies that throw `NotImplemented`.
--   [ ] **C6.** Run snapshot harness — every `(WalletVersion, Network)` combo must produce identical
-        state-init BOCs.
+-   [x] **C1.** `packages/core/src/service/wallet/contracts/types.ts` defines a generic
+        `WalletContractStrategy<TArgs, TContract>` (`chain: ChainId`,
+        `create(args: TArgs): TContract`). The MD's prescribed `WalletContractLike` structural
+        interface was downgraded to a documentary aspiration — gasless / battery / two-fa senders
+        downcast the result to `WalletContractV5R1`, `externalMessage()` consumes the concrete union
+        directly, so narrowing the return now would break those casts. Phase 2 can tighten this once
+        the casts are cleaned up.
+-   [x] **C2.** `packages/core/src/service/wallet/contracts/ton-strategy.ts` hosts
+        `tonWalletContractStrategy` — the `WalletVersion` switch and `const workchain = 0` moved
+        verbatim from the top-level file. Exports `TonWalletContractArgs` and the
+        `TonWalletContract` union (the same five `ReturnType<typeof WalletContractV*.create>`
+        shapes) for typed callers.
+-   [x] **C3.** `packages/core/src/service/wallet/contracts/registry.ts` mirrors the sign registry:
+        `register(chain, strategy)`, `getStrategy<TArgs, TContract>(chain)`, plus
+        `_resetRegistryForTests()` for parity. Unregistered chains throw a clear "Phase 2+" `Error`
+        instead of stubbing out 4 explicit throw-only strategies.
+-   [x] **C4.** `contractService.ts` is now 14 lines of delegation around the strategy:
+        `walletContract(publicKey, version, network)` →
+        `getStrategy('ton').create({ publicKey, version, network })`;
+        `walletContractFromState(wallet)` →
+        `walletContract(wallet.publicKey, wallet.version, wallet.network ?? Network.MAINNET)`.
+        Public `WalletContract` type alias re-exports `TonWalletContract`, so the
+        `as WalletContractV5R1` downcasts in gasless / battery / two-fa senders keep compiling
+        unchanged.
+-   [x] **C5.** No stub strategies registered for EVM / BTC / TRON / SOL — `getStrategy()` throws
+        `Error("Wallet contract strategy not registered for chain \"X\". TON lands in Phase 1; other chains in Phase 2+.")`
+        for any unregistered chain. A new `contracts/__tests__/registry.test.ts` pins this message
+        across all four non-TON chain ids (search anchor: "Phase 2+").
+-   [x] **C6.** 194 core tests pass (62 sign-harness BOCs byte-identical, +5 new registry tests).
+        All 9 workspace typechecks pass via `yarn turbo typecheck`. ESLint clean across the new
+        `contracts/` tree and the slimmed `contractService.ts` (only a pre-existing `==` warning
+        survives, inside the untouched `estimateWalletContractExecutionGasFee`).
 
 ### Risk callouts
 
@@ -269,11 +280,19 @@ its existing `WalletContractVxxx` path; other chains stub out and throw.
 -   `estimateWalletContractExecutionGasFee()` (line 76+) uses `WalletVersion` directly. Leave it
     untouched in Phase 1 — it's TON-specific by design; move to TON strategy in Phase 2.
 
-### Done when
+### Done
 
--   `contractService.ts` top-level file is ~30 lines (delegation only).
--   TON snapshot harness identical pre/post.
--   Other chains stub clearly.
+-   `contractService.ts` shrunk from 178 lines to 138 — and the contract-factory portion is now a
+    14-line delegation (the bulk of the remaining lines is the untouched gas-fee estimator, per MD
+    scope).
+-   Snapshot harness identical pre/post: all 62 BOCs across
+    `(FixtureKind × WalletVersion × Network)` re-produced byte-for-byte through the new delegation
+    path.
+-   Non-TON chains throw a clear "Phase 2+" error from `getStrategy()`; new registry test pins the
+    message for evm / btc / tron / sol.
+-   `core/src/service/wallet/contracts/` is the new home for the registry (`registry.ts`), the TON
+    strategy (`ton-strategy.ts`), the strategy interface (`types.ts`), and the aggregator that
+    performs the load-time `register('ton', ...)` (`index.ts`).
 
 ---
 
@@ -442,8 +461,9 @@ Track progress by milestone, not week. Each milestone gates the next; don't skip
 3. **M3 — Signer factory.** ✅ Track B complete: `getSigner()` is delegation-only (4 lines); all 62
    snapshot tests green; 189 core tests pass; 9 workspace typechecks pass. Manual smoke-test of TON
    send on all 4 apps remains pre-merge.
-4. **M4 — Contract factory.** Track C complete: `walletContract()` is delegation-only; snapshots
-   still green.
+4. **M4 — Contract factory.** ✅ Track C complete: `walletContract()` is a 5-line delegation into
+   `getStrategy('ton').create(...)`; 62 sign-harness snapshots still byte-identical; 194 core tests
+   pass; 9 workspace typechecks pass. Manual smoke-test of TON send on all 4 apps remains pre-merge.
 5. **M5 — Paths centralized.** Track D complete: `m/44'/607'/0'` appears in exactly one file;
    derivation regression test green.
 6. **M6 — New scaffolding.** Tracks E + F complete: hook + flag plumbed but unused in prod.
