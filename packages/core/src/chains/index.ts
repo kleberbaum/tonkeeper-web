@@ -16,6 +16,8 @@ export { ensureReady } from './ready';
 export { unwrap } from './result';
 export type { ChainKitRes } from './result';
 export { DEFAULT_BIP44_PATH, pathFor } from './derivation';
+export { selectActiveWalletForChain } from './wallet-selector';
+export type { WalletForChain } from './wallet-selector';
 
 const cache = new Map<ChainId, ChainAdapter>();
 

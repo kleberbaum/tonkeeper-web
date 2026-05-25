@@ -45,6 +45,7 @@ import {
     setActiveWalletConfig
 } from '@tonkeeper/core/dist/service/wallet/configService';
 import { walletContract } from '@tonkeeper/core/dist/service/wallet/contractService';
+import { ChainId, selectActiveWalletForChain } from '@tonkeeper/core/dist/chains';
 import {
     accountBySignerLink,
     checkMamAccountForDeprecatedTronAddress,
@@ -146,6 +147,22 @@ export const useActiveStandardTonWallet = () => {
         throw new Error('Wallet is not standard');
     }
     return wallet;
+};
+
+/**
+ * Phase 1 multichain scaffolding. Returns the active wallet for the given
+ * chain on the current account. For all legacy account types this is a
+ * thin wrapper around `useActiveWallet()` — chain `'ton'` returns the
+ * active TON wallet unchanged, every other chain returns `undefined`.
+ *
+ * No production callers in Phase 1; Phase 2 will migrate consumers
+ * chain-by-chain. See `MULTICHAIN_PHASE_1_TASKS.md` Track E and
+ * `packages/core/src/chains/wallet-selector.ts` for the pure selector +
+ * tests.
+ */
+export const useActiveWalletForChain = <C extends ChainId>(chain: C) => {
+    const account = useActiveAccount();
+    return selectActiveWalletForChain(account.activeTonWallet, chain);
 };
 
 export const useMutateActiveAccount = () => {

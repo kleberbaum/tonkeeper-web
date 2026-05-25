@@ -353,9 +353,10 @@ lines 114 and 154). Move into a per-chain config map; existing TON paths unchang
 
 ---
 
-## Track E — `useActiveWalletForChain(chain)` hook
+## Track E — `useActiveWalletForChain(chain)` hook ✅
 
-**Depends on:** nothing. **Touches:** `packages/uikit/src/state/wallet.ts`.
+**Depends on:** nothing. **Touches:** `packages/uikit/src/state/wallet.ts`,
+`packages/core/src/chains/`.
 
 ### Goal
 
@@ -365,20 +366,51 @@ returns the TON wallet unchanged. Unused in production yet — sets up Phase 2 c
 
 ### Tasks
 
--   [ ] **E1.** Add `useActiveWalletForChain(chain: ChainId)` in
-        `packages/uikit/src/state/wallet.ts`. Returns
-        `TonWalletStandard | EvmWallet | BtcWallet | TronWallet | SolWallet | undefined`.
--   [ ] **E2.** For legacy account types, implement:
-        `chain === 'ton' ? useActiveWallet() : undefined`.
--   [ ] **E3.** Add `useActiveWalletForChain('ton')` as an alias in unit tests verifying parity with
-        `useActiveWallet()`.
--   [ ] **E4.** **Do not** migrate any callers yet. Adding the hook is the entire scope; Phase 2/3
-        will migrate components one-by-one.
+-   [x] **E1.** Added `useActiveWalletForChain<C extends ChainId>(chain: C)` in
+        `packages/uikit/src/state/wallet.ts` (immediately after `useActiveStandardTonWallet`).
+        Generic return type `WalletForChain<C> | undefined` lets `useActiveWalletForChain('ton')`
+        type-narrow to `TonContract | undefined` at the call site without an `as` cast — Phase 2
+        will widen `WalletForChain` once `EvmWallet` / `BtcWallet` / `SolWallet` types land
+        (`TronWallet` already exists in core but Phase 1 returns `undefined` for it on purpose, per
+        E2).
+-   [x] **E2.** Body delegates to a pure selector in core:
+        `chain === 'ton' ? activeTonWallet : undefined`. The selector lives in
+        `packages/core/src/chains/wallet-selector.ts` so it can be unit-tested in core (the uikit
+        package has no vitest runner, only `tsc --noEmit`). Returns the active TON wallet by
+        reference — no defensive clone — matching `useActiveWallet()` parity exactly.
+-   [x] **E3.** `packages/core/src/chains/__tests__/wallet-selector.test.ts` covers 7 cases: the TON
+        parity assertion, reference identity (no clone), `it.each` over the four non-TON chains
+        asserting `undefined`, and the non-standard `TonContract` (multisig parent shape) case.
+        uikit has no test runner, so the parity invariant is pinned in core against the selector and
+        the hook is a 2-line `useActiveAccount() + selector` call — typecheck verifies the wiring.
+-   [x] **E4.** Zero production callers.
+        `grep -rn 'useActiveWalletForChain' packages/uikit/src apps/` returns only the export site.
+        Phase 2/3 migrates consumers.
 
-### Done when
+### Risk callouts
 
--   New hook exists, tested, but called nowhere in production code.
--   Storybook (if used) shows it returning expected values for fixture accounts.
+-   **`tronWallet` divergence:** some legacy accounts already carry a `tronWallet` (via
+    `DerivationItem.tronWallet`, gated by `isAccountTronCompatible`). The MD intentionally chose
+    `undefined` for `chain === 'tron'` here. The existing TRON lookup channel (`useTronWalletState`)
+    stays untouched, so Phase 1 does not change TRON behaviour. Phase 3 replaces TRON wholesale (per
+    the "Out of scope" list).
+-   **Generic return narrowing:** the conditional type returns `never` for non-TON chains, so
+    `useActiveWalletForChain('evm')` is statically `undefined`. Useful for catching dead branches at
+    compile time, but if Phase 2 widens `WalletForChain` _without_ updating the selector body, those
+    new chains will silently return `undefined` at runtime. The JSDoc on `WalletForChain` calls this
+    out so Phase 2 knows both ends need to move together.
+
+### Done
+
+-   Hook exposed from `packages/uikit/src/state/wallet.ts:151-165`, pure selector at
+    `packages/core/src/chains/wallet-selector.ts`, re-exported from `chains/index.ts`.
+-   **210 core tests pass** (203 prior + 7 new selector tests); 62 sign-harness BOC snapshots remain
+    byte-identical (proves Track E is purely additive).
+-   **9/9 workspace typechecks pass** via `yarn turbo typecheck` (~30s).
+-   **ESLint clean** across `chains/wallet-selector.ts`, `chains/__tests__/wallet-selector.test.ts`,
+    `chains/index.ts`, and the touched `uikit/state/wallet.ts` lines (one pre-existing `no-console`
+    warning at `wallet.ts:1021` predates this work).
+-   Zero production callers; ready for Phase 2 consumer migration.
 
 ---
 
@@ -480,7 +512,9 @@ Track progress by milestone, not week. Each milestone gates the next; don't skip
 5. **M5 — Paths centralized.** ✅ Track D complete: `m/44'/607'/0'` appears in exactly one source
    file (`packages/core/src/chains/derivation.ts`); 203 core tests pass including a new BIP39 → TON
    regression test pinned against the Track G snapshot harness; 9 workspace typechecks pass.
-6. **M6 — New scaffolding.** Tracks E + F complete: hook + flag plumbed but unused in prod.
+6. **M6 — New scaffolding.** Track E complete: `useActiveWalletForChain` hook exposed from
+   `packages/uikit/src/state/wallet.ts`, pure selector tested in core (210 core tests pass, 62 BOCs
+   byte-identical, 9/9 typechecks pass). Track F (multichainEnabled flag plumbing) still pending.
 7. **M7 — Phase 1 exit review.** Full app suite green on all 4 target apps; manual smoke test of
    send/receive/swap/buy on TON mainnet for each app; bundle size delta within agreed Phase 0
    budget. Sign-off before Phase 2 begins.
@@ -495,7 +529,7 @@ Track progress by milestone, not week. Each milestone gates the next; don't skip
 -   [ ] `getSigner()` is delegation-only (~20 lines).
 -   [ ] `walletContract()` is delegation-only.
 -   [ ] `m/44'/607'/0'` appears in exactly one file (`derivation.ts`).
--   [ ] `useActiveWalletForChain('ton')` returns the same wallet as `useActiveWallet()` for legacy
+-   [x] `useActiveWalletForChain('ton')` returns the same wallet as `useActiveWallet()` for legacy
         accounts.
 -   [ ] `multichainEnabled` flag plumbed; `false` in all prod builds.
 -   [ ] `getAdapter('ton')` returns a working adapter; other chains throw `NotImplemented` clearly.
