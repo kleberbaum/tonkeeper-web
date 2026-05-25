@@ -252,6 +252,7 @@ export const Loader: FC = () => {
         experimental: true,
         ios: false,
         defaultWalletVersion: WalletVersion.V5R1,
+        multichainEnabled: import.meta.env.VITE_MULTICHAIN_ENABLED === 'true',
         tracker: tracker?.track
     };
 

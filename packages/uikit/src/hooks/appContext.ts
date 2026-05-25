@@ -33,6 +33,16 @@ export interface IAppContext {
     hideFireblocks?: boolean;
     browserLength?: number;
     defaultWalletVersion: WalletVersion;
+    /**
+     * Phase 1 multichain plumbing. Required so each app makes an explicit
+     * choice; in production builds this is `false` everywhere. Toggling
+     * does nothing user-visible in Phase 1 — Phase 2+ gates the BIP39
+     * multichain create/import flow on this flag (legacy TON-standard and
+     * MAM paths remain available regardless). See
+     * `MULTICHAIN_PHASE_1_TASKS.md` Track F and `MULTICHAIN_PLAN.md` line
+     * 47 for the flag's scope.
+     */
+    multichainEnabled: boolean;
     tracker: AnalyticsTracker | undefined;
 }
 
@@ -53,6 +63,7 @@ export const AppContext = React.createContext<IAppContext>({
     proFeatures: false,
     hideQrScanner: false,
     defaultWalletVersion: WalletVersion.V5R1,
+    multichainEnabled: false,
     tracker: undefined
 });
 

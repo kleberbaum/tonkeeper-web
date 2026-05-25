@@ -414,28 +414,62 @@ returns the TON wallet unchanged. Unused in production yet — sets up Phase 2 c
 
 ---
 
-## Track F — `multichainEnabled` AppContext flag
+## Track F — `multichainEnabled` AppContext flag ✅
 
 **Depends on:** nothing. **Touches:** `packages/uikit/src/hooks/appContext.ts`, root component of
-each of the 4 apps.
+each of the 4 apps, plus their respective constants/env files.
 
 ### Tasks
 
--   [ ] **F1.** Add `multichainEnabled: boolean` to `IAppContext` in
-        `packages/uikit/src/hooks/appContext.ts`.
--   [ ] **F2.** In each app's root component, source the value:
-    -   `apps/web` — from `import.meta.env.VITE_MULTICHAIN_ENABLED`
-    -   `apps/desktop` — from Electron main process config (passed via IPC at startup) OR same Vite
-        env
-    -   `apps/extension` — from a constant in `apps/extension/src/config.ts`
-    -   `apps/mobile` — from Capacitor config or Vite env
--   [ ] **F3.** Default to `false` everywhere except local dev (`.env.local`).
--   [ ] **F4.** No UI consumers yet. Just plumbing.
+-   [x] **F1.** Added `multichainEnabled: boolean` (required, not optional) to `IAppContext` in
+        `packages/uikit/src/hooks/appContext.ts`, plus `multichainEnabled: false` in the
+        `createContext` default. Required-not-optional is deliberate — it forces every app to make
+        an explicit choice rather than silently inheriting `undefined`. JSDoc on the field points to
+        MULTICHAIN_PLAN.md line 47 for scope (flag gates the new BIP39 multichain create/import
+        flow; legacy TON-standard and MAM paths stay available regardless).
+-   [x] **F2.** Sourced per app:
+    -   **`apps/web`** — `import.meta.env.VITE_MULTICHAIN_ENABLED === 'true'` (Vite-native).
+        `apps/web/src/vite-env.d.ts` declares the env var so TS picks it up.
+    -   **`apps/desktop`** — `MULTICHAIN_ENABLED` constant in `apps/desktop/src/constants.ts`
+        (electron-forge uses webpack, not Vite; `import.meta.env` isn't ergonomic here). Phase 2+
+        can swap this for webpack DefinePlugin wiring or main-process IPC without changing the
+        consumer site — JSDoc on the constant notes both options.
+    -   **`apps/extension`** — `MULTICHAIN_ENABLED` constant in `apps/extension/src/constants.ts`
+        (same rationale as desktop; MD prescribed `config.ts`, but `constants.ts` already exists and
+        is the idiomatic home).
+    -   **`apps/mobile`** — `import.meta.env.VITE_MULTICHAIN_ENABLED === 'true'` (mobile is
+        Capacitor over Vite, so same pattern as web). `apps/mobile/src/vite-env.d.ts` declares the
+        env var.
+-   [x] **F3.** Defaults to `false` everywhere — every app's source committed with the safe value.
+        Web/mobile flip to `true` via `VITE_MULTICHAIN_ENABLED=true` in `.env.local`; extension and
+        desktop flip the source constant locally.
+-   [x] **F4.** Zero UI consumers — `grep -rn 'multichainEnabled' packages/uikit/src apps/` returns
+        only the declaration site and the four context literals.
 
-### Done when
+### Risk callouts
 
--   `useAppContext().multichainEnabled` returns `false` in all production builds, `true` when dev
-    opts in.
+-   **TWA intentionally skipped.** `apps/twa` is excluded from typecheck (`project_twa_unsupported`
+    memory) and is on the deprecation track; adding the flag there would be the kind of "migrate twa
+    to match uikit refactors" the memory warns against. The TWA context literal is missing the
+    now-required `multichainEnabled` field — invisible because TWA isn't typechecked, but anyone
+    re-enabling TWA's typecheck later will see a clear single-line fix.
+-   **Webpack vs Vite env strings.** Vite injects `import.meta.env.VITE_*` as strings, so the
+    consumer compares `=== 'true'`. The webpack-based apps (desktop, extension) use a raw `boolean`
+    constant — different ergonomics but the field type in `IAppContext` is `boolean` everywhere.
+
+### Done
+
+-   `useAppContext().multichainEnabled` returns `false` in all production builds; dev opt-in is a
+    one-line env var (`VITE_MULTICHAIN_ENABLED=true` in `.env.local`) for web/mobile or a constant
+    flip in `apps/{desktop,extension}/src/constants.ts`.
+-   `IAppContext.multichainEnabled` is a required `boolean` — every app's root component had to
+    explicitly populate it, so future apps can't silently inherit `undefined`.
+-   **9/9 workspace typechecks pass** via `yarn turbo typecheck` (~38s).
+-   **210 core tests pass**; 62 sign-harness BOC snapshots remain byte-identical (Track F is purely
+    additive scaffolding).
+-   **ESLint clean** across `appContext.ts`, the four `App.tsx` files, both `constants.ts`, and both
+    `vite-env.d.ts` files (one pre-existing `react-hooks/exhaustive-deps` warning at
+    `extension/App.tsx:298` predates this work).
 
 ---
 
@@ -512,9 +546,11 @@ Track progress by milestone, not week. Each milestone gates the next; don't skip
 5. **M5 — Paths centralized.** ✅ Track D complete: `m/44'/607'/0'` appears in exactly one source
    file (`packages/core/src/chains/derivation.ts`); 203 core tests pass including a new BIP39 → TON
    regression test pinned against the Track G snapshot harness; 9 workspace typechecks pass.
-6. **M6 — New scaffolding.** Track E complete: `useActiveWalletForChain` hook exposed from
-   `packages/uikit/src/state/wallet.ts`, pure selector tested in core (210 core tests pass, 62 BOCs
-   byte-identical, 9/9 typechecks pass). Track F (multichainEnabled flag plumbing) still pending.
+6. **M6 — New scaffolding.** ✅ Tracks E + F complete: `useActiveWalletForChain` hook exposed from
+   `packages/uikit/src/state/wallet.ts` with a pure selector tested in core;
+   `multichainEnabled: boolean` required field added to `IAppContext`, default `false`, sourced per
+   app via Vite env (web/mobile) or `constants.ts` (desktop/extension), TWA skipped per memory. 210
+   core tests pass, 62 BOCs byte-identical, 9/9 typechecks pass.
 7. **M7 — Phase 1 exit review.** Full app suite green on all 4 target apps; manual smoke test of
    send/receive/swap/buy on TON mainnet for each app; bundle size delta within agreed Phase 0
    budget. Sign-off before Phase 2 begins.
@@ -531,7 +567,7 @@ Track progress by milestone, not week. Each milestone gates the next; don't skip
 -   [ ] `m/44'/607'/0'` appears in exactly one file (`derivation.ts`).
 -   [x] `useActiveWalletForChain('ton')` returns the same wallet as `useActiveWallet()` for legacy
         accounts.
--   [ ] `multichainEnabled` flag plumbed; `false` in all prod builds.
+-   [x] `multichainEnabled` flag plumbed; `false` in all prod builds.
 -   [ ] `getAdapter('ton')` returns a working adapter; other chains throw `NotImplemented` clearly.
 -   [ ] No user-visible changes in any app (manual smoke test of send/receive/swap/buy on TON
         mainnet for each app).

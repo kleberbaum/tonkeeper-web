@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MULTICHAIN_ENABLED } from './constants';
 import { localizationFrom } from '@tonkeeper/core/dist/entries/language';
 import { getApiConfig, setProApiUrl } from '@tonkeeper/core/dist/entries/network';
 import { WalletVersion } from '@tonkeeper/core/dist/entries/wallet';
@@ -270,6 +271,7 @@ export const Loader: FC = React.memo(() => {
         hideMultisig: true,
         hideFireblocks: true,
         defaultWalletVersion: WalletVersion.V5R1,
+        multichainEnabled: MULTICHAIN_ENABLED,
         tracker: tracker?.track
     };
 
