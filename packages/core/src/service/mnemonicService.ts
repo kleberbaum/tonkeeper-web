@@ -7,12 +7,11 @@ import {
     mnemonicValidate as validateStandardTonMnemonic
 } from '@ton/crypto';
 import { MnemonicType } from '../entries/password';
+import { pathFor } from '../chains/derivation';
 import { decrypt, encrypt } from './cryptoService';
 import { deriveED25519Path } from './ed25519';
 import { assertUnreachable } from '../utils/types';
 import { AccountSecret } from '../entries/account';
-
-const TON_DERIVATION_PATH = "m/44'/607'/0'";
 
 export const decryptWalletSecret = async (
     encryptedSecret: string,
@@ -109,9 +108,16 @@ export const validateBip39Mnemonic = async (mnemonic: string[]) => {
     return validBip39Mnemonic(mnemonic.join(' '));
 };
 
-async function bip39ToPrivateKey(mnemonic: string[]) {
+/**
+ * BIP-39 → ed25519 keypair using the TON derivation path by default. The
+ * `path` arg exists so future TON-multi-account flows can pass an
+ * alternate path. EVM / BTC / SOL do **not** route through this helper —
+ * they need their own curve (secp256k1 / ed25519-SLIP-0010) — see
+ * `chains/derivation.ts` for the path map and the scope warning.
+ */
+async function bip39ToPrivateKey(mnemonic: string[], path: string = pathFor('ton')) {
     const seed = await mnemonicToSeed(mnemonic.join(' '));
-    const seedContainer = deriveED25519Path(TON_DERIVATION_PATH, seed.toString('hex'));
+    const seedContainer = deriveED25519Path(path, seed.toString('hex'));
 
     return keyPairFromSeed(seedContainer.key);
 }
@@ -149,9 +155,14 @@ const tonMnemonicToEd25519Seed = async (mnemonic: string[]) => {
     return Buffer.from(seed.subarray(0, 32));
 };
 
-const bip39MnemonicToEd25519Seed = async (mnemonic: string[]) => {
+/**
+ * BIP-39 → 32-byte ed25519 seed (used to construct `nacl.sign.keyPair`).
+ * Same TON-default contract and same multi-curve caveat as
+ * {@link bip39ToPrivateKey}.
+ */
+const bip39MnemonicToEd25519Seed = async (mnemonic: string[], path: string = pathFor('ton')) => {
     const seed = await mnemonicToSeed(mnemonic.join(' '));
-    const seedContainer = deriveED25519Path(TON_DERIVATION_PATH, seed.toString('hex'));
+    const seedContainer = deriveED25519Path(path, seed.toString('hex'));
 
     return Buffer.from(seedContainer.key);
 };

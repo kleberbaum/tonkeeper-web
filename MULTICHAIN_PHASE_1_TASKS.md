@@ -296,47 +296,60 @@ its existing `WalletContractVxxx` path; other chains stub out and throw.
 
 ---
 
-## Track D — Derivation paths config
+## Track D — Derivation paths config ✅
 
-**Depends on:** A. **Touches:** `packages/core/src/service/mnemonicService.ts:15`,
-`packages/core/src/service/ed25519.ts` consumers.
+**Depends on:** A. **Touches:** `packages/core/src/service/mnemonicService.ts`,
+`packages/core/src/chains/`.
 
 ### Goal
 
-The string `"m/44'/607'/0'"` is hardcoded twice in `mnemonicService.ts` (lines 15, 114, 154). Move
-into a per-chain config map; existing TON paths unchanged.
+The string `"m/44'/607'/0'"` is hardcoded in `mnemonicService.ts` (a constant at line 15 reused at
+lines 114 and 154). Move into a per-chain config map; existing TON paths unchanged.
 
 ### Tasks
 
--   [ ] **D1.** Create `packages/core/src/chains/derivation.ts`:
-    ```ts
-    export const DEFAULT_BIP44_PATH: Record<ChainId, string> = {
-      ton: "m/44'/607'/0'",
-      evm: "m/44'/60'/0'/0/0",
-      btc: "m/84'/0'/0'/0/0",      // bech32 / native segwit
-      tron: "m/44'/195'/0'/0/0",
-      sol: "m/44'/501'/0'/0'"
-    };
-    export function pathFor(chain: ChainId, index = 0): string { ... }
-    ```
--   [ ] **D2.** Update `bip39ToPrivateKey()` (line 112) to accept a path arg, defaulting to
-        `pathFor('ton')`. Existing callers keep working.
--   [ ] **D3.** Update `bip39MnemonicToEd25519Seed()` (line 152) the same way.
--   [ ] **D4.** Add unit tests: derivation from a fixture BIP39 seed produces known TON address
-        (regression test).
--   [ ] **D5.** Document in a JSDoc that EVM/BTC/SOL **will not** go through these ed25519-specific
-        helpers — they have their own curves. The path map is shared but the derivation function is
-        per-chain.
+-   [x] **D1.** Created `packages/core/src/chains/derivation.ts` with
+        `DEFAULT_BIP44_PATH: Record<ChainId, string>` (TON / EVM / BTC / TRON / SOL canonical paths)
+        and `pathFor(chain, index = 0)`. `index !== 0` throws "Phase 2+" instead of silently
+        mis-deriving — Phase 1 only needs the default account on every chain.
+-   [x] **D2.** `bip39ToPrivateKey(mnemonic, path = pathFor('ton'))` — existing callers unchanged,
+        new TON-multi-account flows can pass an alternate path. JSDoc spells out that EVM / BTC /
+        SOL won't route through this helper (curve mismatch).
+-   [x] **D3.** Same treatment for `bip39MnemonicToEd25519Seed(mnemonic, path = pathFor('ton'))`.
+-   [x] **D4.** `packages/core/src/chains/__tests__/derivation.test.ts` — 9 assertions including a
+        regression test that derives the canonical abandon×11+about BIP39 fixture through
+        `mnemonicToKeypair(_, 'bip39')` and pins the resulting public-key hex against the value
+        already snapshotted by Track G (`mnemonic-bip39__V5R1__MAINNET.json`). A drift in the TON
+        path (dropped `'/0'`, wrong curve, etc.) fails this fast unit test before the slower
+        snapshot suite catches it.
+-   [x] **D5.** JSDoc on `DEFAULT_BIP44_PATH` carries a "Scope warning" explaining that the path
+        shape is shared but the _derivation function_ is curve-specific — EVM / BTC need secp256k1,
+        SOL needs ed25519-SLIP-0010, and TRON's legacy code (untouched in Phase 1) uses its own
+        ethers.js HD walk in `walletService.ts:tonMnemonicToTronMnemonic`. Both bip39 helpers carry
+        a JSDoc cross-reference.
 
 ### Risk callouts
 
--   Existing TRON derivation uses `m/44'/195'/0'/0` (no terminal `/0`). Confirm with chain-kit which
-    BIP44 convention is canonical before changing — non-trivial backwards compat risk.
+-   Existing TRON derivation uses `m/44'/195'/0'/0` (no terminal `/0`) in
+    `walletService.ts:tonMnemonicToTronMnemonic` — left untouched per Phase 1 scope (Phase 3
+    replaces TRON wholesale). The `DEFAULT_BIP44_PATH.tron` entry follows the standard BIP-44 layout
+    with the trailing `/0` so Phase 2+ has the canonical shape to start from; the legacy code path
+    doesn't consume the map yet, so this is documentation-only.
 
-### Done when
+### Done
 
--   No string `"m/44'/607'/0'"` outside `derivation.ts` (grep check in CI).
--   TON address derivation byte-identical to pre-refactor (unit-tested with fixture seed).
+-   The string `m/44'/607'/0'` lives in exactly one source file (`chains/derivation.ts`). The
+    regression test re-asserts the literal value to detect drift; that occurrence is the intentional
+    pin and not a duplicate definition.
+-   `mnemonicService.ts` no longer holds a `TON_DERIVATION_PATH` constant — both `bip39ToPrivateKey`
+    and `bip39MnemonicToEd25519Seed` resolve their default path via `pathFor('ton')`. Existing call
+    sites pass no path arg and continue to derive the same key.
+-   **203 core tests pass** (194 prior + 9 new derivation tests); the 62 sign-harness BOC snapshots
+    remain byte-identical (proves the BIP39 → ed25519 path is unchanged for every
+    `mnemonic-bip39 × WalletVersion × Network` combo).
+-   **9/9 workspace typechecks pass** via `yarn turbo typecheck`.
+-   **ESLint clean** across `chains/derivation.ts`, `chains/__tests__/derivation.test.ts`,
+    `chains/index.ts` (re-export added), and the slimmed `mnemonicService.ts`.
 
 ---
 
@@ -464,8 +477,9 @@ Track progress by milestone, not week. Each milestone gates the next; don't skip
 4. **M4 — Contract factory.** ✅ Track C complete: `walletContract()` is a 5-line delegation into
    `getStrategy('ton').create(...)`; 62 sign-harness snapshots still byte-identical; 194 core tests
    pass; 9 workspace typechecks pass. Manual smoke-test of TON send on all 4 apps remains pre-merge.
-5. **M5 — Paths centralized.** Track D complete: `m/44'/607'/0'` appears in exactly one file;
-   derivation regression test green.
+5. **M5 — Paths centralized.** ✅ Track D complete: `m/44'/607'/0'` appears in exactly one source
+   file (`packages/core/src/chains/derivation.ts`); 203 core tests pass including a new BIP39 → TON
+   regression test pinned against the Track G snapshot harness; 9 workspace typechecks pass.
 6. **M6 — New scaffolding.** Tracks E + F complete: hook + flag plumbed but unused in prod.
 7. **M7 — Phase 1 exit review.** Full app suite green on all 4 target apps; manual smoke test of
    send/receive/swap/buy on TON mainnet for each app; bundle size delta within agreed Phase 0
