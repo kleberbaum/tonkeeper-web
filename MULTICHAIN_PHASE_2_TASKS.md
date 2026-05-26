@@ -12,6 +12,13 @@ display TON / EVM / BTC / TRON addresses. No transactions yet. No migration. Exi
 accounts and the legacy TRON code path are byte-identical to Phase 1 end-state — the snapshot
 harness (Track G) still passes.
 
+**Redesign scope:** Phase 2 ships new UI surfaces (create, import, address display) **and** is the
+introduction point for Tailwind as the styling system going forward. Track Q below sets up the
+foundation; Tracks M/N/P build new screens in Tailwind from the start. Any legacy component edited
+in service of M/N/P gets ported from styled-components to Tailwind in the same PR — opportunistic
+migration, not a codebase-wide rewrite. Everything Phase 2 does not touch stays styled-components
+until a future redesign covers it.
+
 ---
 
 ## Non-negotiable invariants
@@ -39,6 +46,11 @@ regression by definition.
    to reach the new flows. Legacy creation / import stay reachable regardless of flag state.
 5. **TWA stays excluded.** The 4 target apps are web / desktop / extension / mobile. TWA is on the
    deprecation track (project memory `project_twa_unsupported`); no Phase 2 work touches it.
+6. **Styling migration is opportunistic, not wholesale.** Tailwind replaces styled-components only
+   for (a) new files under `packages/uikit/src/multichain/**` and (b) any existing component edited
+   as part of Track M/N/P. Everything else stays styled-components. There is no Phase 2 PR whose
+   diff is "migrate component X to Tailwind" without an accompanying multichain change — that's
+   scope creep and Phase 5 territory.
 
 ---
 
@@ -60,7 +72,9 @@ exceptions noted.
             │
   O. Registry wiring (multichain) ← needs I + K (and Phase 1 B/C)
             │
-  M. Create-multichain flow (UI)  ← needs I/J/K/L/O
+  Q. Tailwind setup + token bridge← blocks M/N/P; cross-platform CSS wiring
+            │
+  M. Create-multichain flow (UI)  ← needs I/J/K/L/O/Q
             │
   N. Import-multichain flow (UI)  ← needs M (reuses pieces)
             │
@@ -69,9 +83,11 @@ exceptions noted.
 
 **Exceptions:** L (IKeychainService) is cross-cutting and platform-touching — can slot in earlier if
 a context-switch is convenient (it has no dependency on H/I/J/K). K can move ahead of I/J if
-chain-kit's address-derivation surface is what's blocking design choices on the variant's shape. But
-H → I → J → O must stay in that order: each layer builds on the previous one's types or storage
-schema.
+chain-kit's address-derivation surface is what's blocking design choices on the variant's shape. Q
+(Tailwind) has no dependency on H/I/J/K/L/O — it can land at any point before M starts; doing it
+earlier lets the developer prototype designs against a real Tailwind setup while back-end tracks
+finish. But H → I → J → O must stay in that order: each layer builds on the previous one's types or
+storage schema.
 
 ---
 
@@ -475,11 +491,109 @@ paths (deriveAddress, contract construction) are wired.
 
 ---
 
+## Track Q — Tailwind setup + design-token bridge
+
+**Depends on:** nothing structurally — can land any time before M starts. **Touches:**
+`packages/uikit/package.json`, new `packages/uikit/tailwind.config.ts`, new
+`packages/uikit/src/styles/tailwind.css`, each app's CSS entry + PostCSS config (web / mobile /
+desktop / extension), `.eslintrc` for the new-code lint rule.
+
+### Goal
+
+Stand up Tailwind as the styling system for new multichain UI surfaces and for any legacy component
+edited during Phase 2 redesign work. The rule is opportunistic migration (per invariant #6): any
+component changed in service of Tracks M/N/P gets ported in the same PR; everything else stays
+styled-components. Two design systems coexist for the duration of Phase 2 — the design-token bridge
+in Q2 is what keeps them visually consistent.
+
+### Decisions baked in
+
+-   **Tailwind v3.x**, not v4. v4 is still cutting changes in plugin/theme APIs that affect
+    component libs; v3 is the stable target for React component libraries today. Re-evaluate at
+    Phase 5.
+-   **`darkMode: 'class'`** paired with the existing theme provider's root class toggle — cleanest
+    bridge to the live light/dark system.
+-   **Tailwind lives in `packages/uikit`**, not per-app, so design tokens are defined once and every
+    consumer app gets the same setup. Apps add a single CSS import + PostCSS config.
+
+### Tasks
+
+-   [ ] **Q1.** Install Tailwind v3 in `packages/uikit`: add `tailwindcss`, `postcss`,
+        `autoprefixer` to `devDependencies`. Confirm peer-dep compatibility with the existing build
+        toolchain (uikit ships as `dist/` from `tsc`; Tailwind's PostCSS pipeline runs in the
+        consuming apps, not in uikit's compile step).
+-   [ ] **Q2.** `packages/uikit/tailwind.config.ts`:
+        `content: ['<uikit src glob>', '<apps src globs>']`; `theme.extend` populated from the
+        existing `theme` object (`packages/uikit/src/styles/defaultTheme.ts` and friends) — colors,
+        spacing scale, font family, border radii, shadows. This is the canonical bridge: a Tailwind
+        component and a styled-components component sitting side-by-side must render byte-identical
+        pixels.
+-   [ ] **Q3.** `packages/uikit/src/styles/tailwind.css` with
+        `@tailwind base; @tailwind components; @tailwind utilities;` plus `@layer base` overrides
+        matching the existing global styles (font smoothing, scrollbar styling, etc.). This file is
+        what each app imports.
+-   [ ] **Q4.** Per-app build wiring:
+    -   **Web** + **mobile**: add `postcss.config.cjs` at the app root with `tailwindcss` +
+        `autoprefixer` plugins. Vite auto-detects PostCSS. Import `tailwind.css` from the app's root
+        CSS entry.
+    -   **Extension**: webpack's `css-loader` chain already supports PostCSS — confirm
+        `postcss-loader` is wired or add it. Same CSS import.
+    -   **Desktop**: electron-forge's webpack config — same PostCSS check, same import.
+    -   **TWA**: skip (project memory `project_twa_unsupported`).
+-   [ ] **Q5.** Dark-mode parity: hook Tailwind's `dark:` variants to the existing theme provider's
+        light/dark class on `<html>` or root container. Document the pattern in
+        `packages/uikit/CONTRIBUTING.md` (or wherever uikit's contributor docs live).
+-   [ ] **Q6.** Canonical-example migration: pick the simplest styled-components component in the
+        Phase 2 touchset — `WalletName.tsx` (2 styled refs, mostly an input wrapper) is the
+        candidate — and port it end-to-end. The diff serves as the migration recipe for
+        higher-effort components later in M/N/P.
+-   [ ] **Q7.** Lint rule: ESLint warns (error in CI) on `import .* from 'styled-components'` in
+        files matching `packages/uikit/src/multichain/**`. Legacy paths unaffected. Mechanism:
+        `no-restricted-imports` with a `patterns` override scoped via an `overrides` block in
+        `.eslintrc`.
+-   [ ] **Q8.** Production-build size check: run `yarn build:web` + `yarn build:desktop` with and
+        without Q1-Q5 applied; record CSS bundle delta per app. Target: <20KB gzipped added. If a
+        misconfigured `content` glob ships full Tailwind (~3MB raw), it'll be obvious here.
+
+### Risk callouts
+
+-   **Theme drift.** Q2's token bridge must cover every value the styled-components theme exposes —
+    miss one and Tailwind components look subtly wrong next to styled siblings. Audit
+    `defaultTheme.ts` (and any dark theme override) line-by-line; don't paste a "starter" Tailwind
+    theme.
+-   **Style precedence with partial migrations.** During M/N/P, a screen will have Tailwind and
+    styled-components on adjacent elements. Tailwind's CSS loads at bundle time; styled-components
+    injects at runtime — runtime wins. Document this so a developer chasing a "Tailwind class isn't
+    applying" bug knows to check for a styled-components override on a parent.
+-   **Bundle bloat from loose `content` glob.** A glob like `**/*.tsx` that catches stuff outside
+    `src/` will balloon the CSS. Pin `content` to specific `src/` paths and verify with the Q8 size
+    check.
+-   **Cross-app PostCSS divergence.** Each of the 4 target apps has its own bundler config. A plugin
+    missing in one app means Tailwind silently no-ops there. Q4 must verify Tailwind classes
+    actually compile in each app's prod build, not just dev.
+-   **Scope creep.** Invariant #6 forbids "migrate component X" PRs without a multichain change.
+    Track Q itself ships the foundation + Q6 example only. Resist the urge to port unrelated
+    components even when the diff would be small.
+
+### Done when
+
+-   Tailwind v3 installed in `packages/uikit`; config and base CSS land in source.
+-   Each of the 4 target apps loads Tailwind through PostCSS and renders the Q6 example correctly in
+    a dev build.
+-   Q6 example renders pixel-equivalent to its styled-components original (visual diff verified by
+    eye against the dev build of the relevant onboarding screen).
+-   ESLint rule rejects `styled-components` imports inside `packages/uikit/src/multichain/**`.
+-   Bundle-size delta documented per app; under 20KB gzipped added.
+-   Dark-mode toggle works on Tailwind classes via the existing theme provider's root class.
+
+---
+
 ## Track M — Create-multichain-wallet flow (UI)
 
-**Depends on:** I, J, K, L, O. Behind `multichainEnabled`. **Touches:**
-`packages/uikit/src/pages/import/` (or `packages/uikit/src/components/create/`), each app's
-onboarding routing.
+**Depends on:** I, J, K, L, O, Q. Behind `multichainEnabled`. **Touches:** new
+`packages/uikit/src/multichain/create/` directory (Tailwind from day one), each app's onboarding
+routing. Existing components in `packages/uikit/src/components/create/` that are reused (e.g., the
+word-quiz `Words.tsx`) get ported to Tailwind in this track per invariant #6.
 
 ### Goal
 
@@ -494,14 +608,17 @@ A user with `multichainEnabled = true` can:
 
 ### Tasks
 
--   [ ] **M1.** New entry point in onboarding: `CreateMultichainWalletPage` (or equivalent).
-        Surfaced in onboarding/create routes **only** when `useAppContext().multichainEnabled`.
-        Phase 1 Track F made the flag required and false-everywhere; Phase 2 is the first consumer.
+-   [ ] **M1.** New entry point in onboarding: `CreateMultichainWalletPage` lives under
+        `packages/uikit/src/multichain/create/` and is **Tailwind from day one** (Track Q
+        invariant). Surfaced in onboarding/create routes **only** when
+        `useAppContext().multichainEnabled`. Phase 1 Track F made the flag required and
+        false-everywhere; Phase 2 is the first consumer.
 -   [ ] **M2.** BIP39 mnemonic generation. 12-word default with a "24-word" advanced toggle. Use
         `bip39.generateMnemonic(128|256)` — already a dep.
 -   [ ] **M3.** Backup confirmation: reuse the existing word-quiz component
-        (`packages/uikit/src/components/create/Words.tsx` or similar; search by `import { Words }`
-        to locate). It's mnemonic-agnostic.
+        (`packages/uikit/src/components/create/Words.tsx` — 13 styled-components refs; this is the
+        biggest reused component in M). Per invariant #6, port it to Tailwind in the same PR. It's
+        mnemonic-agnostic, which keeps the migration mechanical.
 -   [ ] **M4.** Chain selection step: list `CHAIN_IDS` with toggles. TON is force-enabled (Track I3
         invariant). Default: TON + EVM + BTC + TRON on; SOL off if chain-kit hasn't shipped SOL yet
         (per Track K5 fallback). User can opt chains in/out before final save.
@@ -513,6 +630,12 @@ A user with `multichainEnabled = true` can:
         set as active account.
 -   [ ] **M7.** Localization: every new string lands in `packages/locales` source files. Plan for
         ~30–40 new strings. **Required before flag flip**, not before merge.
+-   [ ] **M8.** Migration audit: for each reused legacy component in this track (M3's `Words.tsx`,
+        and any helpers it pulls in like `MnemonicCheckBox` / display tiles), confirm the
+        Tailwind-ported version renders pixel-equivalent to the styled-components original in the
+        existing legacy create flow. The legacy flow still uses the original components elsewhere —
+        if they ship from `Words.tsx` directly, fork or refactor to keep both call sites rendering
+        identically. Don't break the legacy onboarding by mutating shared components in place.
 
 ### Risk callouts
 
@@ -524,6 +647,12 @@ A user with `multichainEnabled = true` can:
 -   **WASM warm-up.** `getAdapter(chain).deriveAddress(...)` may require `await ensureReady()`
     (chain-kit WASM load). Show a loading state on the address preview step; first-time load can be
     ~1s.
+-   **Shared-component migration risk.** M3's `Words.tsx` and any helper components it pulls in are
+    used by the _legacy_ create flow too (`CreateStandardWallet.tsx`, `CreateMAMWallet.tsx`, etc.).
+    Porting them to Tailwind without breaking the legacy flow is the highest-risk part of this
+    track. Safer: fork into `multichain/create/Words.tsx` (Tailwind) and leave the legacy
+    `components/create/Words.tsx` (styled) intact. Refactor to a single shared component in Phase 3
+    if it becomes worth the cleanup.
 
 ### Done when
 
@@ -531,14 +660,20 @@ A user with `multichainEnabled = true` can:
     reaches a "Create multichain wallet" entry from onboarding.
 -   Completed flow produces an `AccountMultichain` with derived addresses for all enabled chains.
 -   No production callers — flag is `false` in prod, so the entry point is hidden.
+-   Every new file in `multichain/create/` uses Tailwind (lint rule Q7 enforces this). Reused legacy
+    components either ported to Tailwind in-place (with legacy callers verified intact) or forked
+    into `multichain/create/` per the risk-callout fork strategy.
+-   Legacy create flow (`CreateStandardWallet`, `CreateMAMWallet`, etc.) renders pixel-equivalent to
+    Phase 1 — manual smoke confirms no regression from shared-component edits.
 
 ---
 
 ## Track N — Import-multichain-wallet flow (UI)
 
-**Depends on:** M (reuses most pieces). Behind `multichainEnabled`. **Touches:**
-`packages/uikit/src/pages/import/`, the BIP39-vs-TON-standard-vs-MAM disambiguation logic in
-`mnemonicService.ts`.
+**Depends on:** M (reuses most pieces). Behind `multichainEnabled`. **Touches:** new
+`packages/uikit/src/multichain/import/` directory (Tailwind from day one), the
+BIP39-vs-TON-standard-vs-MAM disambiguation logic in `mnemonicService.ts`. Reused legacy components
+from `packages/uikit/src/pages/import/` get the same fork-or-port treatment as Track M.
 
 ### Goal
 
@@ -577,6 +712,11 @@ Phase 1 and earlier route BIP39).
     wallet that used the _non-canonical_ TRON path (`m/44'/195'/0'/0` — our legacy bolt-on uses
     this) will get a different TRON address by default. Surface this in the address-preview step's
     "Wrong TRON address?" copy with a link to the path override.
+-   **Tailwind / styled-components hybrid screens.** The import disambiguation step renders the
+    "Import as TON-only (legacy BIP39)" escape hatch, which routes back into the _legacy_
+    styled-components import flow. The wrapper screen is new (Tailwind); the destination screen is
+    legacy (styled). Verify visual continuity at the handoff so the transition doesn't look like a
+    different app.
 
 ### Done when
 
@@ -588,8 +728,11 @@ Phase 1 and earlier route BIP39).
 
 ## Track P — Address display + dev demo screen
 
-**Depends on:** M, N. Behind `multichainEnabled`. **Touches:** `packages/uikit/src/pages/wallet/`
-(or a new dev-only debug screen).
+**Depends on:** M, N. Behind `multichainEnabled`. **Touches:** new
+`packages/uikit/src/multichain/wallet/` directory (Tailwind from day one) for the multichain header
+and address-list components; minimal taps into `packages/uikit/src/pages/wallet/` to gate legacy
+sub-screens behind the multichain check (gate-only edits, no full rewrites — those gated screens
+stay styled-components until Phase 3 redesigns them).
 
 ### Goal
 
@@ -625,6 +768,10 @@ UX is Phase 3 (read paths) and Phase 4 (write paths). Phase 2 just needs proof o
     remembers. `grep` for `useActiveAccount` and `useActiveWallet` to find every consumer, then
     triage one at a time. Missing pages will crash or show wrong data when a multichain account is
     active.
+-   **Gate-only edits stay styled-components.** P4 wraps a lot of existing screens in
+    `if (account.type === 'multichain') return <ComingSoon/>`. The wrapped legacy screens are _not_
+    touched-for-redesign — they only get a gate. Per invariant #6 they stay styled-components.
+    `<ComingSoon/>` itself is new and Tailwind.
 
 ### Done when
 
@@ -653,16 +800,23 @@ Track progress by milestone, not week. Each milestone gates the next; don't skip
 5. **M12 — Registries wired.** Track O complete: multichain TON signing produces byte-identical BOCs
    against new `multichain-ton__*` snapshot fixtures; non-TON multichain signing throws the "Phase
    4" error; selector dispatches multichain accounts correctly.
-6. **M13 — Create flow.** Track M complete: dev build with flag on creates a multichain account
-   end-to-end; addresses preview correctly.
-7. **M14 — Import flow.** Track N complete: dev build with flag on imports a BIP39 seed into a
+6. **M12.5 — Tailwind foundation ready.** Track Q complete: Tailwind v3 installed in uikit, PostCSS
+   wired in all 4 apps, design-token bridge live, canonical-example component (Q6) renders
+   pixel-equivalent to its styled-components original, lint rule blocks styled imports in
+   `multichain/**`, bundle-size delta under 20KB gzipped.
+7. **M13 — Create flow.** Track M complete: dev build with flag on creates a multichain account
+   end-to-end; addresses preview correctly. All new files Tailwind; reused legacy components either
+   ported or forked.
+8. **M14 — Import flow.** Track N complete: dev build with flag on imports a BIP39 seed into a
    multichain account, with escape hatch to legacy TON-only.
-8. **M15 — Demo proof.** Track P complete: dev build can display the new account's per-chain
+9. **M15 — Demo proof.** Track P complete: dev build can display the new account's per-chain
    addresses on the wallet page; all other wallet features no-op safely for multichain accounts.
-9. **M16 — Phase 2 exit review.** Full app suite green on all 4 target apps with flag on _and_ with
-   flag off; legacy TRON code path verified intact (manual smoke: a legacy `AccountTonMnemonic`
-   account still shows its TRON tab in Receive with the same address as Phase 1 end-state);
-   bundle-size delta documented and within the Phase 0 budget. Sign-off before Phase 3.
+10. **M16 — Phase 2 exit review.** Full app suite green on all 4 target apps with flag on _and_ with
+    flag off; legacy TRON code path verified intact (manual smoke: a legacy `AccountTonMnemonic`
+    account still shows its TRON tab in Receive with the same address as Phase 1 end-state); legacy
+    onboarding (`CreateStandardWallet`, `CreateMAMWallet`, etc.) renders pixel-equivalent to Phase 1
+    — confirms shared-component migrations didn't regress the legacy flows; bundle-size delta
+    documented and within the Phase 0 budget. Sign-off before Phase 3.
 
 ---
 
@@ -687,8 +841,19 @@ Track progress by milestone, not week. Each milestone gates the next; don't skip
         has a legacy `tronWallet`, confirm the TRON tab in Receive shows the same address as Phase
         1; confirm no Phase 2 code path is reachable for the legacy account.
 -   [ ] Bundle-size delta per app documented and within Phase 0 budget. Extension and mobile
-        (WASM-heavy) are highest-risk.
+        (WASM-heavy) are highest-risk. CSS-side delta from Tailwind under 20KB gzipped per app
+        (separate line item — WASM and CSS measured separately).
 -   [ ] Localization keys added to `packages/locales` for every new screen (~30–40 keys).
+-   [ ] Tailwind foundation in place: PostCSS configured per app, design-token bridge covers every
+        token in the styled-components theme, lint rule rejects `styled-components` imports under
+        `packages/uikit/src/multichain/**`.
+-   [ ] **Legacy onboarding pixel-parity check.** Manual smoke of `CreateStandardWallet`,
+        `CreateMAMWallet`, `ImportExistingWallet`, `ImportTestnetWallet`, `CreateLedgerWallet`,
+        `CreateKeystoneWallet`, `CreateSignerWallet`, `CreateWatchOnlyWallet`, `ImportBySKWallet`,
+        `Subscribe`, `Password` — every legacy onboarding screen renders pixel-equivalent to
+        Phase 1. This is the gate against shared-component edits leaking into legacy flows.
+-   [ ] All Phase 2 new UI lives under `packages/uikit/src/multichain/` and is 100% Tailwind. No new
+        styled-components in this directory.
 
 ---
 
@@ -709,6 +874,10 @@ These are tempting but explicitly **deferred** to keep Phase 2 mechanical:
     whenever it lands.
 -   **Hardware-wallet support for multichain accounts.** Ledger / Keystone for non-TON chains is
     Phase 4 at earliest.
+-   **Codebase-wide Tailwind migration.** Track Q sets up Tailwind and Tracks M/N/P port what they
+    touch. Everything Phase 2 doesn't touch — settings pages, browser tab, send/receive history,
+    dashboards, dapp connection screens, the activity feed, etc. — stays styled-components. Bulk
+    migration of unrelated components is a future redesign phase, not Phase 2.
 -   **TWA.** Permanent — not coming back per memory `project_twa_unsupported`.
 
 ---
