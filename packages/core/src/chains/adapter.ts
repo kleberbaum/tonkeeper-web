@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import BigNumber from 'bignumber.js';
-import { Address as ChainkitAddress, Chain as ChainkitChain } from 'chainkit';
+import {
+    Address as ChainkitAddress,
+    Chain as ChainkitChain,
+    CryptoWallet as ChainkitCryptoWallet
+} from 'chainkit';
 
 import { BuildTxArgs, ChainAdapter, ChainId, ChainSigner, NotImplementedError } from './types';
 
@@ -83,14 +87,25 @@ class ChainkitAdapter implements ChainAdapter {
         return BigInt(bn.shiftedBy(decimals).toFixed(0));
     }
 
-    async deriveAddress(): Promise<string> {
-        throw new NotImplementedError(
-            this.chain,
-            'deriveAddress',
-            this.chain === 'ton'
-                ? 'Phase 1 — TON uses walletContract() in service/wallet/contractService.ts'
-                : 'Phase 2+'
-        );
+    async deriveAddress(args: { mnemonic: string }): Promise<string> {
+        if (this.chain === 'sol') {
+            throw new NotImplementedError('sol', 'deriveAddress', 'chain-kit has no Solana module');
+        }
+        if (this.chain === 'ton') {
+            // TON addresses are wallet-version-aware (V4R2 vs V5R1 vs …) — the
+            // address-from-mnemonic shape on this adapter can't pick a version.
+            // Multichain account creation derives the TON pubkey via
+            // `bip39MnemonicToEd25519Seed` and resolves the address through
+            // `walletContract(pubkey, version)` directly.
+            throw new NotImplementedError(
+                'ton',
+                'deriveAddress',
+                'TON addresses are version-aware — use walletContract() in service/wallet/contractService.ts'
+            );
+        }
+        const wallet = (ChainkitCryptoWallet as any).Companion.fromMnemonic(args.mnemonic);
+        const address = wallet.getAddress(chainOf(this.chain));
+        return address.display;
     }
 
     async estimateFee(): Promise<never> {

@@ -69,16 +69,37 @@ describe('chain-kit-backed ChainAdapter', () => {
         });
     });
 
-    describe('Phase 1 stubs', () => {
-        it('deriveAddress throws NotImplementedError on every chain', async () => {
-            for (const chain of CHAIN_IDS) {
-                await expect(
-                    getAdapter(chain).deriveAddress({ publicKey: new Uint8Array() })
-                ).rejects.toBeInstanceOf(NotImplementedError);
+    describe('deriveAddress', () => {
+        const CANONICAL_BIP39 =
+            'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+
+        it.each(['evm', 'btc', 'tron'] as const)(
+            '%s returns a non-empty canonical address',
+            async chain => {
+                const address = await getAdapter(chain).deriveAddress({
+                    mnemonic: CANONICAL_BIP39
+                });
+                expect(typeof address).toBe('string');
+                expect(address.length).toBeGreaterThan(0);
+                expect(getAdapter(chain).validateAddress(address)).toBe(true);
             }
+        );
+
+        it('ton throws — TON addresses are wallet-version-aware', async () => {
+            await expect(
+                getAdapter('ton').deriveAddress({ mnemonic: CANONICAL_BIP39 })
+            ).rejects.toBeInstanceOf(NotImplementedError);
         });
 
-        it('write-side methods all throw NotImplementedError on every chain', async () => {
+        it('sol throws — chain-kit has no Solana module', async () => {
+            await expect(
+                getAdapter('sol').deriveAddress({ mnemonic: CANONICAL_BIP39 })
+            ).rejects.toBeInstanceOf(NotImplementedError);
+        });
+    });
+
+    describe('unwired write-side methods', () => {
+        it('throw NotImplementedError on every chain', async () => {
             for (const chain of CHAIN_IDS) {
                 const adapter = getAdapter(chain);
                 await expect(

@@ -7,7 +7,10 @@ import { BaseKeychainService } from '@tonkeeper/core/dist/base-keychain-service'
 import { KeychainGetError } from '@tonkeeper/core/dist/errors/KeychainError';
 
 export class KeychainDesktop extends BaseKeychainService implements IKeychainService {
-    constructor(private biometryService: BiometryService, storage: IStorage) {
+    constructor(
+        private biometryService: BiometryService,
+        storage: IStorage
+    ) {
         super(storage);
     }
 
@@ -67,5 +70,19 @@ export class KeychainDesktop extends BaseKeychainService implements IKeychainSer
 
     protected override async securityCheckTouchId() {
         return this.biometryService?.prompt(lng => i18next.t('touch_id_unlock_wallet', { lng }));
+    }
+
+    protected override async setRawData(key: string, value: string) {
+        await sendBackground<void>({ king: 'set-keychain', publicKey: key, mnemonic: value });
+    }
+
+    protected override async getRawData(key: string) {
+        return (
+            (await sendBackground<string | null>({ king: 'get-keychain', publicKey: key })) ?? null
+        );
+    }
+
+    protected override async deleteRawData(key: string) {
+        await sendBackground<void>({ king: 'remove-keychain', publicKey: key });
     }
 }

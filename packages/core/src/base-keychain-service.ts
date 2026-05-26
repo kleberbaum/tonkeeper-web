@@ -14,10 +14,15 @@ export const hashPassword = async (password: string) => {
     return buffer.toString('hex');
 };
 
+const PREFIXED_NAMESPACE = 'chain';
+
+/** Internal: full secure-store key for a prefixed value. */
+const composeKey = (prefix: string, key: string) => `${PREFIXED_NAMESPACE}::${prefix}::${key}`;
+
 export abstract class BaseKeychainService {
     security = atom<undefined | KeychainSecurity>(undefined);
 
-    constructor(private storage: IStorage) {
+    constructor(protected storage: IStorage) {
         this.invalidateState();
     }
 
@@ -117,4 +122,69 @@ export abstract class BaseKeychainService {
     protected abstract promptPassword(
         callback: (pin?: string) => Promise<boolean | undefined>
     ): void;
+
+    /**
+     * Raw secure-store I/O used by the prefixed namespace below. Skips
+     * the password/biometry prompt: prefixed values are not the mnemonic.
+     * Subclasses must NOT call `securityCheck()` from these.
+     */
+    protected abstract setRawData(key: string, value: string): Promise<void>;
+    protected abstract getRawData(key: string): Promise<string | null>;
+    protected abstract deleteRawData(key: string): Promise<void>;
+
+    setValue = async (prefix: string, key: string, value: string) => {
+        const fullKey = composeKey(prefix, key);
+        await this.setRawData(fullKey, value);
+        await this.trackPrefixKey(prefix, fullKey);
+    };
+
+    getValue = async (prefix: string, key: string) => {
+        return this.getRawData(composeKey(prefix, key));
+    };
+
+    deleteValue = async (prefix: string, key: string) => {
+        const fullKey = composeKey(prefix, key);
+        await this.deleteRawData(fullKey);
+        await this.untrackPrefixKey(prefix, fullKey);
+    };
+
+    deletePrefix = async (prefix: string) => {
+        const keys = await this.loadPrefixIndex();
+        const tracked = keys[prefix] ?? [];
+        await Promise.all(tracked.map(k => this.deleteRawData(k)));
+        delete keys[prefix];
+        await this.savePrefixIndex(keys);
+    };
+
+    private async loadPrefixIndex(): Promise<Record<string, string[]>> {
+        const raw = await this.storage.get<Record<string, string[]>>(AppKey.KEYCHAIN_PREFIX_INDEX);
+        return raw ?? {};
+    }
+
+    private async savePrefixIndex(index: Record<string, string[]>): Promise<void> {
+        await this.storage.set(AppKey.KEYCHAIN_PREFIX_INDEX, index);
+    }
+
+    private async trackPrefixKey(prefix: string, fullKey: string): Promise<void> {
+        const index = await this.loadPrefixIndex();
+        const list = index[prefix] ?? [];
+        if (!list.includes(fullKey)) {
+            list.push(fullKey);
+            index[prefix] = list;
+            await this.savePrefixIndex(index);
+        }
+    }
+
+    private async untrackPrefixKey(prefix: string, fullKey: string): Promise<void> {
+        const index = await this.loadPrefixIndex();
+        const list = index[prefix];
+        if (!list) return;
+        const next = list.filter(k => k !== fullKey);
+        if (next.length === 0) {
+            delete index[prefix];
+        } else {
+            index[prefix] = next;
+        }
+        await this.savePrefixIndex(index);
+    }
 }

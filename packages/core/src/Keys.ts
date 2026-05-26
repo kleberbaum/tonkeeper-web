@@ -74,6 +74,11 @@ export enum AppKey {
 
     KEYCHAIN_SETTINGS = 'keychain_settings',
 
+    // Per-prefix index of keys written through IKeychainService.setValue.
+    // Lets `deletePrefix(prefix)` enumerate without needing a platform-
+    // specific listAllKeys() API on the secure store.
+    KEYCHAIN_PREFIX_INDEX = 'keychain_prefix_index',
+
     ENABLE_REVIEWER_MODE = 'ENABLE_REVIEWER_MODE',
 
     BROWSER_TABS = 'browser_tabs',

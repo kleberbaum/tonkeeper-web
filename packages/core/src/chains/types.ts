@@ -65,13 +65,22 @@ export interface ChainAdapter<TMessage = unknown, TSignature = unknown> {
     parseAmount(human: string, opts?: { decimals?: number }): bigint;
 
     /**
-     * Pubkey → address derivation. Phase 1 stub — throws
-     * `NotImplementedError`. TON's version-aware derivation continues to
-     * happen via `walletContract()` (Track C). Phase 2+ may surface a
-     * chain-agnostic shape here once we know what each chain actually
-     * needs.
+     * Derive the canonical address for this chain from a BIP39 mnemonic.
+     * Chain-kit walks the mnemonic at the chain's standard BIP-44 path
+     * (`DEFAULT_BIP44_PATH[chain]`) and returns the chain's canonical
+     * address shape (EIP-55 checksum on EVM, bech32 on BTC, base58 on
+     * TRON, etc.).
+     *
+     * TON is intentionally not wired here: TON addresses depend on the
+     * wallet contract version (V4R2, V5R1, …), which only the existing
+     * `walletContract()` helper in `service/wallet/contractService.ts`
+     * knows how to choose. The TON branch throws — callers who need a
+     * TON address derive it via that helper.
+     *
+     * SOL is not wired either: chain-kit ships no Solana module today.
+     * The SOL branch throws until that lands.
      */
-    deriveAddress(args: { publicKey: Uint8Array; opts?: unknown }): Promise<string>;
+    deriveAddress(args: { mnemonic: string }): Promise<string>;
 
     estimateFee(args: { from: string; to: string; amount: bigint; data?: unknown }): Promise<Fee>;
     buildTransaction(args: BuildTxArgs): Promise<TMessage>;

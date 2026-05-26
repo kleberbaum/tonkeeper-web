@@ -86,6 +86,22 @@ export interface IKeychainService {
     removeData: (key: string) => Promise<void>;
     clearStorage: () => Promise<void>;
 
+    /**
+     * Orthogonal namespace alongside `setData/getData/removeData`. Stores
+     * non-mnemonic values (per-chain derived pubkeys, future privacy-chain
+     * view keys, etc.) in the same secure store, but reads do **not**
+     * trigger the password/biometry prompt — these values are not the
+     * mnemonic, and prompting on every chain switch would be hostile.
+     *
+     * Keys are namespaced as `chain::<prefix>::<key>` internally to avoid
+     * collision with the legacy `<publicKey>` keys consumed by
+     * `setData/getData/removeData`.
+     */
+    setValue: (prefix: string, key: string, value: string) => Promise<void>;
+    getValue: (prefix: string, key: string) => Promise<string | null>;
+    deleteValue: (prefix: string, key: string) => Promise<void>;
+    deletePrefix: (prefix: string) => Promise<void>;
+
     security: ReadonlyAtom<KeychainSecurity | undefined>;
 
     /**

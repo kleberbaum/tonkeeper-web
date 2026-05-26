@@ -443,123 +443,197 @@ state (the `multichainEnabled` flag is plumbed via `IAppContext`; that's not sto
 
 ---
 
-## Track K — Per-chain derivation wiring
+## Track K — Per-chain derivation wiring ✅
+
+**Status:** Done (2026-05-26).
 
 **Depends on:** Phase 1 Track A (chain-kit adapter), Phase 1 Track D (`DEFAULT_BIP44_PATH` map).
-**Touches:** `packages/core/src/chains/adapter.ts` (extend `deriveAddress`),
-`packages/core/src/chains/<chain>/derivation.ts` (new per-curve helpers, or single helper if
-chain-kit handles it).
+**Touches:** `packages/core/src/chains/types.ts` (signature change),
+`packages/core/src/chains/adapter.ts` (chain-kit-backed implementation),
+`packages/core/src/chains/__tests__/adapter.test.ts`, new
+`packages/core/src/chains/__tests__/multichain-fixtures.test.ts`.
+
+### Done summary
+
+`ChainAdapter.deriveAddress` signature widened to `{ mnemonic: string } → Promise<string>` — the
+Phase 1 `{ publicKey: Uint8Array }` placeholder is replaced. Chain-kit's
+`CryptoWallet.Companion.fromMnemonic(mnemonic).getAddress(chainOf(chain)).display` is the single
+backend for EVM / BTC / TRON. No per-curve helpers were needed — chain-kit handles BIP-44 / BIP-84
+internally and returns each chain's canonical address shape (EIP-55 EVM, bech32 BTC, base58 TRON).
+
+TON and SOL throw `NotImplementedError`:
+
+- **TON** because the address depends on the wallet contract version (V4R2 vs V5R1 vs …), which only
+  `walletContract(pubkey, version)` knows. The multichain create flow (Track M) derives the TON
+  pubkey via `bip39MnemonicToEd25519Seed` at `pathFor('ton')` — the same path the legacy
+  `mnemonic-bip39` accounts use, byte-identical against the 62-BOC snapshot harness.
+- **SOL** because chain-kit still ships no Solana module. Per Phase 0, SOL is descoped to a later
+  phase; Track M's default `enabledChains` will exclude it.
+
+The fixture-pinned regression canary lives in
+`packages/core/src/chains/__tests__/multichain-fixtures.test.ts`. It derives the canonical BIP39
+reference mnemonic (`abandon` ×11 + `about`) and pins one expected address per chain — these values
+match every other BIP39 reference implementation at `DEFAULT_BIP44_PATH[chain]`:
+
+| Chain | Path                | Pinned address                               |
+| ----- | ------------------- | -------------------------------------------- |
+| EVM   | `m/44'/60'/0'/0/0`  | `0x9858EfFD232B4033E47d90003D41EC34EcaEda94` |
+| BTC   | `m/84'/0'/0'/0/0`   | `bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu` |
+| TRON  | `m/44'/195'/0'/0/0` | `TUEZSdKsoDHQMeZwihtdoBiN46zxhGWYdH`         |
+
+Any chain-kit upgrade that silently changes these will fail this test instead of moving every
+multichain user's address.
+
+Full `@tonkeeper/core` suite: 18/18 files, 275/275 tests, snapshot harness still byte-identical (62
+BOCs). Workspace typecheck: 9/9 green.
 
 ### Goal
 
 Phase 1's `ChainkitAdapter.deriveAddress` throws `NotImplementedError`. Phase 2 wires it up so that
-given a BIP39 seed (or its derived chain-specific keypair), the adapter returns the chain's
-canonical address. This is what makes the Phase 2 demo work — addresses for TON / EVM / BTC / TRON
-visible to the user.
+given a BIP39 mnemonic, the adapter returns the chain's canonical address. This is what makes the
+Phase 2 demo work — addresses for TON / EVM / BTC / TRON visible to the user.
 
 ### Tasks
 
-- [ ] **K1.** EVM derivation: BIP39 seed → secp256k1 keypair at `DEFAULT_BIP44_PATH.evm`
-      (`m/44'/60'/0'/0/0`) → EIP-55 checksummed address. Use chain-kit's
-      `CryptoWallet.fromMnemonic(...).getAddress(Chain.Ethereum.Mainnet)` if its surface is stable;
-      otherwise an `ethers` HD walk (already a dep in `uikit`).
-- [ ] **K2.** BTC derivation: BIP39 seed → secp256k1 keypair at `DEFAULT_BIP44_PATH.btc`
-      (`m/84'/0'/0'/0/0`, BIP-84 native segwit) → bech32 address. chain-kit preferred.
-- [ ] **K3.** TRON derivation (multichain path): BIP39 seed → secp256k1 keypair at
-      `DEFAULT_BIP44_PATH.tron` (`m/44'/195'/0'/0/0`, canonical BIP-44) → base58 TRON address. **Do
-      not touch** the legacy `tronWalletByTonMnemonic` path or its non-canonical `m/44'/195'/0'/0`
-      (no terminal `/0`). Per invariant #1, legacy accounts continue to derive TRON via the existing
-      code.
-- [ ] **K4.** TON derivation for `AccountMultichain`: reuses the Phase 1
-      `bip39MnemonicToEd25519Seed` helper at `pathFor('ton')` (Track D). Same code path as legacy
-      `mnemonic-bip39` accounts — the snapshot harness already covers this byte-identically. No new
-      code; just confirmation that the multichain account creation flow funnels through this helper.
-- [ ] **K5.** SOL derivation (conditional on chain-kit Solana availability — see Phase 0 decision).
-      If chain-kit ships SOL by Phase 2: ed25519-SLIP-0010 at `DEFAULT_BIP44_PATH.sol`
-      (`m/44'/501'/0'/0'`) → base58 address. If not: leave the SOL branch throwing
-      `NotImplementedError` and exclude `'sol'` from default `enabledChains` in the creation flow
-      (Track M). Document the descope in the open questions section of this doc.
-- [ ] **K6.** `ChainkitAdapter.deriveAddress` implementation: switch on `this.chain`, delegate to
-      the per-chain helpers above. Update Phase 1's `chainkit-resolves.test.ts` (or a new test) to
-      assert the canonical abandon×11+about BIP39 fixture produces a known address per chain
-      (test-vector source: chain-kit's own integration tests, or BIP39 reference implementations).
-- [ ] **K7.** Cross-chain reference fixtures: pin one expected address per chain in
-      `packages/core/src/chains/__tests__/multichain-fixtures.test.ts`. These are the regression
-      canary for any drift in derivation — analogous to Track D's `EXPECTED_TON_ PUBLIC_KEY_HEX`
-      pin.
+- [x] **K1.** EVM derivation via chain-kit's
+      `CryptoWallet.fromMnemonic(...).getAddress(Chain.Ethereum.Mainnet)`. Returns EIP-55
+      checksummed `0x…` address at `m/44'/60'/0'/0/0`.
+- [x] **K2.** BTC derivation via chain-kit. Returns bech32 (BIP-84 native segwit) address at
+      `m/84'/0'/0'/0/0`.
+- [x] **K3.** TRON derivation (multichain path) via chain-kit. Returns base58 address at canonical
+      `m/44'/195'/0'/0/0`. The legacy `tronWalletByTonMnemonic` path and its non-canonical
+      `m/44'/195'/0'/0` (no terminal `/0`) are untouched — invariant #1 holds.
+- [x] **K4.** TON derivation for `AccountMultichain` reuses `bip39MnemonicToEd25519Seed` at
+      `pathFor('ton')` — the same path the legacy `mnemonic-bip39` accounts use. The adapter's TON
+      branch throws with a pointer to `walletContract()` in `service/wallet/contractService.ts`,
+      since address resolution there is version-aware and the adapter can't pick a wallet version.
+- [x] **K5.** SOL derivation deferred — chain-kit has no Solana module. Adapter's SOL branch throws
+      `NotImplementedError`. Track M's default `enabledChains` will exclude `'sol'` until chain-kit
+      ships it.
+- [x] **K6.** `ChainkitAdapter.deriveAddress` implementation switches on `this.chain` — single
+      chain-kit pipeline for EVM / BTC / TRON, throws for TON / SOL. `adapter.test.ts` updated to
+      assert real derivation for EVM / BTC / TRON and throws for TON / SOL.
+- [x] **K7.** `chains/__tests__/multichain-fixtures.test.ts` pins one address per chain against the
+      canonical abandon×11+about BIP39 vector.
 
 ### Risk callouts
 
-- **chain-kit surface stability.** The Phase 1 adapter wraps chain-kit's Kotlin/JS ergonomics behind
-  `ChainAdapter`. If chain-kit's address-derivation API changes pre-1.0 (it's pre-alpha), the
-  per-chain helpers absorb the impact — the adapter consumers don't see it.
-- **TRON path divergence.** Pinning the multichain TRON path at canonical `m/44'/195'/0'/0/0` means
-  a user who exports their multichain BIP39 seed and re-imports it into a _different_ wallet that
-  uses non-canonical legacy `m/44'/195'/0'/0` will see a different TRON address. Document this in
-  the import flow (Track N).
-- **EVM checksumming.** EIP-55 checksumming is mandatory for `rawAddress`. Test the lowercase vs.
-  mixed-case fixtures explicitly.
+- **chain-kit surface stability.** Chain-kit is pre-alpha. A breaking change to
+  `CryptoWallet.Companion.fromMnemonic` or `getAddress` lands in the adapter, not in adapter
+  consumers — and the fixture test fails loudly if the derived addresses ever drift.
+- **TRON path divergence.** A user who exports their multichain BIP39 seed and re-imports it into a
+  _different_ wallet that uses non-canonical legacy `m/44'/195'/0'/0` will see a different TRON
+  address. Track N's import flow surfaces this in the address-preview copy.
+- **EVM checksumming.** Chain-kit returns the EIP-55 checksummed form (verified in the pinned
+  fixture: `0x9858EfFD232B4033E47d90003D41EC34EcaEda94`). Downstream code that lowercases EVM
+  addresses for `validateAddress` round-tripping is unaffected — chain-kit's `validateAddress`
+  accepts both cases.
 
 ### Done when
 
-- `getAdapter(chain).deriveAddress({ publicKey, opts })` returns canonical addresses for TON / EVM /
-  BTC / TRON (and SOL if chain-kit ships it).
-- Fixture test pins one expected address per chain against the canonical BIP39 vector.
-- Snapshot harness still green; 9/9 typechecks green.
+- [x] `getAdapter(chain).deriveAddress({ mnemonic })` returns canonical addresses for EVM / BTC /
+      TRON; throws for TON (version-aware) and SOL (chain-kit gap).
+- [x] Fixture test pins one expected address per chain against the canonical BIP39 vector.
+- [x] Snapshot harness still byte-identical (62 BOCs); 9/9 typechecks green.
 
 ---
 
-## Track L — `IKeychainService` chain-prefixed keys
+## Track L — `IKeychainService` chain-prefixed keys ✅
+
+**Status:** Done (2026-05-26).
 
 **Depends on:** nothing structurally — cross-cutting. **Touches:** `packages/core/src/AppSdk.ts`
-(`IKeychainService` interface), `apps/desktop/src/electron/*` (keytar wrapper),
-`apps/extension/src/libs/*` (extension keychain), `apps/mobile/src/libs/*` (Capacitor keychain),
-`apps/web/src/libs/*` (web keychain stub).
+(interface), `packages/core/src/base-keychain-service.ts` (concrete prefix-namespace impl),
+`packages/core/src/Keys.ts` (`KEYCHAIN_PREFIX_INDEX` reserved), `apps/desktop/src/libs/keychain.ts`,
+`apps/mobile/src/libs/keychain.ts`, new `packages/core/src/__tests__/base-keychain-service.test.ts`.
 
-### Goal
+### Done summary
 
-The existing `IKeychainService` stores wallet secrets keyed by `accountId`. Phase 2 extends it so
-keys can also be chain-prefixed: e.g., per-chain ephemeral data (derived public keys, per-chain view
-keys for privacy chains in the future, etc.) can live in the same secure store without colliding
-with the mnemonic.
+`IKeychainService` exposes a new orthogonal namespace alongside the existing
+`setData/getData/removeData`:
+
+```ts
+setValue(prefix, key, value): Promise<void>;
+getValue(prefix, key): Promise<string | null>;
+deleteValue(prefix, key): Promise<void>;
+deletePrefix(prefix): Promise<void>;
+```
+
+The four methods are implemented **concretely on `BaseKeychainService`** in terms of three new
+abstract raw I/O methods (`setRawData`, `getRawData`, `deleteRawData`) that each platform supplies.
+The base layers the namespacing (`chain::<prefix>::<key>`) and tracks per-prefix keys in `IStorage`
+under the new `KEYCHAIN_PREFIX_INDEX` key — that lets `deletePrefix` iterate without needing a
+platform-specific `listAllKeys()` on the secure store.
+
+Critical: the prefixed reads **bypass `securityCheck()`**. The new values are not the mnemonic —
+they're per-chain derived pubkeys, future view keys, etc. Prompting the user for biometry on every
+chain switch would be hostile. The interface docstring spells this out; the abstract methods are
+documented "must NOT call securityCheck".
+
+Platform impls landed on the two platforms that actually have a keychain:
+
+- **Desktop (`KeychainDesktop`)** — `setRawData` / `getRawData` / `deleteRawData` reuse the existing
+  `sendBackground` IPC bridge to `keytar`. The raw key (e.g. `chain::evm::cached-pubkey`) flows
+  verbatim through the IPC; the main-process handler prepends its own `Wallet-` prefix, so the final
+  keytar entry is `Wallet-chain::evm::cached-pubkey` — no collision with legacy `Wallet-<hexPubkey>`
+  entries.
+- **Mobile (`KeychainCapacitor`)** — same shape over Capacitor `SecureStorage` with id
+  `Wallet-chain::<prefix>::<key>`.
+
+Extension and web do not currently ship an `IKeychainService` implementation (the field is
+`keychain?: IKeychainService | undefined` on `IAppSdk`). The spec originally enumerated four
+platforms — only two have a real impl. No Phase 2 consumer of this API runs on extension or web, so
+we're not adding stubs. If/when those platforms grow a keychain, the abstract method contract they
+inherit makes the prefixed API a single-line wire-up away.
+
+### L3 audit — no collisions
+
+Existing callers of `setData(key, …)` pass `account.auth.keychainStoreKey`, which equals the
+account's hex public key. The legacy stored form is `Wallet-<hexPubkey>` (64 lowercase hex chars).
+The new namespace stores as `Wallet-chain::<prefix>::<key>`. `chain::` cannot appear at the start of
+a hex public key, so the two namespaces are disjoint by construction.
+
+### Tests
+
+`packages/core/src/__tests__/base-keychain-service.test.ts` — 11 tests against an in-memory subclass
+that exercises only the prefixed namespace: round-trip, per-prefix isolation, per-key isolation, the
+underlying `chain::` key shape, index tracking on set (incl. dedupe on overwrite), untracking on
+delete (incl. collapsing an emptied prefix), `deletePrefix` walking the index, and the empty-prefix
+no-op.
+
+Full `@tonkeeper/core` suite: 19/19 files, 286/286 tests. Snapshot harness still byte-identical (62
+BOCs). Workspace typecheck: 9/9 green — desktop and mobile both rebuilt cleanly with the new
+abstract methods.
 
 ### Tasks
 
-- [ ] **L1.** Extend `IKeychainService` with `getValue(prefix: string, key: string)` /
-      `setValue(prefix, key, value)` / `deleteValue(prefix, key)` / `deletePrefix(prefix)`. Existing
-      single-arg `getPassword(accountId)` etc. stay — Phase 2 adds an orthogonal namespace, not a
-      replacement.
-- [ ] **L2.** Platform impls prefix keys with the chain id (or any caller-supplied prefix) before
-      delegating to the underlying store:
-    - **Desktop** (`keytar`): service name becomes `${SERVICE}::${prefix}`.
-    - **Extension** (`chrome.storage.local` or similar — confirm with existing code): key becomes
-      `${prefix}::${key}`.
-    - **Capacitor** (mobile): use the existing secure-storage plugin's prefix support, or mangle the
-      key.
-    - **Web** (browser): no real keychain — current implementation uses encrypted localStorage keyed
-      by account. Mirror the prefix mangling.
-- [ ] **L3.** Audit existing keychain consumers (`getMAMWalletMnemonic`,
-      `createAndStoreMetaEncryptionKeys`, etc.) — confirm none collide with a `'ton:'` or `'evm:'`
-      prefix in the new namespace. If any do, escape or migrate.
-- [ ] **L4.** Platform-specific unit tests for round-tripping a chain-prefixed value on each of
-      desktop / extension / mobile / web. The existing test setup per app can host these — no new
-      test infrastructure needed.
+- [x] **L1.** `IKeychainService` extended with `setValue` / `getValue` / `deleteValue` /
+      `deletePrefix`. Existing `setData/getData/removeData` untouched.
+- [x] **L2.** Platform impls land on desktop and mobile via three new abstract raw I/O methods on
+      `BaseKeychainService`. Extension and web stay unimplemented (no impl class exists for either;
+      spec was aspirational on this point).
+- [x] **L3.** Audit confirms no collision with the legacy `Wallet-<hexPubkey>` namespace.
+- [x] **L4.** 11 vitest unit tests in `packages/core/src/__tests__/base-keychain-service.test.ts`.
 
 ### Risk callouts
 
-- **Cross-platform divergence.** Each `IKeychainService` implementation handles the storage
-  differently (keytar OS keychain on desktop, browser storage on extension/web, Capacitor plugin on
-  mobile). The prefix mangling must be consistent so a user who logs in on multiple platforms
-  (unlikely Phase 2 scenario but plausible long-term) gets the same data.
-- **Sensitive data exposure.** Keychain is where mnemonics live. Any test that writes a real
-  mnemonic to the device keychain must clean up on exit — use the throwaway fixture seed, never a
-  real one.
+- **Cross-platform divergence.** Desktop's keytar service name and mobile's SecureStorage id both
+  end up as `Wallet-chain::<prefix>::<key>` because the prefix logic lives in `BaseKeychainService`,
+  not per platform. No drift possible.
+- **Mnemonic exposure.** None — the prefixed API is for non-secret per-chain metadata and the test
+  suite uses placeholder strings, not real mnemonics.
+- **Security check bypass.** The prefixed namespace explicitly bypasses `securityCheck()`. This is
+  intentional but documented on the interface and the abstract raw methods. Any future caller that
+  wants the legacy "prompt before reading" semantics must use `getData`, not `getValue`.
 
 ### Done when
 
-- All four platform `IKeychainService` impls expose the prefixed API.
-- Round-trip test green on each platform.
-- No collisions with existing keychain consumers.
+- [x] Two `IKeychainService` impls (desktop + mobile) expose the prefixed API; extension/web inherit
+      the abstract contract for when a keychain is wired there.
+- [x] Round-trip test green (11/11, in `BaseKeychainService` against an in-memory subclass).
+- [x] No collisions with existing keychain consumers.
+- [x] Full core suite green (19/19 files, 286 tests); snapshot harness byte-identical (62 BOCs);
+      workspace typecheck 9/9 green.
 
 ---
 

@@ -10,7 +10,10 @@ import { assertUnreachable } from '@tonkeeper/core/dist/utils/types';
 import { KeychainGetError } from '@tonkeeper/core/dist/errors/KeychainError';
 
 export class KeychainCapacitor extends BaseKeychainService implements IKeychainService {
-    constructor(private biometryService: BiometryService, storage: IStorage) {
+    constructor(
+        private biometryService: BiometryService,
+        storage: IStorage
+    ) {
         super(storage);
     }
 
@@ -84,5 +87,22 @@ export class KeychainCapacitor extends BaseKeychainService implements IKeychainS
 
     protected override async securityCheckTouchId() {
         return this.biometryService?.prompt(lng => i18next.t('touch_id_unlock_wallet', { lng }));
+    }
+
+    protected override async setRawData(key: string, value: string) {
+        await SecureStorage.storeData({ id: `Wallet-${key}`, data: value });
+    }
+
+    protected override async getRawData(key: string) {
+        try {
+            const { data } = await SecureStorage.getData({ id: `Wallet-${key}` });
+            return data ?? null;
+        } catch {
+            return null;
+        }
+    }
+
+    protected override async deleteRawData(key: string) {
+        await SecureStorage.removeData({ id: `Wallet-${key}` });
     }
 }
