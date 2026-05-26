@@ -2,6 +2,10 @@ import { Network } from './network';
 import { Language } from './language';
 import { WalletProxy } from './proxy';
 import { TronWallet } from './tron/tron-wallet';
+import { MultichainTronWallet } from './tron/multichain-tron-wallet';
+import { EvmWallet } from './evm/evm-wallet';
+import { BtcWallet } from './btc/btc-wallet';
+import { SolWallet } from './sol/sol-wallet';
 import { DeprecatedAuthState } from './password';
 import { Account, AccountMAM, AccountTonMnemonic } from './account';
 import { KeyPair } from '@ton/crypto';
@@ -150,6 +154,17 @@ export type TonWalletStandard = TonContract & {
     publicKey: string;
     version: WalletVersion;
     network?: Network;
+    /**
+     * Phase 2 multichain. Populated on TON wallets created inside an
+     * `AccountMultichain` (BIP39 path `m/44'/607'/0'`). Absent on legacy
+     * TON-standard / MAM / SK / Ledger / Keystone wallets — those keep
+     * their derivation knowledge in account-level fields, not here.
+     *
+     * Must remain optional: legacy wallets persisted before Phase 2
+     * ship without this field and must round-trip through Phase 2
+     * code byte-identical.
+     */
+    derivationPath?: string;
 };
 
 export type DerivationItem = {
@@ -169,6 +184,49 @@ export type DerivationItemNamed = DerivationItem & {
 
 export function isStandardTonWallet(wallet: TonContract): wallet is TonWalletStandard {
     return 'version' in wallet && 'publicKey' in wallet;
+}
+
+/**
+ * Phase 2 multichain. Union of every wallet shape an `AccountMultichain`
+ * may hold. `TonWalletStandard` predates the multichain types and lacks
+ * an explicit `chain` discriminator — narrow it via `isStandardTonWallet`
+ * (or the equivalent `'version' in wallet` test). The four chain-tagged
+ * members (`EvmWallet` / `BtcWallet` / `MultichainTronWallet` / `SolWallet`)
+ * each carry an explicit `chain` literal and narrow symmetrically.
+ *
+ * Note: this union does **not** include the legacy `TronWallet`
+ * (`{id, address}` at `./tron/tron-wallet.ts`). Legacy TRON is a bolt-on
+ * on `AccountTonMnemonic` / `AccountMAM` via `DerivationItem.tronWallet`,
+ * not a member of `AccountMultichain.wallets`. The two TRON paths are
+ * type-distinct on purpose — see Phase 2 invariant #1.
+ */
+export type MultichainWallet =
+    | TonWalletStandard
+    | EvmWallet
+    | BtcWallet
+    | MultichainTronWallet
+    | SolWallet;
+
+export function isEvmWallet(wallet: MultichainWallet): wallet is EvmWallet {
+    return 'chain' in wallet && wallet.chain === 'evm';
+}
+
+export function isBtcWallet(wallet: MultichainWallet): wallet is BtcWallet {
+    return 'chain' in wallet && wallet.chain === 'btc';
+}
+
+export function isSolWallet(wallet: MultichainWallet): wallet is SolWallet {
+    return 'chain' in wallet && wallet.chain === 'sol';
+}
+
+/**
+ * Narrows to the *multichain* TRON wallet shape — entries inside
+ * `AccountMultichain.wallets`. For the legacy `TronWallet` (the
+ * `{id, address}` bolt-on on `DerivationItem.tronWallet`), the call site
+ * already has a narrowed type — there's no helper needed.
+ */
+export function isTronWallet(wallet: MultichainWallet): wallet is MultichainTronWallet {
+    return 'chain' in wallet && wallet.chain === 'tron';
 }
 
 export interface TonWalletConfig {

@@ -91,26 +91,59 @@ storage schema.
 
 ---
 
-## Track H — Per-chain wallet entries
+## Track H — Per-chain wallet entries ✅
+
+**Status:** Done (2026-05-26).
+
+**Done summary:** Per-chain wallet types live in
+`packages/core/src/entries/{evm,btc,sol}/<chain>-wallet.ts` and a new
+`entries/tron/multichain-tron-wallet.ts` (mirrors the existing `entries/tron/tron-wallet.ts`
+convention; no cross-file imports to avoid circular type refs). TRON is split intentionally —
+`TronWallet` (legacy bolt-on `{id, address}` on `DerivationItem.tronWallet`) is byte-and-bit
+untouched; `MultichainTronWallet` is a sibling of `EvmWallet`/`BtcWallet`/`SolWallet` with
+`{id, chain: 'tron', rawAddress, publicKey, derivationPath}`. This was a deliberate flip from the
+original MD ("do not introduce a separate `MultichainTronWallet`") — see the revised Goal and risk
+callout below for the reasoning. `MultichainWallet` union and the four chain-symmetric narrowing
+helpers (`isEvmWallet`, `isBtcWallet`, `isSolWallet`, `isTronWallet` — all narrow on
+`wallet.chain === '<chain>'`) live in `entries/wallet.ts`.
+`TonWalletStandard.derivationPath?: string` added — optional, round-trips. New test file
+`entries/__tests__/wallet.test.ts` covers all four helpers + exhaustive-narrowing + round-trip. All
+223 core tests pass including the 62-BOC snapshot harness; full workspace typecheck green (9/9).
 
 **Depends on:** Phase 1 (`ChainId` from `packages/core/src/chains/types.ts`). **Touches:**
-`packages/core/src/entries/wallet.ts`, possibly new files under
-`packages/core/src/entries/<chain>/`.
+`packages/core/src/entries/wallet.ts`, new files under
+`packages/core/src/entries/{evm,btc,sol}/<chain>-wallet.ts`,
+`packages/core/src/entries/tron/multichain-tron-wallet.ts`.
 
 ### Goal
 
 Define the per-chain wallet shapes that `AccountMultichain` will hold. `TonWalletStandard` already
-exists and stays untouched. Add `EvmWallet`, `BtcWallet`, `SolWallet`. The existing legacy
-`TronWallet` type stays — Phase 2 does **not** introduce a separate `MultichainTronWallet` because
-the on-chain object is identical; what differs between legacy and multichain TRON is the
-_derivation_ (path, curve, mnemonic type), not the wallet shape.
+exists and stays untouched (only addition: optional `derivationPath?: string`, populated by the
+multichain creation flow). Add `EvmWallet`, `BtcWallet`, `SolWallet`, and a new
+`MultichainTronWallet` sibling of the other three.
+
+**Design flip on TRON.** The original MD said do not introduce a separate `MultichainTronWallet`
+because "the on-chain object is identical." In implementation we split anyway: the legacy
+`TronWallet` (`{id, address}`) at `entries/tron/tron-wallet.ts` is a minimal bolt-on attached to
+`AccountTonMnemonic` / `AccountMAM` via `DerivationItem.tronWallet`, not a first-class wallet entry.
+Forcing legacy and multichain TRON to share that shape would mean either (a) adding `chain` /
+`rawAddress` / `publicKey` / `derivationPath` to the legacy type (modifies persisted storage and
+weakens invariant #1) or (b) shape-detection narrowing helpers asymmetric with their EVM/BTC/SOL
+siblings. Splitting into two types — legacy `TronWallet` untouched, new `MultichainTronWallet`
+symmetric with the other chain entries — keeps Phase 2 invariant #1 strict _and_ produces clean
+discriminated-union narrowing. TON does _not_ get the same split: legacy and multichain TON share
+`TonWalletStandard` because the shape genuinely matches, the wallet-contract factory and signing
+strategies are shared (Track O3), and `BaseAccount.activeTonWallet: TonContract` polymorphism
+depends on it (Track I3).
 
 ### Shape
 
 ```ts
-// packages/core/src/entries/wallet.ts
+// Per-chain files: packages/core/src/entries/{evm,btc,sol}/<chain>-wallet.ts
+// and packages/core/src/entries/tron/multichain-tron-wallet.ts.
+
 export type EvmWallet = {
-    id: WalletId; // chain-prefixed: 'evm:<addr>' or similar
+    id: string; // chain-prefixed: 'evm:<addr>' or similar
     chain: 'evm';
     rawAddress: string; // 0x-prefixed hex, EIP-55 checksummed
     publicKey: string; // hex, secp256k1 uncompressed
@@ -118,56 +151,70 @@ export type EvmWallet = {
 };
 
 export type BtcWallet = {
-    id: WalletId;
+    id: string;
     chain: 'btc';
     rawAddress: string; // bech32 (default: BIP-84 native segwit)
     publicKey: string; // hex, secp256k1 compressed
     derivationPath: string;
 };
 
+export type MultichainTronWallet = {
+    id: string;
+    chain: 'tron';
+    rawAddress: string; // base58 TRON address (e.g. 'T...')
+    publicKey: string; // hex, secp256k1 compressed
+    derivationPath: string; // canonical m/44'/195'/0'/0/0
+};
+
 export type SolWallet = {
-    id: WalletId;
+    id: string;
     chain: 'sol';
     rawAddress: string; // base58
     publicKey: string; // hex, ed25519
     derivationPath: string;
 };
 
-// TronWallet — existing type stays. Multichain reuses it but tags
-// instances with the new BIP-44 path in `derivationPath`.
+// Legacy `TronWallet` (= { id, address }) at entries/tron/tron-wallet.ts
+// stays byte-and-bit untouched. It lives on DerivationItem.tronWallet?,
+// not in AccountMultichain.wallets[].
 ```
 
 ### Tasks
 
--   [ ] **H1.** Define `EvmWallet`, `BtcWallet`, `SolWallet` types in
-        `packages/core/src/entries/wallet.ts` (or one file per chain under
-        `packages/core/src/entries/<chain>/wallet.ts` if it keeps `wallet.ts` readable). Each
-        carries `id`, `chain` discriminator, `rawAddress`, `publicKey`, `derivationPath`.
--   [ ] **H2.**
-        `MultichainWallet = TonWalletStandard | EvmWallet | BtcWallet | TronWallet | SolWallet`.
-        Document that `TonWalletStandard` lacks a `chain` discriminator (it predates the multichain
-        types) — narrow on `'version' in wallet` per the existing `isStandardTonWallet`, or add a
-        `chain: 'ton'` field via a backwards-compatible intersection.
--   [ ] **H3.** Add `derivationPath` to `TonWalletStandard` as **optional**
-        (`derivationPath?: string`). Legacy TON wallets serialize without it (same as today);
-        multichain TON wallets write it. This is the only modification to the legacy type and must
-        round-trip on disk: a Phase 1 wallet read by Phase 2 code parses fine; a Phase 2 wallet with
-        no `derivationPath` (legacy) reads fine too.
--   [ ] **H4.** Type-narrowing helpers: `isEvmWallet`, `isBtcWallet`, `isTronWallet` (the existing
-        legacy `tronWallet?: TronWallet` field on `DerivationItem` — keep it; the new helper just
-        narrows the union), `isSolWallet`.
--   [ ] **H5.** Unit tests in `packages/core/src/entries/__tests__/wallet.test.ts` exercising each
-        narrowing helper against representative fixtures, plus round-trip of `TonWalletStandard`
-        with and without `derivationPath` (the H3 backwards-compat case).
+-   [x] **H1.** Defined `EvmWallet`, `BtcWallet`, `SolWallet`, `MultichainTronWallet` in per-chain
+        files under `packages/core/src/entries/{evm,btc,sol}/<chain>-wallet.ts` and
+        `entries/tron/multichain-tron-wallet.ts`. Each carries `id`, `chain` discriminator,
+        `rawAddress`, `publicKey`, `derivationPath`. Legacy `entries/tron/tron-wallet.ts` is
+        untouched.
+-   [x] **H2.**
+        `MultichainWallet = TonWalletStandard | EvmWallet | BtcWallet | MultichainTronWallet | SolWallet`
+        exported from `entries/wallet.ts`. `TonWalletStandard` keeps implicit narrowing via
+        `isStandardTonWallet` (`'version' in wallet && 'publicKey' in wallet`). Legacy `TronWallet`
+        deliberately _not_ in the union — it lives on `DerivationItem.tronWallet?:`, not on
+        `AccountMultichain.wallets[]`.
+-   [x] **H3.** Added `derivationPath?: string` to `TonWalletStandard`. JSON round-trip verified in
+        tests for both legacy (absent) and multichain (present) shapes.
+-   [x] **H4.** All four chain helpers symmetric:
+        `isEvmWallet`/`isBtcWallet`/`isSolWallet`/`isTronWallet` each narrow via
+        `wallet.chain === '<chain>'`. No shape-detection asymmetry.
+-   [x] **H5.** `entries/__tests__/wallet.test.ts` (13 tests): per-helper fixture matching,
+        exhaustive narrowing (every shape lands in exactly one branch), `TonWalletStandard` JSON
+        round-trip in both shapes, legacy → Phase 2 read.
 
 ### Risk callouts
 
 -   **TonWalletStandard discriminator gap.** Existing code branches on `'version' in wallet` — don't
     add a `chain: 'ton'` field that breaks that narrowing. Either keep the implicit narrowing or add
     `chain` as `'ton' | undefined` with downstream consumers updated.
--   **`TronWallet` identity.** The existing type lives in
-    `packages/core/src/entries/tron/tron-wallet.ts`. It is _the_ TRON wallet type for both legacy
-    and multichain accounts. Do not fork it. If multichain needs extra fields, add them as optional.
+-   **Legacy `TronWallet` is byte-and-bit untouched.** The original MD said the legacy type at
+    `packages/core/src/entries/tron/tron-wallet.ts` would be _the_ TRON wallet type for both legacy
+    and multichain accounts. Implementation flipped that: legacy `TronWallet` (`{id, address}`) is a
+    minimal bolt-on used only by `AccountTonMnemonic` / `AccountMAM` via
+    `DerivationItem.tronWallet`, and `MultichainTronWallet`
+    (`entries/tron/multichain-tron-wallet.ts`) is the sibling-symmetric chain-tagged entry used in
+    `AccountMultichain.wallets[]`. The split keeps invariant #1 strict (no on-disk shape change for
+    any legacy account) and lets all four chain helpers narrow on `chain === '<chain>'`
+    symmetrically. TON does **not** get the same split — see the Goal section for the asymmetry.
 
 ### Done when
 
