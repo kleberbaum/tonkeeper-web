@@ -128,6 +128,12 @@ export const signDataOver = ({
                     'error_multisig_doesnot_support_sign_data'
                 );
             }
+            case 'multichain': {
+                // Phase 3+: wire to the multichain TON signing strategy
+                // (Track O3) once secret resolution lands for the BIP39
+                // seed inside AccountMultichain.
+                throw new Error('Phase 3+: signDataOver not wired for multichain accounts');
+            }
             default: {
                 assertUnreachable(account);
             }
@@ -217,6 +223,12 @@ export const signTonConnectOver = ({
                     "Can't use multisig wallet with this dApp",
                     'error_multisig_doesnot_support_connection'
                 );
+            }
+            case 'multichain': {
+                // Phase 3+: TonConnect over multichain accounts depends
+                // on the multichain TON signing strategy (Track O3) and
+                // BIP39-seed unlock plumbing.
+                throw new Error('Phase 3+: signTonConnectOver not wired for multichain accounts');
             }
             default: {
                 assertUnreachable(account);

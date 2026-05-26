@@ -480,6 +480,11 @@ export const AsideMenuAccount: FC<{
             return <AsideMenuAccountMAM account={account} {...rest} />;
         case 'ton-multisig':
             return <AsideMenuAccountMultisig />;
+        case 'multichain':
+            // Phase 4 (Track P): aside menu item with per-chain badges.
+            // Multichain accounts are gated behind `multichainEnabled` in
+            // Phase 2; renders nothing for now.
+            return null;
         default:
             assertUnreachable(account);
     }

@@ -47,6 +47,8 @@ export const toWalletSource = (account: Account): TransactionSentWalletSource =>
             return 'watchonly';
         case 'ton-multisig':
             return 'mnemonic';
+        case 'multichain':
+            return 'mnemonic';
     }
 };
 

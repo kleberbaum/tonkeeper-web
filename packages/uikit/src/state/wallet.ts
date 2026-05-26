@@ -150,19 +150,17 @@ export const useActiveStandardTonWallet = () => {
 };
 
 /**
- * Phase 1 multichain scaffolding. Returns the active wallet for the given
- * chain on the current account. For all legacy account types this is a
- * thin wrapper around `useActiveWallet()` — chain `'ton'` returns the
- * active TON wallet unchanged, every other chain returns `undefined`.
+ * Returns the active wallet for the given chain on the current account.
+ * Multichain accounts (Phase 2 Track I) dispatch through
+ * `getWalletByChain`; legacy account types return their TON wallet for
+ * `chain === 'ton'` and `undefined` for anything else.
  *
- * No production callers in Phase 1; Phase 2 will migrate consumers
- * chain-by-chain. See `MULTICHAIN_PHASE_1_TASKS.md` Track E and
- * `packages/core/src/chains/wallet-selector.ts` for the pure selector +
- * tests.
+ * Phase 2 starts migrating production callers chain-by-chain. See
+ * `packages/core/src/chains/wallet-selector.ts` for the pure selector.
  */
 export const useActiveWalletForChain = <C extends ChainId>(chain: C) => {
     const account = useActiveAccount();
-    return selectActiveWalletForChain(account.activeTonWallet, chain);
+    return selectActiveWalletForChain(account, chain);
 };
 
 export const useMutateActiveAccount = () => {
@@ -820,9 +818,7 @@ export const useCreateAccountMAM = () => {
                 try {
                     await authBattery({
                         signer: tonProofSignerByTonMnemonic(
-                            (
-                                await rootAccount.getTonAccount(d.index)
-                            ).mnemonics,
+                            (await rootAccount.getTonAccount(d.index)).mnemonics,
                             'ton'
                         ),
                         wallet: d.tonWallets[0]

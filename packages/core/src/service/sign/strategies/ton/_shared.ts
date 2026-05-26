@@ -5,6 +5,7 @@ import {
     AccountKeystone,
     AccountLedger,
     AccountMAM,
+    AccountMultichain,
     AccountTonMnemonic,
     AccountTonMultisig,
     AccountTonOnly,
@@ -30,6 +31,7 @@ type AccountByType = {
     'ton-only': AccountTonOnly;
     mam: AccountMAM;
     'ton-multisig': AccountTonMultisig;
+    multichain: AccountMultichain;
 };
 
 export const loadAccountOfType = async <T extends Account['type']>(

@@ -156,6 +156,14 @@ function accountAndWalletToString(account: Account, walletId: WalletId): string 
             return baseInfo;
         case 'ton-multisig':
             return baseInfo + ' ' + 'multisig';
+        case 'multichain':
+            // Phase 3+: multichain dashboard rows differentiate per-chain
+            // wallets via the chain badge, not the wallet version suffix.
+            // Track P (multichain wallet picker) replaces this branch.
+            if (account.allTonWallets.length === 1) {
+                return baseInfo;
+            }
+            return baseInfo + ' ' + walletVersionText(account.getTonWallet(walletId)?.version ?? 0);
         default:
             return assertUnreachable(account);
     }

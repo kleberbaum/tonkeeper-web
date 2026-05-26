@@ -7,15 +7,14 @@ Status: **draft for team review** Owner: TBD Target apps for first release: `app
 
 ## TL;DR
 
--   **5 phases**, gated by a Phase 0 spike that resolves three risks (chain-kit packaging, Solana
-    availability, mobile/extension WASM constraints).
--   **Refactor before adding.** Phases 1–2 are "TON-only refactor that fits the multichain shape" —
-    no user-visible chains yet. This is the only way to avoid `getSigner()` becoming a 500-line
-    switch.
--   **New account variant `AccountMultichain`** is added in Phase 2 alongside existing types.
-    Existing TON-only accounts stay byte-identical. Migration is opt-in via Phase 4.
--   **One launch flag** `multichainEnabled`, plumbed through `IAppContext`. Each chain dark-launched
-    behind it across all 4 target apps.
+- **5 phases**, gated by a Phase 0 spike that resolves three risks (chain-kit packaging, Solana
+  availability, mobile/extension WASM constraints).
+- **Refactor before adding.** Phases 1–2 are "TON-only refactor that fits the multichain shape" — no
+  user-visible chains yet. This is the only way to avoid `getSigner()` becoming a 500-line switch.
+- **New account variant `AccountMultichain`** is added in Phase 2 alongside existing types. Existing
+  TON-only accounts stay byte-identical. Migration is opt-in via Phase 4.
+- **One launch flag** `multichainEnabled`, plumbed through `IAppContext`. Each chain dark-launched
+  behind it across all 4 target apps.
 
 ---
 
@@ -203,19 +202,30 @@ Migration available. Flag still off in prod for general users.
 
 ## Cross-cutting concerns
 
--   **Localization.** Every new screen ships translation keys into `packages/locales` before flag
-    flip. Plan for ~200–300 new strings.
--   **Testing.** Mock chain-kit in unit tests; integration tests hit real testnets only for EVM/BTC
-    where they're stable. TON testnet is unreliable — use a throwaway fixture seed for chain-kit
-    unit tests too.
--   **Analytics.** New tracker events per chain — define event schema in Phase 2 to avoid
-    retrofitting.
--   **Per-app bundle size.** chain-kit WASM is 3–6MB. Set bundle-size CI budgets per app at Phase 0
-    and gate on them. Extension and TWA are highest-risk.
--   **`apps/twa`** is out of scope for the first release.
--   **Backwards compatibility.** Legacy `AccountTonMnemonic`/`AccountMAM` paths stay byte-identical.
-    The signer factory and contract factory must produce literally the same outputs for these
-    accounts as the pre-refactor code. Snapshot-test harness in Phase 1 gates this.
+- **Localization.** Every new screen ships translation keys into `packages/locales` before flag
+  flip. Plan for ~200–300 new strings.
+- **Testing.** Mock chain-kit in unit tests; integration tests hit real testnets only for EVM/BTC
+  where they're stable. TON testnet is unreliable — use a throwaway fixture seed for chain-kit unit
+  tests too.
+- **Analytics.** New tracker events per chain — define event schema in Phase 2 to avoid
+  retrofitting.
+- **Per-app bundle size.** chain-kit WASM is 3–6MB. Set bundle-size CI budgets per app at Phase 0
+  and gate on them. Extension and TWA are highest-risk.
+- **`apps/twa`** is out of scope for the first release.
+- **Backwards compatibility.** Legacy `AccountTonMnemonic`/`AccountMAM` paths stay byte-identical.
+  The signer factory and contract factory must produce literally the same outputs for these accounts
+  as the pre-refactor code. Snapshot-test harness in Phase 1 gates this.
+- **Per-task comment cleanup.** Tracks across all phases seed phase- and plan-pointer comments
+  (`Phase 3+: not wired`, `Track P designs this`, `Phase 1 scaffolding`,
+  `multichainEnabled gates the call site`, etc.) while work is in flight. These are scaffolding:
+  useful for the reviewer of the PR that lands the track, useless and confusing a year later. The
+  final step of every task — before marking it ✅ — is a cleanup sweep on the diff that task
+  produced. Delete comments that reference phases, tracks, or plan milestones. Keep only comments
+  that explain a non-obvious **general** idea — a hidden invariant, a surprising constraint, a
+  workaround for a specific bug. If the code reads cleanly without the comment, the comment goes. If
+  the code only makes sense with the comment, rewrite the comment to state the principle without the
+  phase/track reference. Practical recipe:
+  `rg -n 'Phase [0-9]|Track [A-Q][0-9]?' $(git diff --name-only main... -- packages apps)`.
 
 ---
 
@@ -226,11 +236,11 @@ polish?
 
 **Context:**
 
--   No attestation scaffolding exists in the codebase today.
--   If backend enforces attestation at launch on, e.g., balance or broadcast endpoints, attestation
-    must move earlier (Phase 2 or 3, not Phase 5).
--   Mobile attestation (Play Integrity + App Attest) needs a Capacitor plugin — not trivial.
--   Desktop/extension can stub with a signed timestamp, but backend has to accept that.
+- No attestation scaffolding exists in the codebase today.
+- If backend enforces attestation at launch on, e.g., balance or broadcast endpoints, attestation
+  must move earlier (Phase 2 or 3, not Phase 5).
+- Mobile attestation (Play Integrity + App Attest) needs a Capacitor plugin — not trivial.
+- Desktop/extension can stub with a signed timestamp, but backend has to accept that.
 
 **Decision needed from:** backend / security team.
 
@@ -266,11 +276,11 @@ the _create_ flow, where we choose what mnemonic type to mint:
 **Adjacent decision — import disambiguation.** Regardless of create-flow default, "Import wallet"
 must:
 
--   Detect TON-standard mnemonic → route to `AccountTonMnemonic` create path. No prompt needed.
--   Detect MAM → route to `AccountMAM`. No prompt needed.
--   Detect BIP39 → **ambiguous**, since a BIP39 seed could equally be a legacy TON-only wallet
-    (BIP39 with TON path) or a multichain wallet. Either prompt the user, or default to multichain
-    (recommended) and let users with legacy BIP39-TON wallets choose "TON-only" before confirming.
+- Detect TON-standard mnemonic → route to `AccountTonMnemonic` create path. No prompt needed.
+- Detect MAM → route to `AccountMAM`. No prompt needed.
+- Detect BIP39 → **ambiguous**, since a BIP39 seed could equally be a legacy TON-only wallet (BIP39
+  with TON path) or a multichain wallet. Either prompt the user, or default to multichain
+  (recommended) and let users with legacy BIP39-TON wallets choose "TON-only" before confirming.
 
 **Recommendation:** Option **A** (multichain default, legacy create hidden from UI) for the launch
 UX. Reasoning: legacy paper backups are still imported losslessly; only thing not surfaced is the
@@ -288,34 +298,34 @@ chains. If product disagrees, fall back to **B**, not **C** or **D**.
 
 ## Appendix A — Key file locations referenced
 
--   Account model: `packages/core/src/entries/account.ts`
--   Wallet entries: `packages/core/src/entries/wallet.ts`
--   Mnemonic & TON derivation: `packages/core/src/service/mnemonicService.ts` (TON path hardcoded at
-    line 15)
--   Wallet contract factory: `packages/core/src/service/wallet/contractService.ts:24-58`
-    (workchain=0 hardcoded at line 20)
--   Signer dispatch: `packages/uikit/src/state/mnemonic.ts:267-433` (157-line switch)
--   AppSdk interface: `packages/core/src/AppSdk.ts`
--   Storage keys: `packages/core/src/Keys.ts`
--   Query keys: `packages/uikit/src/libs/queryKey.ts`
--   AppContext: `packages/uikit/src/hooks/appContext.ts`
--   Mobile storage migration pattern (reuse for multichain migration):
-    `apps/mobile/src/libs/storage.ts:86-204`
--   Receive flow (already chain-parameterized):
-    `packages/uikit/src/components/home/ReceiveNotification.tsx:33`
--   Send flow root: `packages/uikit/src/components/transfer/`
--   TRON bolt-on (template for what NOT to repeat): `tronWalletByTonMnemonic` in `walletService.ts`
+- Account model: `packages/core/src/entries/account.ts`
+- Wallet entries: `packages/core/src/entries/wallet.ts`
+- Mnemonic & TON derivation: `packages/core/src/service/mnemonicService.ts` (TON path hardcoded at
+  line 15)
+- Wallet contract factory: `packages/core/src/service/wallet/contractService.ts:24-58` (workchain=0
+  hardcoded at line 20)
+- Signer dispatch: `packages/uikit/src/state/mnemonic.ts:267-433` (157-line switch)
+- AppSdk interface: `packages/core/src/AppSdk.ts`
+- Storage keys: `packages/core/src/Keys.ts`
+- Query keys: `packages/uikit/src/libs/queryKey.ts`
+- AppContext: `packages/uikit/src/hooks/appContext.ts`
+- Mobile storage migration pattern (reuse for multichain migration):
+  `apps/mobile/src/libs/storage.ts:86-204`
+- Receive flow (already chain-parameterized):
+  `packages/uikit/src/components/home/ReceiveNotification.tsx:33`
+- Send flow root: `packages/uikit/src/components/transfer/`
+- TRON bolt-on (template for what NOT to repeat): `tronWalletByTonMnemonic` in `walletService.ts`
 
 ## Appendix B — chain-kit notes
 
--   Repo: https://github.com/tonkeeper/chain-kit (private, KMP)
--   JS target: Kotlin/JS → wallet-core WASM
--   Local build → `.tgz` via `tools/js/publish-local.sh`
--   API entry: `CryptoKitClient` (not `CryptoCore`)
--   Chain access: `client.blockchain.getMediator(Network.Type)` → `ChainMediator` with
-    `account / fee / sign / transaction / node` sub-delegates
--   Required `await ready()` before any chain access
--   Result types: `Res<T,E>` — needs TS facade wrapping
--   Crypto: Trust Wallet Core WASM (~3–6 MB)
--   Solana: placeholder, not implemented
--   EVM L2s in Ethereum module: Arbitrum, Base, Optimism, Mantle (Polygon/BNB not confirmed)
+- Repo: https://github.com/tonkeeper/chain-kit (private, KMP)
+- JS target: Kotlin/JS → wallet-core WASM
+- Local build → `.tgz` via `tools/js/publish-local.sh`
+- API entry: `CryptoKitClient` (not `CryptoCore`)
+- Chain access: `client.blockchain.getMediator(Network.Type)` → `ChainMediator` with
+  `account / fee / sign / transaction / node` sub-delegates
+- Required `await ready()` before any chain access
+- Result types: `Res<T,E>` — needs TS facade wrapping
+- Crypto: Trust Wallet Core WASM (~3–6 MB)
+- Solana: placeholder, not implemented
+- EVM L2s in Ethereum module: Arbitrum, Base, Optimism, Mantle (Polygon/BNB not confirmed)

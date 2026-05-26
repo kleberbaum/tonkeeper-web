@@ -235,5 +235,13 @@ export const AccountAndWalletBadgesGroup: FC<{
         return null;
     }
 
+    if (account.type === 'multichain') {
+        // Phase 4 (Track P): per-chain account badge. Multichain accounts
+        // never reach legacy badge code in Phase 2 (gated by
+        // `multichainEnabled`); return null to keep the predicate
+        // exhaustive without throwing inside a render path.
+        return null;
+    }
+
     assertUnreachable(account);
 };
