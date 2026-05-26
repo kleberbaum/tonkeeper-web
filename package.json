@@ -20,6 +20,7 @@
         "lint:css": "stylelint \"{apps,packages}/**/src/**/*.{ts,tsx,css}\"",
         "lint:css:fix": "stylelint \"{apps,packages}/**/src/**/*.{ts,tsx,css}\" --fix",
         "typecheck": "npx turbo typecheck",
+        "test": "npx turbo test --filter='!@tonkeeper/playwrite'",
         "prepare": "husky",
         "prepare-release": "node scripts/prepare-release.js"
     },
@@ -58,7 +59,8 @@
     },
     "packageManager": "yarn@4.3.0",
     "dependencies": {
-        "@tonkeeper/uikit": "workspace:^"
+        "@tonkeeper/uikit": "workspace:^",
+        "chainkit": "file:/Users/nataliastus/.npm_local/chainkit/chainkit-0.0.1-alpha1.tgz"
     },
     "resolutions": {
         "@ionic/core@npm:8.4.2": "patch:@ionic/core@npm%3A8.4.2#~/.yarn/patches/@ionic-core-npm-8.4.2-7a066c6bc2.patch",

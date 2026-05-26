@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MULTICHAIN_ENABLED } from '../constants';
 import { Account } from '@tonkeeper/core/dist/entries/account';
 import { localizationText } from '@tonkeeper/core/dist/entries/language';
 import { getApiConfig, setProApiUrl } from '@tonkeeper/core/dist/entries/network';
@@ -332,6 +333,7 @@ export const Loader: FC = () => {
         experimental: true,
         ios: false,
         defaultWalletVersion: WalletVersion.V5R1,
+        multichainEnabled: MULTICHAIN_ENABLED,
         tracker: tracker?.track
     };
 

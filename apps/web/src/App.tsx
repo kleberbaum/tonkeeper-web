@@ -201,6 +201,7 @@ const Loader: FC = () => {
         defaultWalletVersion: WalletVersion.V5R1,
         hideMultisig: isMobile,
         hideFireblocks: true,
+        multichainEnabled: import.meta.env.VITE_MULTICHAIN_ENABLED === 'true',
         tracker: tracker?.track
     };
 
