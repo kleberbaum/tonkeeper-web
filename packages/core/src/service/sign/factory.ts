@@ -4,10 +4,12 @@ import { WalletId } from '../../entries/wallet';
 import { accountsStorage } from '../accountsStorage';
 
 import { resolve } from './registry';
+import { registerMultichainStubs } from './strategies/multichain-stubs';
 import { registerTonStrategies } from './strategies/ton';
 import { ChainSigner, Signer } from './types';
 
 registerTonStrategies();
+registerMultichainStubs();
 
 interface GetSignerOptions {
     walletId?: WalletId;

@@ -637,7 +637,7 @@ abstract methods.
 
 ---
 
-## Track O — Registry wiring for multichain account type
+## Track O — Registry wiring for multichain account type ✅
 
 **Depends on:** I, K. Builds on Phase 1 Tracks B (signer registry) and C (wallet-contract registry).
 **Touches:** `packages/core/src/service/sign/strategies/`,
@@ -652,20 +652,20 @@ paths (deriveAddress, contract construction) are wired.
 
 ### Tasks
 
-- [ ] **O1.** TON strategy for multichain accounts: register `('multichain', 'ton')` against the
+- [x] **O1.** TON strategy for multichain accounts: register `('multichain', 'ton')` against the
       signer registry pointing at a new strategy module `strategies/ton/multichain-ton-signer.ts`.
       The body is structurally identical to `mnemonic-ton-signer.ts` but pulls the secret from the
       multichain account's BIP39 seed (not from a legacy mnemonic field). Snapshot-harness this
       strategy: add a new fixture `multichain-ton__V*__*.json` to verify byte-identity against
       `mnemonic-bip39` (same derivation, same KDF — should produce identical signatures).
-- [ ] **O2.** EVM / BTC / TRON / SOL strategies registered with **NotImplementedError** bodies. The
+- [x] **O2.** EVM / BTC / TRON / SOL strategies registered with **NotImplementedError** bodies. The
       registry already throws "Phase 2+" for unregistered pairs; explicit registration makes the
       phase-pointer message more precise: `'Multichain ${chain} signing lands in Phase 4'`.
-- [ ] **O3.** Wallet-contract strategy: TON branch already works via Phase 1 Track C and accepts
+- [x] **O3.** Wallet-contract strategy: TON branch already works via Phase 1 Track C and accepts
       `(publicKey, version, network)`. Multichain accounts call into the same `getStrategy('ton')` —
       no new TON strategy needed. The non-TON strategies remain `NotImplementedError` per Phase 1
       Track C's exit state.
-- [ ] **O4.** Update Phase 1 Track E's `selectActiveWalletForChain` selector
+- [x] **O4.** Update Phase 1 Track E's `selectActiveWalletForChain` selector
       (`packages/core/src/chains/wallet-selector.ts`) so it returns multichain wallets for
       `AccountMultichain` accounts:
     - For legacy accounts: unchanged (chain `'ton'` → `account.activeTonWallet`, else `undefined`).
@@ -691,6 +691,56 @@ paths (deriveAddress, contract construction) are wired.
 - `getSigner({ accountId, chain: 'evm'|'btc'|'tron'|'sol' })` throws the "Phase 4" error for
   multichain accounts.
 - `useActiveWalletForChain` returns the correct per-chain wallet for multichain accounts.
+
+### Done summary
+
+- **O1 (TON signer + snapshot harness).** New `service/sign/strategies/ton/multichain-ton-signer.ts`
+  mirrors `mnemonicLikeTonSigner` but hardcodes BIP39 derivation (no `mnemonicType` field on
+  `AccountMultichain`). Registered via `('multichain', 'ton')` in `strategies/ton/index.ts`.
+  `getSecretAndPassword` widened to accept `account.type === 'multichain'` alongside the existing
+  `isMnemonicAndPassword` predicate — that predicate stays untouched (its other call sites gate
+  legacy editing flows that aren't safe for multichain). Snapshot harness gains the
+  `'multichain-ton'` fixture kind plus 10 pinned files
+  (`multichain-ton__V{3R1,3R2,4R2,5_BETA,5R1}__{MAINNET,TESTNET}.json`). All 10 are byte-identical
+  to their `mnemonic-bip39__*` counterparts at the pinned wallet versions × networks — verified both
+  by the generic harness assertion (each combo matches its own saved file) and by a paired
+  `multichain TON ≡ mnemonic-bip39` describe block that asserts publicKeyHex / address /
+  transferBocBase64 cross-equality per (version, network). Harness writer bumped to 4-space indent
+  to match the legacy fixture formatting so future `UPDATE_SNAPSHOTS=1` runs don't churn the on-disk
+  files.
+- **O2 (non-TON stubs).** `service/sign/strategies/multichain-stubs.ts` registers
+  `('multichain', 'evm'|'btc'|'tron'|'sol')` against a phase-4 stub factory that throws
+  `'Multichain ${chain} signing lands in Phase 4'` on invocation. More precise than the registry's
+  generic `"…other chains in Phase 2+"` fallback. Aggregator hook added to `factory.ts` next to
+  `registerTonStrategies()`. Unit-tested via the new
+  `strategies/__tests__/multichain-stubs.test.ts`.
+- **O3 (wallet-contract registry).** No code change needed. The Phase 1 wallet-contract registry
+  keys strategies by `chain`, not by `(account.type, chain)`. Multichain accounts that need a TON
+  contract call `getStrategy('ton').create({ publicKey, version, network })` — identical to every
+  other account type. Confirmed by inspection; the existing
+  `service/wallet/contracts/__tests__/registry.test.ts` already exercises this path.
+- **O4 (selector).** Already landed when Track I shipped `account.getWalletByChain(chain)` —
+  `chains/wallet-selector.ts` was updated at the same time. `selectActiveWalletForChain` already
+  dispatches on `account.type === 'multichain'` and `chains/__tests__/wallet-selector.test.ts`
+  already covers the multichain branch end-to-end (5-chain `it.each` + a partial case where a chain
+  is enabled but has no active wallet id). `useActiveWalletForChain` in `uikit/src/state/wallet.ts`
+  resolves the active account internally and forwards into the pure selector — no signature change
+  leaked to callers.
+
+### Gates
+
+- `@tonkeeper/core`: 20/20 files, 310/310 tests. Snapshot harness covers 82 cases (62 legacy + 10
+  new multichain-ton combo files + 10 multichain ↔ mnemonic-bip39 equivalence assertions); every
+  legacy fixture is byte-identical to its pre-track state (`git diff` shows no churn outside the new
+  `multichain-ton__*.json` files and the harness/test additions).
+- `yarn turbo typecheck`: 9/9 green.
+
+### Cleanup sweep
+
+- Removed the one `Track O1` pointer in `strategies/multichain-stubs.ts`. Other `Phase 4` /
+  `Phase 2+` mentions in that file (and in the stub test) are intentional content — they describe or
+  assert the actual runtime error message, not a future-work pointer, and stay per the cleanup
+  rule's "general-idea" carve-out.
 
 ---
 

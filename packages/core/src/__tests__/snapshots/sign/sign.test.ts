@@ -25,7 +25,7 @@ const writeSnapshot = (snapshot: ComboSnapshot) => {
         mkdirSync(SNAPSHOT_DIR, { recursive: true });
     }
     const path = join(SNAPSHOT_DIR, `${snapshot.comboId}.json`);
-    writeFileSync(path, JSON.stringify(snapshot, null, 2) + '\n', 'utf8');
+    writeFileSync(path, JSON.stringify(snapshot, null, 4) + '\n', 'utf8');
 };
 
 describe('signer snapshot harness — getSigner() regression', () => {
@@ -130,3 +130,32 @@ describe('hardware-signer call shapes (Phase 1 / Track G — G5)', () => {
 // harness. Keeps imports honest if someone adds a new account.type later.
 const _allKinds: ReadonlyArray<FixtureKind> = FIXTURE_KINDS;
 void _allKinds;
+
+/**
+ * Equivalence claim: a multichain account (BIP39 seed, default path) and a
+ * legacy `mnemonic-bip39` account derived from the same seed must produce
+ * the same TON keypair, address, and signed transfer BOC at every wallet
+ * version × network. If a future change diverges the two paths, this
+ * block flips red before any byte-rewrite of the multichain fixtures.
+ */
+describe('multichain TON ≡ mnemonic-bip39 (same seed, byte-identical BOC)', () => {
+    for (const version of SNAPSHOT_WALLET_VERSIONS) {
+        for (const network of SNAPSHOT_NETWORKS) {
+            const networkLabel = network === Network.MAINNET ? 'MAINNET' : 'TESTNET';
+            it(`${walletVersionName(
+                version
+            )} × ${networkLabel} — multichain-ton matches mnemonic-bip39`, () => {
+                const mc = readSnapshot(comboIdFor('multichain-ton', version, network));
+                const bip = readSnapshot(comboIdFor('mnemonic-bip39', version, network));
+                if (!mc || !bip) {
+                    throw new Error(
+                        'Both snapshots must exist — bootstrap with UPDATE_SNAPSHOTS=1.'
+                    );
+                }
+                expect(mc.publicKeyHex).toBe(bip.publicKeyHex);
+                expect(mc.address).toBe(bip.address);
+                expect(mc.transferBocBase64).toBe(bip.transferBocBase64);
+            });
+        }
+    }
+});

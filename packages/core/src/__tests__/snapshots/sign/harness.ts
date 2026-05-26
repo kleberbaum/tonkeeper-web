@@ -40,7 +40,14 @@ import {
  * `getSigner()` that produce a CellSigner. Watch-only and multisig are
  * excluded — they can't produce a signature locally.
  */
-export type FixtureKind = 'mnemonic-ton' | 'mnemonic-bip39' | 'testnet' | 'mam' | 'sk' | 'ton-only';
+export type FixtureKind =
+    | 'mnemonic-ton'
+    | 'mnemonic-bip39'
+    | 'testnet'
+    | 'mam'
+    | 'sk'
+    | 'ton-only'
+    | 'multichain-ton';
 
 export const FIXTURE_KINDS: ReadonlyArray<FixtureKind> = [
     'mnemonic-ton',
@@ -48,7 +55,8 @@ export const FIXTURE_KINDS: ReadonlyArray<FixtureKind> = [
     'testnet',
     'mam',
     'sk',
-    'ton-only'
+    'ton-only',
+    'multichain-ton'
 ];
 
 type CellSigner = (message: Cell) => Promise<Buffer>;
@@ -115,6 +123,18 @@ const resolveFixture = async (kind: FixtureKind): Promise<ResolvedFixture> => {
             return {
                 publicKey: Buffer.from(FIXTURE_TON_ONLY_PUBLIC_KEY_HEX, 'hex'),
                 signer: async () => FIXTURE_TON_ONLY_MOCK_SIGNATURE
+            };
+        }
+        case 'multichain-ton': {
+            // `AccountMultichain` is BIP39 by construction; the TON branch
+            // derives the same keypair the legacy `mnemonic-bip39` path
+            // produces. Snapshot files for this kind must be byte-identical
+            // to `mnemonic-bip39__V*__*.json` for the same (version, network)
+            // — enforced by a paired equivalence test in sign.test.ts.
+            const keyPair = await mnemonicToKeypair(FIXTURE_BIP39_MNEMONIC, 'bip39');
+            return {
+                publicKey: Buffer.from(keyPair.publicKey),
+                signer: async (message: Cell) => sign(message.hash(), keyPair.secretKey)
             };
         }
     }

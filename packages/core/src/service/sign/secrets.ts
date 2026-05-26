@@ -53,7 +53,9 @@ export const getSecretAndPassword = async (
     accountId: AccountId
 ): Promise<{ secret: AccountSecret; password?: string }> => {
     const account = await accountsStorage(sdk.storage).getAccount(accountId);
-    if (!account || !isMnemonicAndPassword(account) || !('auth' in account)) {
+    const isSecretBearing =
+        !!account && (isMnemonicAndPassword(account) || account.type === 'multichain');
+    if (!account || !isSecretBearing || !('auth' in account)) {
         throw new Error('Unexpected auth method for account');
     }
 

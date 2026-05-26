@@ -3,6 +3,7 @@ import { keystoneTonSigner } from './keystone-ton-signer';
 import { ledgerTonSigner } from './ledger-ton-signer';
 import { mamTonSigner } from './mam-ton-signer';
 import { mnemonicTonSigner, testnetTonSigner } from './mnemonic-ton-signer';
+import { multichainTonSigner } from './multichain-ton-signer';
 import { multisigTonSigner } from './multisig-signer';
 import { skTonSigner } from './sk-ton-signer';
 import { tonOnlyTonSigner } from './ton-only-signer';
@@ -27,4 +28,5 @@ export const registerTonStrategies = (): void => {
     register('sk', 'ton', skTonSigner);
     register('watch-only', 'ton', watchOnlyTonSigner);
     register('ton-multisig', 'ton', multisigTonSigner);
+    register('multichain', 'ton', multichainTonSigner);
 };
