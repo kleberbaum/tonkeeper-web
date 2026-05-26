@@ -367,48 +367,79 @@ callers that already know the chain branch can `as` the result.
 
 ---
 
-## Track J — Storage keys + (de)serialization
+## Track J — Storage keys + (de)serialization ✅
 
-**Depends on:** I. **Touches:** `packages/core/src/Keys.ts`,
-`packages/core/src/service/accountsStorage.ts` (or the platform-specific storage glue).
+**Status:** Done (2026-05-26).
+
+**Depends on:** I. **Touches:** `packages/core/src/Keys.ts`, new
+`packages/core/src/service/__tests__/accountsStorage.test.ts`.
+
+### Done summary
+
+`AppKey` now reserves `MULTICHAIN_CHAIN_CONFIG` (per-account chain preferences) and
+`MULTICHAIN_MIGRATION_STATE` (legacy→multichain migration). Both keys are documented in-place with
+the rationale; no read/write code is wired against them yet.
+
+No `accountsStorage.ts` code change was needed. The existing pattern persists the `accounts` list
+through `IStorage` as a plain JSON list, then `bindAccountToClass(account)` re-attaches the class
+prototype based on `account.type` after read. Adding `multichain: AccountMultichain.prototype` to
+the prototypes map in Track I was sufficient — the serializer / deserializer paths are fully generic
+over the union.
+
+A new test (`packages/core/src/service/__tests__/accountsStorage.test.ts`) round-trips every account
+class through a JSON-serializing storage shim that mirrors how real platforms persist
+(`localStorage`, electron-store, mobile secure storage). 14 tests cover: every legacy account class
+(`AccountTonMnemonic`, `AccountTonTestnet`, `AccountTonSK`, `AccountTonOnly`, `AccountTonWatchOnly`,
+`AccountKeystone`, `AccountLedger`, `AccountMAM`, `AccountTonMultisig`), `AccountMultichain` with
+all five chains, `AccountMultichain` with TON-only, the `IAccountTonWalletStandard` contract on the
+deserialized multichain instance, a mixed legacy + multichain list preserving array order, and the
+two new `AppKey` enum values. Each assertion checks `instanceof` plus deep-equal, and verifies
+`TonWalletStandard.derivationPath` is absent on legacy fixtures and present on multichain. The
+`@ton-keychain/{core,trx}` modules pulled in transitively by `walletService.ts` are stubbed via
+`vi.mock` — the round-trip code paths under test never call them, and the real ESM has a malformed
+internal import path that vitest's loader can't resolve.
+
+Full `@tonkeeper/core` suite: 17/17 files, 268/268 tests, 62-BOC snapshot harness byte-identical.
+Workspace typecheck: 9/9 green.
 
 ### Goal
 
 Multichain accounts persist alongside legacy accounts in the same `accounts` storage list. No new
 top-level storage key for accounts themselves — the existing `IStorage` map already supports
-mixed-type lists via the `type` discriminator. New storage keys are needed only for _chain-level_
-state (the `multichainEnabled` flag is already plumbed via `IAppContext`; that's not storage).
+mixed-type lists via the `type` discriminator. New storage keys are reserved only for _chain-level_
+state (the `multichainEnabled` flag is plumbed via `IAppContext`; that's not storage).
 
 ### Tasks
 
-- [ ] **J1.** Add `MULTICHAIN_CHAIN_CONFIG` to `AppKey` enum in `packages/core/src/Keys.ts`. Stores
-      per-account chain-level preferences (which chains visible, jetton/ERC-20 hide lists, etc.).
-      Defer the actual schema to Phase 3 when chain preferences become user-facing — Phase 2 just
-      reserves the key.
-- [ ] **J2.** Storage serializer / deserializer for `AccountMultichain`. The existing pattern in
-      `accountsStorage.ts` uses a `type` discriminator on the stored object — extend that switch.
-      Round-trip test: serialize → deserialize → deep-equal against original.
-- [ ] **J3.** Add `MULTICHAIN_MIGRATION_STATE` as a **reserved** `AppKey` (no read/write code in
-      Phase 2). Phase 4 implements the migration flow that uses it; reserving the key in Phase 2
-      lets Phase 4 land without touching `Keys.ts` again.
-- [ ] **J4.** Backwards-compat round-trip test: write a Phase 1 accounts snapshot to the storage
-      layer, read through Phase 2 code, assert the deserialized account matches the original. Covers
-      the H3 `derivationPath?: string` optional-field guarantee.
+- [x] **J1.** `MULTICHAIN_CHAIN_CONFIG` added to `AppKey` enum in `packages/core/src/Keys.ts`.
+      Stores per-account chain-level preferences (visible chains, hide-lists, etc.). Reserved only —
+      schema lands when chain preferences become user-facing.
+- [x] **J2.** Storage serializer / deserializer round-trip verified. No new code: the existing
+      `AccountsStorage.setAccounts` / `getAccounts` path encodes the full list as JSON and
+      `bindAccountToClass` re-attaches the prototype on read. `multichain` is in the prototypes map
+      (Track I2). Round-trip asserts deep-equal + `instanceof`.
+- [x] **J3.** `MULTICHAIN_MIGRATION_STATE` added to `AppKey` as a reserved key (no read/write code
+      yet). The legacy→multichain migration flow uses this; reserving now keeps the enum stable.
+- [x] **J4.** Backwards-compat round-trip test exercises every legacy account class plus
+      `AccountMultichain`. `TonWalletStandard.derivationPath` is optional and round-trips both
+      absent (legacy) and present (multichain).
 
 ### Risk callouts
 
-- **Storage corruption blast radius.** If `(de)serialize` has a bug that mangles legacy accounts,
-  users lose access to their wallets. The backwards-compat test (J4) is the gate — do not merge
-  without it. Cover at least one fixture per legacy account type.
-- **Storage migration on read.** If you discover a Phase 2 schema needs a one-time write to upgrade
-  legacy accounts, route it through the existing `StorageMigrationService` pattern
-  (apps/mobile/src/libs/storage.ts:86-204) rather than ad-hoc in the deserializer.
+- **Storage corruption blast radius.** Mangled (de)serialize on legacy accounts = users locked out
+  of their wallets. The round-trip test is the gate; every legacy account class is covered.
+- **Storage migration on read.** No schema migration was needed in this track. If a future change
+  requires a one-time legacy-upgrade write, the right hook is the existing `StorageMigrationService`
+  pattern (`apps/mobile/src/libs/storage.ts:86-204`) — not ad-hoc deserializer logic.
 
 ### Done when
 
-- `MULTICHAIN_CHAIN_CONFIG` and `MULTICHAIN_MIGRATION_STATE` reserved in `AppKey`.
-- Multichain accounts persist and reload through `IStorage` round-trip.
-- Legacy accounts unaffected — round-trip test green.
+- [x] `MULTICHAIN_CHAIN_CONFIG` and `MULTICHAIN_MIGRATION_STATE` reserved in `AppKey`.
+- [x] Multichain accounts persist and reload through `IStorage` round-trip; `instanceof` + deep
+      equal after deserialization.
+- [x] Legacy accounts unaffected — every legacy class round-trips byte-identical.
+- [x] Full core suite green (17/17 files, 268 tests); snapshot harness still byte-identical (62
+      BOCs); workspace typecheck 9/9 green.
 
 ---
 

@@ -20,6 +20,16 @@ export enum AppKey {
     MULTISIG_VIEWED_ORDERS = 'viewed_multisig_orders',
     META_ENCRYPTION_MAP = 'meta_encryption_map',
 
+    // Per-account chain-level preferences for multichain accounts
+    // (visible-chains, hide-lists, etc.). Reserved here; schema lands
+    // when the chain-preferences UI ships.
+    MULTICHAIN_CHAIN_CONFIG = 'multichain_chain_config',
+
+    // Reserved for the future legacy-to-multichain account migration
+    // flow. Not read or written yet; reserving the key now avoids
+    // touching this enum when the migration ships.
+    MULTICHAIN_MIGRATION_STATE = 'multichain_migration_state',
+
     THEME = 'theme',
     UI_PREFERENCES = 'ui_preferences',
     MULTI_SEND_LISTS = 'multi_send_lists',
