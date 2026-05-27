@@ -41,6 +41,10 @@ yarn workspace @tonkeeper/core test
 # Run a single test file
 yarn workspace @tonkeeper/core test src/utils/__tests__/AmountFormatter.test.ts
 
+# UI component tests (Playwright CT, run from packages/uikit)
+yarn workspace @tonkeeper/uikit test:ct            # all component tests
+yarn workspace @tonkeeper/uikit test:ct:changed    # only tests affected by the diff
+
 # Playwright E2E tests (run from tests/playwright)
 yarn workspace @tonkeeper/playwrite test
 
@@ -127,6 +131,23 @@ or uikit, run `yarn workspace @tonkeeper/core build` (or `build:pkg` via Turbo) 
 app picks up the changes.
 
 Turbo's task graph: `build:pkg` runs first, then all `build:*` app tasks depend on it.
+
+## Testing
+
+-   **Unit tests** — Vitest in `packages/core` (`*.test.ts`), run via
+    `yarn workspace @tonkeeper/core test`.
+-   **UI component tests** — Playwright Component Testing (`@playwright/experimental-ct-react`) in
+    `packages/uikit`, colocated as `*.ct.tsx`. We are rolling these out **alongside the unit
+    tests**, targeting **small-to-medium components** (buttons, fields, list rows, badges…);
+    page-level flows stay in the E2E suite. Each test can render in **desktop and mobile modes** via
+    the `screenshotEachMode` decorator (sets viewport + theme variant), so both behaviour and
+    screenshots are checked per breakpoint. New small/medium components should ship with a
+    `*.ct.tsx`. Mount providers live in `packages/uikit/playwright/index.tsx`. Screenshot baselines
+    are platform-specific and **only the `-linux` baselines are committed** (CI is Linux);
+    regenerate them with the "Component Tests → Update screenshot baselines" workflow. Full guide:
+    `packages/uikit/UI_TESTING.md`. The CI `component-tests` job runs only diff-affected tests on
+    PRs and the full suite on `main`.
+-   **E2E tests** — Playwright in `tests/playwright` (being phased out).
 
 ## Regenerating API clients
 

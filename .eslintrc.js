@@ -217,6 +217,15 @@ module.exports = {
                     }
                 ]
             }
+        },
+        {
+            // Playwright component tests + CT harness: literal UI strings are
+            // expected in fixtures, and they import devDependencies (Playwright).
+            files: ['**/*.ct.tsx', '**/playwright/**/*.ts', '**/playwright/**/*.tsx'],
+            rules: {
+                'i18next/no-literal-string': 'off',
+                'import/no-extraneous-dependencies': ['error', { devDependencies: true }]
+            }
         }
     ]
 };

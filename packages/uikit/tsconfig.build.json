@@ -1,0 +1,10 @@
+{
+    "extends": "./tsconfig.json",
+    "exclude": [
+        "node_modules",
+        "**/stories",
+        "**/*.ct.tsx",
+        "playwright",
+        "playwright-ct.config.ts"
+    ]
+}
