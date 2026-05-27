@@ -196,10 +196,10 @@ Adding a token: append to `tailwindBridge.ts`, declare a `:root` fallback in
 
 ### Theme variants
 
-Both available themes (`dark`, `pro`) are dark — there is no light theme. `UserThemeProvider`
-rewrites the CSS variables when the theme changes, which is what makes the swap visible. The
-`data-theme="<name>"` attribute on `<html>` is a debug aid only; Tailwind's `dark:` variant is
-unused.
+There is one dark theme. No light theme, no pro variant — Tailwind's `dark:` variant is unused.
+`UserThemeProvider` still mirrors the styled-components theme into the CSS variables once on mount:
+the `isInsideTonkeeper` flag rewrites the `corner*` tokens, and the bridge is what makes that reach
+Tailwind utilities too.
 
 ### Style-precedence pitfall
 

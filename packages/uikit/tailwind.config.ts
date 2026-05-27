@@ -7,15 +7,15 @@ import type { Config } from 'tailwindcss';
  * PostCSS to pick up this config.
  *
  * Tokens are exposed as CSS custom properties on `:root` (see
- * `src/styles/tailwind.css`) and rewritten by `UserThemeProvider` whenever
- * the active styled-components theme changes. That keeps a Tailwind
- * `bg-textPrimary` rule rendering the same color as an adjacent
- * `styled.div``color: ${theme.textPrimary}`` ` rule under any active theme
- * (dark / pro — both are dark variants; there is no light theme).
+ * `src/styles/tailwind.css`) and mirrored by `UserThemeProvider` from the
+ * active styled-components theme. That keeps a Tailwind `bg-textPrimary`
+ * rule rendering the same color as an adjacent
+ * `styled.div``color: ${theme.textPrimary}`` ` rule. There is one dark
+ * theme; the sync mainly exists so the `isInsideTonkeeper` corner
+ * overrides reach Tailwind utilities too.
  *
- * No `darkMode` config: both available themes are dark, so Tailwind's
- * `dark:` variant would be a no-op. Theme switching happens via the CSS
- * custom properties, not via a class on the root.
+ * No `darkMode` config: there is no light theme, so Tailwind's `dark:`
+ * variant would be a no-op. There is no theme switching.
  */
 // Tailwind resolves content globs against the build-tool's CWD by default, not
 // the config file. Anchoring to __dirname keeps the same uikit + apps scan

@@ -82,6 +82,20 @@ export interface ChainAdapter<TMessage = unknown, TSignature = unknown> {
      */
     deriveAddress(args: { mnemonic: string }): Promise<string>;
 
+    /**
+     * Derive the canonical public key (hex) for this chain from a BIP39
+     * mnemonic. Same restrictions as {@link deriveAddress} — TON and SOL
+     * throw `NotImplementedError`. EVM returns uncompressed secp256k1
+     * (`04` || X || Y); BTC returns compressed secp256k1; TRON returns
+     * uncompressed secp256k1 (drop the `04` prefix to feed legacy
+     * `eth_address`-style derivers).
+     *
+     * Multichain account creation needs both the address (display) and
+     * the pubkey (signing / future tx assembly) per chain. Surfacing
+     * pubkey here keeps the adapter the single chain-kit entry point.
+     */
+    derivePublicKey(args: { mnemonic: string }): Promise<string>;
+
     estimateFee(args: { from: string; to: string; amount: bigint; data?: unknown }): Promise<Fee>;
     buildTransaction(args: BuildTxArgs): Promise<TMessage>;
     signTransaction(args: { message: TMessage; signer: ChainSigner }): Promise<TSignature>;

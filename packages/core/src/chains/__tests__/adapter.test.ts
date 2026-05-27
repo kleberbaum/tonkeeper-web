@@ -98,6 +98,39 @@ describe('chain-kit-backed ChainAdapter', () => {
         });
     });
 
+    describe('derivePublicKey', () => {
+        const CANONICAL_BIP39 =
+            'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+
+        it.each(['evm', 'btc', 'tron'] as const)(
+            '%s returns a non-empty hex public key',
+            async chain => {
+                const pub = await getAdapter(chain).derivePublicKey({ mnemonic: CANONICAL_BIP39 });
+                expect(typeof pub).toBe('string');
+                expect(pub.length).toBeGreaterThan(0);
+                expect(pub).toMatch(/^[0-9a-fA-F]+$/);
+            }
+        );
+
+        it('btc returns a compressed secp256k1 key (33 bytes / 66 hex chars)', async () => {
+            const pub = await getAdapter('btc').derivePublicKey({ mnemonic: CANONICAL_BIP39 });
+            expect(pub).toHaveLength(66);
+            expect(pub.slice(0, 2)).toMatch(/^0[23]$/);
+        });
+
+        it('ton throws — pubkey comes from bip39MnemonicToEd25519Seed', async () => {
+            await expect(
+                getAdapter('ton').derivePublicKey({ mnemonic: CANONICAL_BIP39 })
+            ).rejects.toBeInstanceOf(NotImplementedError);
+        });
+
+        it('sol throws — chain-kit has no Solana module', async () => {
+            await expect(
+                getAdapter('sol').derivePublicKey({ mnemonic: CANONICAL_BIP39 })
+            ).rejects.toBeInstanceOf(NotImplementedError);
+        });
+    });
+
     describe('unwired write-side methods', () => {
         it('throw NotImplementedError on every chain', async () => {
             for (const chain of CHAIN_IDS) {

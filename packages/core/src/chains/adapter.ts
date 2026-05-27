@@ -108,6 +108,29 @@ class ChainkitAdapter implements ChainAdapter {
         return address.display;
     }
 
+    async derivePublicKey(args: { mnemonic: string }): Promise<string> {
+        if (this.chain === 'sol') {
+            throw new NotImplementedError(
+                'sol',
+                'derivePublicKey',
+                'chain-kit has no Solana module'
+            );
+        }
+        if (this.chain === 'ton') {
+            throw new NotImplementedError(
+                'ton',
+                'derivePublicKey',
+                'TON pubkey comes from bip39MnemonicToEd25519Seed in service/mnemonicService.ts'
+            );
+        }
+        const wallet = (ChainkitCryptoWallet as any).Companion.fromMnemonic(args.mnemonic);
+        const hex: string = wallet.getPublicKeyHex(chainOf(this.chain));
+        // chain-kit prefixes the pubkey with `0x`; the per-chain wallet types
+        // (`EvmWallet`/`BtcWallet`/…) document plain hex. Strip it so the
+        // stored value matches the documented shape and is uniform per chain.
+        return hex.startsWith('0x') ? hex.slice(2) : hex;
+    }
+
     async estimateFee(): Promise<never> {
         throw new NotImplementedError(this.chain, 'estimateFee', 'Phase 2+');
     }

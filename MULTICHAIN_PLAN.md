@@ -7,14 +7,15 @@ Status: **draft for team review** Owner: TBD Target apps for first release: `app
 
 ## TL;DR
 
-- **5 phases**, gated by a Phase 0 spike that resolves three risks (chain-kit packaging, Solana
-  availability, mobile/extension WASM constraints).
-- **Refactor before adding.** Phases 1–2 are "TON-only refactor that fits the multichain shape" — no
-  user-visible chains yet. This is the only way to avoid `getSigner()` becoming a 500-line switch.
-- **New account variant `AccountMultichain`** is added in Phase 2 alongside existing types. Existing
-  TON-only accounts stay byte-identical. Migration is opt-in via Phase 4.
-- **One launch flag** `multichainEnabled`, plumbed through `IAppContext`. Each chain dark-launched
-  behind it across all 4 target apps.
+-   **5 phases**, gated by a Phase 0 spike that resolves three risks (chain-kit packaging, Solana
+    availability, mobile/extension WASM constraints).
+-   **Refactor before adding.** Phases 1–2 are "TON-only refactor that fits the multichain shape" —
+    no user-visible chains yet. This is the only way to avoid `getSigner()` becoming a 500-line
+    switch.
+-   **New account variant `AccountMultichain`** is added in Phase 2 alongside existing types.
+    Existing TON-only accounts stay byte-identical. Migration is opt-in via Phase 4.
+-   **One launch flag** `multichainEnabled`, plumbed through `IAppContext`. Each chain dark-launched
+    behind it across all 4 target apps.
 
 ---
 
@@ -113,40 +114,69 @@ to pre-refactor. **TRON code paths stay as-is** in this phase — replaced in Ph
 3. **Unified seed flow.** Standard 12/24-word BIP39 phrase (no TON-specific mnemonic standard).
    Per-chain address derivation via chain-kit's
    `CryptoWallet.fromMnemonic(...).getAddress(Chain.X)`.
-4. **Account creation flow.** "Create multichain wallet" entry point behind `multichainEnabled`.
-   Generates seed → derives all enabled chains' addresses → user confirms backup → account saved.
+4. **Account creation flow — service only.** The `multichainCreateService` (BIP39 generation, TON +
+   per-chain address derivation, `AccountMultichain` assembly) shipped and is tested. The **create
+   UI was reverted out of Phase 2** and moved to Phase 3 (build on the refactored library) — see the
+   exit note.
 5. **Import flow.** Accepts BIP39, optional override of standard derivation paths per chain.
 6. **Storage keys.** New `AppKey` entries: `MULTICHAIN_ACCOUNTS`, `MULTICHAIN_CHAIN_CONFIG`. Reuse
    encrypted secret pattern from existing `meta_encryption_map`.
 7. **Per-chain secure storage.** Extend `IKeychainService` with `getValue(chain, key)` etc.;
    platform impls prefix keys.
 
-**Exit:** Dev builds can create a multichain account and display all 4 chain addresses
-(TON/EVM/BTC/TRON). No transactions yet. No migration. Existing TON accounts unaffected.
+**Exit (as wrapped 2026-05-27):** Phase 2 shipped the **non-UI foundation** — the
+`AccountMultichain` variant, per-chain wallet entries, storage + serialization, per-chain key
+derivation (incl. the adapter `derivePublicKey` extension), `IKeychainService` chain-prefixed keys,
+registry wiring, the `multichainCreateService` core service (tested), and the Tailwind setup +
+design-token bridge. **All multichain UI moved to Phase 3** behind the UI-library refactor: the
+create flow's screens were built then reverted (only the service stayed), and import + address
+display were never built. No transactions, no migration. Existing TON accounts unaffected. See
+`MULTICHAIN_PHASE_2_TASKS.md` (top banner) for the shipped-track list.
 
 ---
 
-## Phase 3 — Read paths
+## Phase 3 — UI-library refactor, then multichain account UI
 
-Make a multichain account _useful read-only_ before adding sending.
+Phase 3 opens with a **UI-library refactor** (item 0 below) that gates everything else, then builds
+the multichain account **UI** on the refactored library: create, import, and address display. The
+read-path features that were the original Phase 3 scope (portfolio / receive / buy / history /
+manage tokens) are **deferred to a later phase** — see the end of this section.
 
-1. **Portfolio aggregation.** Extend `useAssets()` to loop enabled chains. Each chain's balance
-   query keyed under `QueryKey.chainBalances` (new) with chain in key parts. Spam filtering per
-   chain (chain-kit verification or our own blacklist hooks).
-2. **Receive flow.** Extend existing `ReceiveContent` in
-   `packages/uikit/src/components/home/ReceiveNotification.tsx:33` which already accepts
-   `chain?: BLOCKCHAIN_NAME`. Add EVM/BTC/SOL handlers in the tabs. Per-chain QR payload format.
-   **Replace** the TRON tab — TRON now flows through the same chain-kit path.
-3. **Buy flow.** Extend provider config to include `supportedChains: Chain[]` per provider. UI shows
-   providers filtered by selected chain+token. URL params updated per provider's chain selector.
-4. **Per-asset history (Phase 1 of history scope).** New per-asset history screens for
-   EVM/BTC/SOL/TRON using chain-kit's `transaction.findTransaction` and the platform indexer (TBD
-   per chain — likely Etherscan-style for EVM, BlockCypher for BTC, etc.). Note: this adds new
-   backend dependencies — surface to BE team early.
-5. **Manage tokens / hide spam.** Existing `Manage tokens` UI extended to be per-chain.
+Full track breakdown in the sibling document `MULTICHAIN_PHASE_3_TASKS.md` (Track R = UI-library
+refactor, gating; S = create flow; T = import; U = address display).
 
-**Exit:** A user with a multichain account can see balances, receive funds, buy crypto, and see
-history across TON/EVM/BTC/TRON.
+0. **UI-library refactor (gates the rest of Phase 3).** Refactor the existing uikit component
+   library so new multichain screens build on a clean foundation instead of layering onto the
+   current library and reworking later. Scope to be planned separately (target shape, what's wrong
+   with the current library, migration strategy vs. the Tailwind design-token bridge already stood
+   up in Phase 2 Track Q). All multichain UI waits on this. 0a. **Create-multichain flow (was Phase
+   2 Track M, UI reverted).** Rebuild the create screens on the refactored library; the
+   `multichainCreateService` foundation already shipped in Phase 2, so this is UI + the
+   `useCreateAccountMultichain` hook + add-wallet wiring + locale keys. 0b. **Import-multichain flow
+   (was Phase 2 Track N).** BIP39 → `AccountMultichain` by default with an "Import as TON-only
+   (legacy BIP39)" escape hatch. Detection is multi-valued (a 24-word phrase can be MAM _and_
+   TON-standard _and_ BIP39 at once) and disambiguated via on-chain balance + existing account
+   checks + user choice — see the Track T banner in `MULTICHAIN_PHASE_3_TASKS.md`. The per-chain
+   derivation-path override is **blocked on chain-kit** exposing a path-aware wallet-from-mnemonic
+   API (`getAddress(chain)` currently takes no path). 0c. **Address display (was Phase 2 Track P).**
+   Multichain wallet header + per-chain address list; gate other wallet features to a coming-soon
+   state for multichain accounts.
+
+**Exit:** A user with `multichainEnabled = true`, on the refactored library, can create and import a
+multichain account and view its per-chain addresses across TON/EVM/BTC/TRON. No read or write paths.
+
+**Deferred to a later phase (was Phase 3 read-path scope, removed 2026-05-27):**
+
+-   **Portfolio aggregation.** Extend `useAssets()` to loop enabled chains; per-chain balance query
+    keys; per-chain spam filtering.
+-   **Receive flow.** Extend the existing `ReceiveContent` (already accepts
+    `chain?: BLOCKCHAIN_NAME`); add EVM/BTC/SOL handlers + per-chain QR; **replace** the TRON tab
+    with the chain-kit path.
+-   **Buy flow.** `supportedChains: Chain[]` per provider; filter providers by selected chain+token.
+-   **Per-asset history.** Per-chain history screens via chain-kit `transaction.findTransaction` +
+    the platform indexer per chain. **Adds new backend dependencies** — surface to BE team when
+    scheduled.
+-   **Manage tokens / hide spam.** Existing Manage-tokens UI extended to be per-chain.
 
 ---
 
@@ -202,30 +232,30 @@ Migration available. Flag still off in prod for general users.
 
 ## Cross-cutting concerns
 
-- **Localization.** Every new screen ships translation keys into `packages/locales` before flag
-  flip. Plan for ~200–300 new strings.
-- **Testing.** Mock chain-kit in unit tests; integration tests hit real testnets only for EVM/BTC
-  where they're stable. TON testnet is unreliable — use a throwaway fixture seed for chain-kit unit
-  tests too.
-- **Analytics.** New tracker events per chain — define event schema in Phase 2 to avoid
-  retrofitting.
-- **Per-app bundle size.** chain-kit WASM is 3–6MB. Set bundle-size CI budgets per app at Phase 0
-  and gate on them. Extension and TWA are highest-risk.
-- **`apps/twa`** is out of scope for the first release.
-- **Backwards compatibility.** Legacy `AccountTonMnemonic`/`AccountMAM` paths stay byte-identical.
-  The signer factory and contract factory must produce literally the same outputs for these accounts
-  as the pre-refactor code. Snapshot-test harness in Phase 1 gates this.
-- **Per-task comment cleanup.** Tracks across all phases seed phase- and plan-pointer comments
-  (`Phase 3+: not wired`, `Track P designs this`, `Phase 1 scaffolding`,
-  `multichainEnabled gates the call site`, etc.) while work is in flight. These are scaffolding:
-  useful for the reviewer of the PR that lands the track, useless and confusing a year later. The
-  final step of every task — before marking it ✅ — is a cleanup sweep on the diff that task
-  produced. Delete comments that reference phases, tracks, or plan milestones. Keep only comments
-  that explain a non-obvious **general** idea — a hidden invariant, a surprising constraint, a
-  workaround for a specific bug. If the code reads cleanly without the comment, the comment goes. If
-  the code only makes sense with the comment, rewrite the comment to state the principle without the
-  phase/track reference. Practical recipe:
-  `rg -n 'Phase [0-9]|Track [A-Q][0-9]?' $(git diff --name-only main... -- packages apps)`.
+-   **Localization.** Every new screen ships translation keys into `packages/locales` before flag
+    flip. Plan for ~200–300 new strings.
+-   **Testing.** Mock chain-kit in unit tests; integration tests hit real testnets only for EVM/BTC
+    where they're stable. TON testnet is unreliable — use a throwaway fixture seed for chain-kit
+    unit tests too.
+-   **Analytics.** New tracker events per chain — define event schema in Phase 2 to avoid
+    retrofitting.
+-   **Per-app bundle size.** chain-kit WASM is 3–6MB. Set bundle-size CI budgets per app at Phase 0
+    and gate on them. Extension and TWA are highest-risk.
+-   **`apps/twa`** is out of scope for the first release.
+-   **Backwards compatibility.** Legacy `AccountTonMnemonic`/`AccountMAM` paths stay byte-identical.
+    The signer factory and contract factory must produce literally the same outputs for these
+    accounts as the pre-refactor code. Snapshot-test harness in Phase 1 gates this.
+-   **Per-task comment cleanup.** Tracks across all phases seed phase- and plan-pointer comments
+    (`Phase 3+: not wired`, `Track P designs this`, `Phase 1 scaffolding`,
+    `multichainEnabled gates the call site`, etc.) while work is in flight. These are scaffolding:
+    useful for the reviewer of the PR that lands the track, useless and confusing a year later. The
+    final step of every task — before marking it ✅ — is a cleanup sweep on the diff that task
+    produced. Delete comments that reference phases, tracks, or plan milestones. Keep only comments
+    that explain a non-obvious **general** idea — a hidden invariant, a surprising constraint, a
+    workaround for a specific bug. If the code reads cleanly without the comment, the comment goes.
+    If the code only makes sense with the comment, rewrite the comment to state the principle
+    without the phase/track reference. Practical recipe:
+    `rg -n 'Phase [0-9]|Track [A-Q][0-9]?' $(git diff --name-only main... -- packages apps)`.
 
 ---
 
@@ -236,11 +266,11 @@ polish?
 
 **Context:**
 
-- No attestation scaffolding exists in the codebase today.
-- If backend enforces attestation at launch on, e.g., balance or broadcast endpoints, attestation
-  must move earlier (Phase 2 or 3, not Phase 5).
-- Mobile attestation (Play Integrity + App Attest) needs a Capacitor plugin — not trivial.
-- Desktop/extension can stub with a signed timestamp, but backend has to accept that.
+-   No attestation scaffolding exists in the codebase today.
+-   If backend enforces attestation at launch on, e.g., balance or broadcast endpoints, attestation
+    must move earlier (Phase 2 or 3, not Phase 5).
+-   Mobile attestation (Play Integrity + App Attest) needs a Capacitor plugin — not trivial.
+-   Desktop/extension can stub with a signed timestamp, but backend has to accept that.
 
 **Decision needed from:** backend / security team.
 
@@ -276,11 +306,11 @@ the _create_ flow, where we choose what mnemonic type to mint:
 **Adjacent decision — import disambiguation.** Regardless of create-flow default, "Import wallet"
 must:
 
-- Detect TON-standard mnemonic → route to `AccountTonMnemonic` create path. No prompt needed.
-- Detect MAM → route to `AccountMAM`. No prompt needed.
-- Detect BIP39 → **ambiguous**, since a BIP39 seed could equally be a legacy TON-only wallet (BIP39
-  with TON path) or a multichain wallet. Either prompt the user, or default to multichain
-  (recommended) and let users with legacy BIP39-TON wallets choose "TON-only" before confirming.
+-   Detect TON-standard mnemonic → route to `AccountTonMnemonic` create path. No prompt needed.
+-   Detect MAM → route to `AccountMAM`. No prompt needed.
+-   Detect BIP39 → **ambiguous**, since a BIP39 seed could equally be a legacy TON-only wallet
+    (BIP39 with TON path) or a multichain wallet. Either prompt the user, or default to multichain
+    (recommended) and let users with legacy BIP39-TON wallets choose "TON-only" before confirming.
 
 **Recommendation:** Option **A** (multichain default, legacy create hidden from UI) for the launch
 UX. Reasoning: legacy paper backups are still imported losslessly; only thing not surfaced is the
@@ -298,34 +328,34 @@ chains. If product disagrees, fall back to **B**, not **C** or **D**.
 
 ## Appendix A — Key file locations referenced
 
-- Account model: `packages/core/src/entries/account.ts`
-- Wallet entries: `packages/core/src/entries/wallet.ts`
-- Mnemonic & TON derivation: `packages/core/src/service/mnemonicService.ts` (TON path hardcoded at
-  line 15)
-- Wallet contract factory: `packages/core/src/service/wallet/contractService.ts:24-58` (workchain=0
-  hardcoded at line 20)
-- Signer dispatch: `packages/uikit/src/state/mnemonic.ts:267-433` (157-line switch)
-- AppSdk interface: `packages/core/src/AppSdk.ts`
-- Storage keys: `packages/core/src/Keys.ts`
-- Query keys: `packages/uikit/src/libs/queryKey.ts`
-- AppContext: `packages/uikit/src/hooks/appContext.ts`
-- Mobile storage migration pattern (reuse for multichain migration):
-  `apps/mobile/src/libs/storage.ts:86-204`
-- Receive flow (already chain-parameterized):
-  `packages/uikit/src/components/home/ReceiveNotification.tsx:33`
-- Send flow root: `packages/uikit/src/components/transfer/`
-- TRON bolt-on (template for what NOT to repeat): `tronWalletByTonMnemonic` in `walletService.ts`
+-   Account model: `packages/core/src/entries/account.ts`
+-   Wallet entries: `packages/core/src/entries/wallet.ts`
+-   Mnemonic & TON derivation: `packages/core/src/service/mnemonicService.ts` (TON path hardcoded at
+    line 15)
+-   Wallet contract factory: `packages/core/src/service/wallet/contractService.ts:24-58`
+    (workchain=0 hardcoded at line 20)
+-   Signer dispatch: `packages/uikit/src/state/mnemonic.ts:267-433` (157-line switch)
+-   AppSdk interface: `packages/core/src/AppSdk.ts`
+-   Storage keys: `packages/core/src/Keys.ts`
+-   Query keys: `packages/uikit/src/libs/queryKey.ts`
+-   AppContext: `packages/uikit/src/hooks/appContext.ts`
+-   Mobile storage migration pattern (reuse for multichain migration):
+    `apps/mobile/src/libs/storage.ts:86-204`
+-   Receive flow (already chain-parameterized):
+    `packages/uikit/src/components/home/ReceiveNotification.tsx:33`
+-   Send flow root: `packages/uikit/src/components/transfer/`
+-   TRON bolt-on (template for what NOT to repeat): `tronWalletByTonMnemonic` in `walletService.ts`
 
 ## Appendix B — chain-kit notes
 
-- Repo: https://github.com/tonkeeper/chain-kit (private, KMP)
-- JS target: Kotlin/JS → wallet-core WASM
-- Local build → `.tgz` via `tools/js/publish-local.sh`
-- API entry: `CryptoKitClient` (not `CryptoCore`)
-- Chain access: `client.blockchain.getMediator(Network.Type)` → `ChainMediator` with
-  `account / fee / sign / transaction / node` sub-delegates
-- Required `await ready()` before any chain access
-- Result types: `Res<T,E>` — needs TS facade wrapping
-- Crypto: Trust Wallet Core WASM (~3–6 MB)
-- Solana: placeholder, not implemented
-- EVM L2s in Ethereum module: Arbitrum, Base, Optimism, Mantle (Polygon/BNB not confirmed)
+-   Repo: https://github.com/tonkeeper/chain-kit (private, KMP)
+-   JS target: Kotlin/JS → wallet-core WASM
+-   Local build → `.tgz` via `tools/js/publish-local.sh`
+-   API entry: `CryptoKitClient` (not `CryptoCore`)
+-   Chain access: `client.blockchain.getMediator(Network.Type)` → `ChainMediator` with
+    `account / fee / sign / transaction / node` sub-delegates
+-   Required `await ready()` before any chain access
+-   Result types: `Res<T,E>` — needs TS facade wrapping
+-   Crypto: Trust Wallet Core WASM (~3–6 MB)
+-   Solana: placeholder, not implemented
+-   EVM L2s in Ethereum module: Arbitrum, Base, Optimism, Mantle (Polygon/BNB not confirmed)

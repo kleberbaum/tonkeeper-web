@@ -1,4 +1,4 @@
-import { mnemonicToSeed } from 'bip39';
+import { generateMnemonic, mnemonicToSeed } from 'bip39';
 import { TonKeychainRoot } from '@ton-keychain/core';
 import {
     keyPairFromSeed,
@@ -175,3 +175,14 @@ export async function mnemonicToEd25519Seed(mnemonic: string[], mnemonicType?: M
             return bip39MnemonicToEd25519Seed(mnemonic);
     }
 }
+
+/**
+ * Generate a fresh BIP39 mnemonic. Surface lives in core so uikit doesn't
+ * need to depend on `bip39` directly (legacy create flow only needs
+ * `mnemonicNew` from `@ton/crypto`; the multichain Track M create flow
+ * needs BIP39 from this helper).
+ */
+export const generateBip39Mnemonic = (wordsCount: 12 | 24): string[] => {
+    const bits = wordsCount === 12 ? 128 : 256;
+    return generateMnemonic(bits).split(' ');
+};
