@@ -7,7 +7,7 @@ import { rules } from './webpack.rules';
 
 rules.push({
     test: /\.css$/,
-    use: [{ loader: 'style-loader' }, { loader: 'css-loader' }]
+    use: [{ loader: 'style-loader' }, { loader: 'css-loader' }, { loader: 'postcss-loader' }]
 });
 
 // webpack 5 strict-ESM mode requires fully-specified paths for .mjs imports;

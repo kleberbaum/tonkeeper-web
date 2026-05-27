@@ -7,6 +7,7 @@ import {
 } from '../state/theme';
 import { usePrevious } from '../hooks/usePrevious';
 import { getUserOS } from '../libs/web';
+import { syncThemeToTailwindVars } from '../styles/tailwindBridge';
 export const UserThemeProvider: FC<
     PropsWithChildren<{
         displayType?: 'compact' | 'full-width';
@@ -81,6 +82,16 @@ export const UserThemeProvider: FC<
             mutateAsync({ theme: currentThemeName as 'dark' | 'pro' });
         }
     }, [mutateAsync, currentThemeName, uiPreferences, currentTheme]);
+
+    useEffect(() => {
+        if (!currentTheme) return;
+        // Mirror the active styled-components theme into the CSS custom
+        // properties consumed by Tailwind utilities. `data-theme` is a debug
+        // aid — both dark and pro flip the same tokens, so the active theme
+        // is otherwise invisible in DevTools.
+        syncThemeToTailwindVars(currentTheme as DefaultTheme);
+        document.documentElement.dataset.theme = currentThemeName;
+    }, [currentTheme, currentThemeName]);
 
     if (!isUIPreferencesLoaded || (isPro === undefined && isProSupported)) {
         return <div></div>;

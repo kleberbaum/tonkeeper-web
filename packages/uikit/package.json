@@ -8,7 +8,7 @@
     "scripts": {
         "storybook": "start-storybook -p 6006",
         "build-storybook": "build-storybook",
-        "build": "rm -fr dist && tsc && mkdir -p dist/components/staking && cp -R src/components/staking/assets dist/components/staking/",
+        "build": "rm -fr dist && tsc && mkdir -p dist/components/staking dist/styles && cp -R src/components/staking/assets dist/components/staking/ && cp src/styles/tailwind.css dist/styles/tailwind.css",
         "dev": "tsc -w",
         "start": "tsc -w",
         "build:pkg": "yarn build",
@@ -60,6 +60,9 @@
         "@types/react-transition-group": "^4.4.5",
         "@types/styled-components": "^5.1.34",
         "@types/uuid": "^9.0.1",
+        "autoprefixer": "^10.4.20",
+        "postcss": "^8.4.49",
+        "tailwindcss": "^3.4.17",
         "typescript": "^4.9.4"
     }
 }

@@ -1,4 +1,5 @@
 import ReactDOM from 'react-dom/client';
+import '@tonkeeper/uikit/dist/styles/tailwind.css';
 import { App } from './App';
 import './i18n';
 

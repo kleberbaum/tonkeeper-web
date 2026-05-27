@@ -197,6 +197,26 @@ module.exports = {
             rules: {
                 'no-console': 'off'
             }
+        },
+        {
+            // Phase 2 multichain surface is Tailwind-only — see CONTRIBUTING.md
+            // ("Styling: Tailwind + styled-components"). Block styled-components
+            // imports here so the rule self-documents at lint time.
+            files: ['packages/uikit/src/multichain/**/*.{ts,tsx}'],
+            rules: {
+                'no-restricted-imports': [
+                    'error',
+                    {
+                        patterns: [
+                            {
+                                group: ['styled-components', 'styled-components/*'],
+                                message:
+                                    'multichain/** is Tailwind-only. Use utility classes instead of styled-components.'
+                            }
+                        ]
+                    }
+                ]
+            }
         }
     ]
 };

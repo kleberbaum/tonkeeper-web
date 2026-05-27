@@ -177,6 +177,37 @@ tonkeeper-web/
     └── workflows/    — CI/CD pipelines
 ```
 
+## Styling: Tailwind + styled-components
+
+The codebase mid-migration. New multichain UI (`packages/uikit/src/multichain/**`) and any component
+touched during the Phase 2 redesign are Tailwind-only; everything else stays styled-components for
+now. ESLint rejects `styled-components` imports under `multichain/**`.
+
+### Design-token bridge
+
+`packages/uikit/tailwind.config.ts` resolves every color and corner-radius utility to a CSS custom
+property (e.g. `bg-textPrimary` → `var(--tk-text-primary)`). The active styled-components theme
+writes those properties on `:root` from `UserThemeProvider`, so a Tailwind `bg-textPrimary` div and
+an adjacent ` styled.div``background: ${theme.textPrimary}``  ` render the same color under any
+active theme.
+
+Adding a token: append to `tailwindBridge.ts`, declare a `:root` fallback in
+`packages/uikit/src/styles/tailwind.css`, and add the Tailwind config entry.
+
+### Theme variants
+
+Both available themes (`dark`, `pro`) are dark — there is no light theme. `UserThemeProvider`
+rewrites the CSS variables when the theme changes, which is what makes the swap visible. The
+`data-theme="<name>"` attribute on `<html>` is a debug aid only; Tailwind's `dark:` variant is
+unused.
+
+### Style-precedence pitfall
+
+Tailwind CSS loads at bundle time; styled-components injects at runtime. When a styled-components
+rule and a Tailwind utility target the same property, **runtime wins**. If a Tailwind class isn't
+applying on a partially-migrated screen, check parents for a styled-components override and either
+widen the Tailwind utility's specificity (`!`) or finish porting the parent.
+
 ## Useful Commands
 
 ```bash

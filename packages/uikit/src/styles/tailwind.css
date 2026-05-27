@@ -1,0 +1,107 @@
+/*
+ * Tailwind entry consumed by every app's CSS root.
+ *
+ * The `:root` block declares one CSS custom property per styled-components
+ * theme token, seeded from `defaultTheme.ts` so the very first paint matches
+ * the legacy default. `UserThemeProvider` rewrites these properties whenever
+ * the active theme changes (dark / pro / mobile-pro / light), which lets a
+ * Tailwind `bg-textPrimary` class render in lockstep with the existing
+ * styled-components `theme.textPrimary` accessor.
+ *
+ * Global body / scrollbar / font-smoothing rules still live in
+ * `globalStyle.ts` (injected at runtime by styled-components). We do NOT
+ * duplicate them here — keeping a single base-style source avoids drift
+ * during the partial migration. Drop styled-components base styles here in a
+ * follow-up once `globalStyle.ts` is retired.
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        /* Text */
+        --tk-text-primary: #ebebeb;
+        --tk-text-secondary: #8994a3;
+        --tk-text-tertiary: #556170;
+        --tk-text-accent: #45aef5;
+        --tk-text-primary-alternate: #10161f;
+
+        /* Background */
+        --tk-background-page: #10161f;
+        --tk-background-transparent: rgb(16 22 31 / 92%);
+        --tk-background-content: #1d2633;
+        --tk-background-content-tint: #2e3847;
+        --tk-background-content-attention: #424c5c;
+        --tk-background-overlay-strong: rgb(0 0 0 / 72%);
+        --tk-background-overlay-light: rgb(0 0 0 / 48%);
+        --tk-background-overlay-extra-light: rgb(0 0 0 / 24%);
+        --tk-background-highlighted: rgb(79 90 112 / 24%);
+
+        /* Icon */
+        --tk-icon-primary: #ebebeb;
+        --tk-icon-secondary: #8994a3;
+        --tk-icon-tertiary: #556170;
+        --tk-icon-primary-alternate: #10161f;
+
+        /* Button */
+        --tk-button-primary-background: #45aef5;
+        --tk-button-primary-foreground: #fff;
+        --tk-button-secondary-background: #1d2633;
+        --tk-button-secondary-foreground: #ebebeb;
+        --tk-button-tertiary-background: #2e3847;
+        --tk-button-tertiary-foreground: #ebebeb;
+        --tk-button-warn-background: #f5a73b;
+        --tk-button-warn-foreground: #fff;
+        --tk-button-primary-background-disabled: #378ac2;
+        --tk-button-secondary-background-disabled: #171f29;
+        --tk-button-tertiary-background-disabled: #28303d;
+        --tk-button-warn-background-disabled: #c2842f;
+        --tk-button-primary-foreground-disabled: rgb(256 256 256 / 48%);
+        --tk-button-secondary-foreground-disabled: rgb(256 256 256 / 48%);
+        --tk-button-tertiary-foreground-disabled: rgb(256 256 256 / 48%);
+        --tk-button-warn-foreground-disabled: rgb(256 256 256 / 48%);
+        --tk-button-primary-background-highlighted: rgb(91 184 246 / 100%);
+        --tk-button-secondary-background-highlighted: rgb(34 44 59 / 100%);
+        --tk-button-tertiary-background-highlighted: rgb(54 64 82 / 100%);
+        --tk-button-warn-background-highlighted: #f5af4e;
+
+        /* Field */
+        --tk-field-background: #1d2633;
+        --tk-field-active-border: #45aef5;
+        --tk-field-error-border: #ff4766;
+        --tk-field-error-background: rgb(255 71 102 / 8%);
+
+        /* Accent */
+        --tk-accent-blue: #45aef5;
+        --tk-accent-blue-constant: #45aef5;
+        --tk-accent-green: #39cc83;
+        --tk-accent-red: #ff4766;
+        --tk-accent-orange: #f5a73b;
+        --tk-accent-purple: #7665e5;
+
+        /* Tab bar */
+        --tk-tabbar-active-icon: #45aef5;
+        --tk-tabbar-inactive-icon: #8994a3;
+
+        /* Separator */
+        --tk-separator-common: rgb(79 90 112 / 24%);
+        --tk-separator-alternate: rgb(255 255 255 / 4%);
+
+        /* Constants — same value across themes by design, listed once. */
+        --tk-constant-black: #000;
+        --tk-constant-white: #fff;
+        --tk-blue: #07f;
+        --tk-red: #ff3b30;
+
+        /* Corners (border-radius scale). Static across themes. */
+        --tk-corner-3xsmall: 4px;
+        --tk-corner-2xsmall: 8px;
+        --tk-corner-extra-small: 12px;
+        --tk-corner-small: 16px;
+        --tk-corner-medium: 20px;
+        --tk-corner-large: 24px;
+        --tk-corner-full: 100%;
+    }
+}
