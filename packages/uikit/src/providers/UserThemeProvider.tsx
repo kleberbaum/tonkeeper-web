@@ -93,6 +93,16 @@ export const UserThemeProvider: FC<
         document.documentElement.dataset.theme = currentThemeName;
     }, [currentTheme, currentThemeName]);
 
+    useEffect(() => {
+        if (!currentTheme) return;
+        // Mirror the active styled-components theme into the CSS custom
+        // properties consumed by Tailwind utilities. `data-theme` is a debug
+        // aid — both dark and pro flip the same tokens, so the active theme
+        // is otherwise invisible in DevTools.
+        syncThemeToTailwindVars(currentTheme as DefaultTheme);
+        document.documentElement.dataset.theme = currentThemeName;
+    }, [currentTheme, currentThemeName]);
+
     if (!isUIPreferencesLoaded || (isPro === undefined && isProSupported)) {
         return <div></div>;
     }
