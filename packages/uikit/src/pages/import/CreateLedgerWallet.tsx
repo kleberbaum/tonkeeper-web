@@ -13,7 +13,7 @@ import { Body2, H2Label2Responsive } from '../../components/Text';
 import { useAppSdk } from '../../hooks/appSdk';
 import { AppRoute } from '../../libs/routes';
 import { useNativeBackButton } from '../../components/BackButton';
-import { SpinnerIcon } from '../../components/Icon';
+import { Loader } from '../../components/Loader';
 import { ListBlock, ListItem } from '../../components/List';
 import { formatAddress } from '@tonkeeper/core/dist/utils/common';
 import { Checkbox } from '../../components/fields/Checkbox';
@@ -255,7 +255,7 @@ const ChooseLedgerAccounts: FC<{
             <AccountsListWrapper>
                 {!ledgerAccountData ? (
                     <AccountsLoadingWrapper>
-                        <SpinnerIcon />
+                        <Loader size="small" />
                     </AccountsLoadingWrapper>
                 ) : (
                     <ListBlock margin={false}>

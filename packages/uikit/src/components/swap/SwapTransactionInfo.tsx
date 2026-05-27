@@ -1,7 +1,7 @@
 import { styled } from 'styled-components';
 import { BRAND_CONFIG } from '@tonkeeper/core/dist/config/brand';
 import { Body3 } from '../Text';
-import { IconButton } from '../fields/IconButton';
+import { LegacyIconButton } from '../fields/IconButton';
 import { useState } from 'react';
 import { ChevronDownIcon, InfoCircleIcon } from '../Icon';
 import { Skeleton } from '../shared/Skeleton';
@@ -34,7 +34,7 @@ const TxInfoHeader = styled.div`
     }
 `;
 
-const AccordionButton = styled(IconButton)<{ isOpened: boolean }>`
+const AccordionButton = styled(LegacyIconButton)<{ isOpened: boolean }>`
     transform: ${p => (p.isOpened ? 'rotate(180deg)' : 'rotate(0deg)')};
     transition: transform 0.2s ease-in-out;
     border: none;

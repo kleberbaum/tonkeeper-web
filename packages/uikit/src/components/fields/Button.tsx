@@ -1,6 +1,6 @@
 import React, { ComponentProps, FC, PropsWithChildren } from 'react';
 import styled, { css, useTheme } from 'styled-components';
-import { SpinnerIcon } from '../Icon';
+import { Loader } from '../Loader';
 import { Body2Class, Label2Class } from '../Text';
 
 export interface ButtonProps {
@@ -229,12 +229,6 @@ const ChildrenHidden = styled.div`
     visibility: hidden;
 `;
 
-const SpinnerIconStyled = styled(SpinnerIcon)`
-    position: absolute;
-    top: calc(50% - 0.5rem);
-    left: calc(50% - 0.5rem);
-`;
-
 export const Button: FC<
     PropsWithChildren<
         ButtonProps & Omit<React.HTMLProps<HTMLButtonElement>, 'size' | 'children' | 'ref'>
@@ -251,7 +245,10 @@ export const Button: FC<
         return (
             <ButtonElement {...props} size={size} disabled>
                 <ChildrenHidden>{children}</ChildrenHidden>
-                <SpinnerIconStyled />
+                <Loader
+                    size="small"
+                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+                />
             </ButtonElement>
         );
     } else {

@@ -4,7 +4,8 @@ import { InnerBody } from '../../components/Body';
 import { SubHeader } from '../../components/SubHeader';
 import { SettingsItem, SettingsList } from '../../components/settings/SettingsList';
 import { useAppSdk, useIsCapacitorApp } from '../../hooks/appSdk';
-import { CloseIcon, PlusIcon, SpinnerIcon } from '../../components/Icon';
+import { CloseIcon, PlusIcon } from '../../components/Icon';
+import { Loader } from '../../components/Loader';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AppKey } from '@tonkeeper/core/dist/Keys';
 import {
@@ -58,7 +59,7 @@ const CookieSettings = () => {
         return [
             {
                 name: 'Clean All Cookies',
-                icon: isLoading ? <SpinnerIcon /> : <CloseIcon />,
+                icon: isLoading ? <Loader size="small" /> : <CloseIcon />,
                 action: () => mutate()
             }
         ];

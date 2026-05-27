@@ -3,7 +3,8 @@ import { intlLocale } from '@tonkeeper/core/dist/entries/language';
 import { BRAND_CONFIG } from '@tonkeeper/core/dist/config/brand';
 import React, { useMemo } from 'react';
 import { InnerBody } from '../../components/Body';
-import { CheckIcon, SpinnerIcon } from '../../components/Icon';
+import { CheckIcon } from '../../components/Icon';
+import { Loader } from '../../components/Loader';
 import { SubHeader } from '../../components/SubHeader';
 import { SettingsItem, SettingsList } from '../../components/settings/SettingsList';
 import { useAppContext } from '../../hooks/appContext';
@@ -57,7 +58,7 @@ export const FiatCurrency = () => {
                     <SettingsList items={items} />
                 ) : (
                     <LoadingWrapper>
-                        <SpinnerIcon />
+                        <Loader size="small" />
                     </LoadingWrapper>
                 )}
             </DesktopViewPageLayout>
@@ -72,7 +73,7 @@ export const FiatCurrency = () => {
                     <SettingsList items={items} />
                 ) : (
                     <LoadingWrapper>
-                        <SpinnerIcon />
+                        <Loader size="small" />
                     </LoadingWrapper>
                 )}
             </InnerBody>

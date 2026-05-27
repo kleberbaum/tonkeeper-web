@@ -1,6 +1,7 @@
 import React, { FC, useEffect, useState } from 'react';
-import styled, { css } from 'styled-components';
+import { useTheme } from 'styled-components';
 import { useAppSdk } from '../../hooks/appSdk';
+import { cn } from '../../libs/css';
 
 export interface SwitchProps {
     checked: boolean;
@@ -9,107 +10,15 @@ export interface SwitchProps {
     className?: string;
 }
 
-const Wrapper = styled.div<{ disabled?: boolean }>`
-    flex-shrink: 0;
-    position: relative;
-    margin: -5px 0;
-    width: 51px;
-    display: inline-block;
-    vertical-align: middle;
-    text-align: left;
-    cursor: pointer;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    ${props =>
-        props.disabled &&
-        css`
-            opacity: 0.48;
-        `}
+/**
+ * iOS-style toggle (Figma "Controls / Switch"). Tailwind rewrite of the legacy
+ * styled-components switch. 51×31 track, 27px knob; primary background when on,
+ * tertiary when off; 64% opacity when disabled. Shrinks to 0.64 on desktop to
+ * match the denser desktop layout, same as before.
+ */
 
-    ${p =>
-        p.theme.proDisplayType === 'desktop' &&
-        css`
-            transform: scale(0.64);
-        `}
-`;
-
-const Label = styled.div`
-    display: block;
-    overflow: hidden;
-    cursor: pointer;
-    border: 0 solid ${props => props.theme.textPrimary};
-    border-radius: 20px;
-    margin: 0;
-    box-sizing: border-box;
-`;
-
-const Inner = styled.span<{ checked?: boolean; active: boolean }>`
-    display: block;
-    width: 200%;
-    margin-left: -100%;
-    will-change: margin;
-    ${props =>
-        props.active &&
-        css`
-            transition: margin 0.2s ease-in-out;
-        `}
-
-    &::before,
-    &::after {
-        display: block;
-        float: left;
-        width: 50%;
-        height: 32px;
-        padding: 0;
-        line-height: 32px;
-        font-size: 14px;
-        font-weight: bold;
-        box-sizing: border-box;
-    }
-
-    &::before {
-        content: '';
-        text-transform: uppercase;
-        padding-left: 10px;
-        background-color: ${props => props.theme.buttonPrimaryBackground};
-        color: ${props => props.theme.textPrimary};
-    }
-
-    &::after {
-        content: '';
-        text-transform: uppercase;
-        padding-right: 10px;
-        background-color: ${props => props.theme.backgroundContentTint};
-        color: ${props => props.theme.textPrimary};
-        text-align: right;
-    }
-
-    ${props =>
-        props.checked &&
-        css`
-            margin-left: 0;
-        `}
-`;
-
-const Outer = styled.span<{ checked?: boolean; active: boolean }>`
-    display: block;
-    width: 28px;
-    height: 28px;
-    margin: 2px;
-    background: ${props => props.theme.textPrimary};
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    transform: translateX(${props => (props.checked ? '19px' : '0')});
-    border-radius: 20px;
-    will-change: transform;
-    ${props =>
-        props.active &&
-        css`
-            transition: transform 0.2s ease-in-out;
-        `}
-`;
-
+// Defer enabling the transition until after the first paint so an initially-on
+// switch doesn't slide in on mount (mirrors the legacy behaviour).
 const useActive = () => {
     const [active, setActive] = useState(false);
     useEffect(() => {
@@ -122,10 +31,22 @@ const useActive = () => {
 export const Switch: FC<SwitchProps> = React.memo(({ checked, onChange, disabled, className }) => {
     const active = useActive();
     const sdk = useAppSdk();
+    const { proDisplayType } = useTheme();
+
     return (
-        <Wrapper
-            className={className}
+        <button
+            type="button"
+            role="switch"
+            aria-checked={checked}
             disabled={disabled}
+            className={cn(
+                '-my-[5px] relative inline-flex h-[31px] w-[51px] shrink-0 cursor-pointer items-center rounded-full border-0 p-0 align-middle',
+                active && 'transition-colors duration-200 ease-in-out',
+                checked ? 'bg-buttonPrimaryBackground' : 'bg-buttonTertiaryBackground',
+                disabled && 'cursor-not-allowed opacity-[0.64]',
+                proDisplayType === 'desktop' && 'scale-[0.64]',
+                className
+            )}
             onClick={e => {
                 if (!disabled && onChange) {
                     e.stopPropagation();
@@ -134,10 +55,13 @@ export const Switch: FC<SwitchProps> = React.memo(({ checked, onChange, disabled
                 }
             }}
         >
-            <Label>
-                <Inner checked={checked} active={active} />
-                <Outer checked={checked} active={active} />
-            </Label>
-        </Wrapper>
+            <span
+                className={cn(
+                    'pointer-events-none inline-block h-[27px] w-[27px] rounded-full bg-constantWhite shadow-[0_3px_8px_rgba(0,0,0,0.15),0_3px_1px_rgba(0,0,0,0.06)]',
+                    active && 'transition-transform duration-200 ease-in-out',
+                    checked ? 'translate-x-[22px]' : 'translate-x-[2px]'
+                )}
+            />
+        </button>
     );
 });

@@ -16,7 +16,7 @@ import { useAccountState, useActiveAccount } from '../../state/wallet';
 import { Body2Class, H2Label2Responsive } from '../../components/Text';
 import { useTranslation } from '../../hooks/translation';
 import { tonMnemonicToTronMnemonic } from '@tonkeeper/core/dist/service/walletService';
-import { SpinnerRing } from '../../components/Icon';
+import { Loader } from '../../components/Loader';
 import { useSetNotificationOnBack } from '../../components/Notification';
 import { Navigate } from '../../components/shared/Navigate';
 import { useSearchParams } from '../../hooks/router/useSearchParams';
@@ -109,8 +109,10 @@ const TronButton = styled.button`
     color: ${p => p.theme.textSecondary};
 `;
 
-const SpinnerRingStyled = styled(SpinnerRing)`
+const SpinnerRingStyled = styled.div`
     margin: 16px auto;
+    display: flex;
+    justify-content: center;
 `;
 
 const RecoveryPageContent: FC<{
@@ -194,7 +196,9 @@ export const RecoveryContent: FC<{
     if (!mnemonicToShow && secret?.type !== 'sk') {
         return (
             <Wrapper>
-                <SpinnerRingStyled />
+                <SpinnerRingStyled>
+                    <Loader size="small" className="text-iconSecondary" />
+                </SpinnerRingStyled>
             </Wrapper>
         );
     }

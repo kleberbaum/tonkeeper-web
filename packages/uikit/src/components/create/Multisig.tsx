@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Body1, Body2, Body2Class, H2, Label2Class } from '../Text';
 import { useTranslation } from '../../hooks/translation';
 import { Button } from '../fields/Button';
-import { SpinnerRing } from '../Icon';
+import { Loader } from '../Loader';
 import { useAccountsState, useActiveConfig, useCreateAccountTonMultisig } from '../../state/wallet';
 import { AccountTonMultisig } from '@tonkeeper/core/dist/entries/account';
 import { WalletId } from '@tonkeeper/core/dist/entries/wallet';
@@ -104,9 +104,10 @@ const CreateMultisigRenamePage: FC<{ account: AccountTonMultisig; onClose: () =>
     );
 };
 
-const SpinnerStyled = styled(SpinnerRing)`
-    transform: scale(3);
+const SpinnerStyled = styled.div`
     margin: 36px auto;
+    display: flex;
+    justify-content: center;
 `;
 
 const DeployHelpSection = styled.div`
@@ -190,7 +191,9 @@ const CreateMultisigAwaitDeployPage: FC<{
         <ContentWrapper>
             <Heading>{t('create_multisig_await_deployment_title')}</Heading>
             <SubHeading>{t('create_multisig_await_deployment_description')}</SubHeading>
-            <SpinnerStyled />
+            <SpinnerStyled>
+                <Loader size="medium" className="scale-[2] text-iconSecondary" />
+            </SpinnerStyled>
             {showHelpButton && (
                 <DeployHelpSection>
                     <Body2>{t('create_multisig_await_deployment_help_title')}</Body2>

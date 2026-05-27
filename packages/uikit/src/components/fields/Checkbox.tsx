@@ -1,8 +1,12 @@
-import React, { FC, forwardRef, PropsWithChildren, useId } from 'react';
-import styled, { css, DefaultTheme } from 'styled-components';
-import { CheckboxIcon } from '../Icon';
-import { Body1 } from '../Text';
-import { ChangeHandler } from 'react-hook-form';
+import React, { FC, PropsWithChildren } from 'react';
+import IcDoneBold16 from '../../icons/components/IcDoneBold16';
+import { cn } from '../../libs/css';
+
+/**
+ * Checkbox & Radio controls (Figma "Controls"). Tailwind rewrite of the legacy
+ * styled-components versions. Both fill with the primary colour and show a
+ * white check when active; disabled dims to 48%.
+ */
 
 export interface CheckboxProps {
     checked: boolean;
@@ -10,116 +14,16 @@ export interface CheckboxProps {
     disabled?: boolean;
     light?: boolean;
     className?: string;
-    borderColor?: keyof DefaultTheme;
     size?: 's' | 'm';
+    /** Border colour of the unchecked box. Literal classes so Tailwind picks them up. */
+    borderColor?: 'backgroundContentTint' | 'textTertiary';
 }
 
-const Wrapper = styled.div`
-    display: inline-flex;
-    gap: 8px;
-    align-items: center;
-    cursor: pointer;
-`;
-
-const IconBase = styled.div<{ checked: boolean; disabled?: boolean; $borderColor: string }>`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-width: 2px;
-    border-style: solid;
-    box-sizing: border-box;
-
-    ${props =>
-        props.disabled
-            ? css`
-                  opacity: 0.48;
-              `
-            : undefined}
-
-    ${props =>
-        props.checked
-            ? css`
-                  color: ${props.theme.buttonPrimaryForeground};
-                  background: ${props.theme.buttonPrimaryBackground};
-                  border-color: ${props.theme.buttonPrimaryBackground};
-              `
-            : css`
-                  color: transparent;
-                  background: transparent;
-                  border-color: ${props.theme[props.$borderColor]};
-              `}
-`;
-const CheckboxItem = styled(IconBase)<{ $size: 's' | 'm' }>`
-    border-radius: 6px;
-    flex-shrink: 0;
-
-    ${props =>
-        props.$size === 's'
-            ? css`
-                  width: 18px;
-                  height: 18px;
-              `
-            : css`
-                  width: 22px;
-                  height: 22px;
-              `}
-`;
-
-const RadioInput = styled.input`
-    display: none;
-
-    &:checked + label {
-        &::after {
-            background: ${p => p.theme.buttonPrimaryBackground};
-        }
-
-        &::before {
-            border-color: ${props => props.theme.buttonPrimaryBackground};
-        }
-    }
-`;
-
-const RadioLabel = styled.label`
-    padding-left: 28px;
-    position: relative;
-    cursor: pointer;
-
-    &::before {
-        box-sizing: border-box;
-        content: '';
-        display: block;
-        transition: border-color 0.15s ease-in-out;
-        width: 20px;
-        height: 20px;
-        background: transparent;
-        border-radius: ${props => props.theme.cornerFull};
-        border-color: ${props => props.theme.backgroundContentTint};
-        border-width: 2px;
-        border-style: solid;
-        position: absolute;
-        top: calc(50% - 10px);
-        left: 0;
-        cursor: pointer;
-    }
-
-    &::after {
-        transition: background 0.15s ease-in-out;
-        border-radius: ${props => props.theme.cornerFull};
-        position: absolute;
-        top: calc(50% - 5px);
-        left: 5px;
-        content: '';
-        display: block;
-        width: 10px;
-        height: 10px;
-        background: transparent;
-        cursor: pointer;
-    }
-`;
-
-const Text = styled(Body1)<{ light?: boolean }>`
-    color: ${props => (props.light ? props.theme.textPrimary : props.theme.textSecondary)};
-`;
+// Static class strings (not interpolated) so the Tailwind content scanner emits them.
+const UNCHECKED_BORDER: Record<NonNullable<CheckboxProps['borderColor']>, string> = {
+    backgroundContentTint: 'border-backgroundContentTint',
+    textTertiary: 'border-textTertiary'
+};
 
 export const Checkbox: FC<PropsWithChildren<CheckboxProps>> = ({
     checked,
@@ -128,41 +32,97 @@ export const Checkbox: FC<PropsWithChildren<CheckboxProps>> = ({
     children,
     light,
     className,
-    borderColor = 'backgroundContentTint',
-    size = 'm'
+    size = 'm',
+    borderColor = 'backgroundContentTint'
 }) => {
     return (
-        <Wrapper onClick={() => onChange?.(!checked)} className={className}>
-            <CheckboxItem
-                checked={checked}
-                disabled={disabled}
-                $borderColor={borderColor.toString()}
-                $size={size}
+        <div
+            className={cn(
+                'inline-flex items-center gap-2',
+                disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+                className
+            )}
+            onClick={() => !disabled && onChange?.(!checked)}
+        >
+            <div
+                className={cn(
+                    'box-border flex shrink-0 items-center justify-center rounded-[6px] border-2',
+                    size === 's' ? 'h-[18px] w-[18px]' : 'h-[22px] w-[22px]',
+                    checked
+                        ? 'border-buttonPrimaryBackground bg-buttonPrimaryBackground text-buttonPrimaryForeground'
+                        : cn(UNCHECKED_BORDER[borderColor], 'bg-transparent text-transparent'),
+                    disabled && 'opacity-[0.48]'
+                )}
             >
-                {checked ? <CheckboxIcon /> : undefined}
-            </CheckboxItem>
-            {children && <Text light={light}>{children}</Text>}
-        </Wrapper>
+                {checked && <IcDoneBold16 className="h-4 w-4" />}
+            </div>
+            {children && (
+                <span
+                    className={cn('text-body1', light ? 'text-textPrimary' : 'text-textSecondary')}
+                >
+                    {children}
+                </span>
+            )}
+        </div>
     );
 };
 
-export const Radio = forwardRef<
-    HTMLInputElement,
-    PropsWithChildren<{
-        className?: string;
-        checked?: boolean;
-        onChange?: ChangeHandler | ((event: { target: unknown; type?: unknown }) => void);
-        disabled?: boolean;
-        value?: string;
-    }>
->(({ children, className, ...rest }, ref) => {
-    const id = useId();
+export interface RadioProps {
+    checked?: boolean;
+    onChange?: (checked: boolean) => void;
+    disabled?: boolean;
+    className?: string;
+    /** `check` fills the circle with a tick (default); `dot` shows a ring with a centred dot. */
+    variant?: 'check' | 'dot';
+}
+
+export const Radio: FC<PropsWithChildren<RadioProps>> = ({
+    checked,
+    onChange,
+    disabled,
+    className,
+    children,
+    variant = 'check'
+}) => {
     return (
-        <>
-            <RadioInput type="radio" ref={ref} id={id} {...rest} />
-            <RadioLabel className={className} htmlFor={id}>
-                {children && <Text>{children}</Text>}
-            </RadioLabel>
-        </>
+        <div
+            className={cn(
+                'inline-flex items-center gap-2',
+                disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+                className
+            )}
+            onClick={() => !disabled && onChange?.(!checked)}
+        >
+            <div
+                className={cn(
+                    'box-border flex h-[24px] w-[24px] shrink-0 items-center justify-center rounded-full',
+                    disabled && 'opacity-[0.48]'
+                )}
+            >
+                {variant === 'check' ? (
+                    checked ? (
+                        <div className="flex h-full w-full items-center justify-center rounded-full bg-buttonPrimaryBackground text-buttonPrimaryForeground">
+                            <IcDoneBold16 className="h-4 w-4" />
+                        </div>
+                    ) : (
+                        <div className="h-full w-full rounded-full border-2 border-backgroundContentTint" />
+                    )
+                ) : (
+                    <div
+                        className={cn(
+                            'flex h-full w-full items-center justify-center rounded-full border-2',
+                            checked
+                                ? 'border-buttonPrimaryBackground'
+                                : 'border-backgroundContentTint'
+                        )}
+                    >
+                        {checked && (
+                            <div className="h-[12px] w-[12px] rounded-full bg-buttonPrimaryBackground" />
+                        )}
+                    </div>
+                )}
+            </div>
+            {children && <span className="text-body1 text-textSecondary">{children}</span>}
+        </div>
     );
-});
+};

@@ -10,7 +10,8 @@ import { formatFiatCurrency } from '../../hooks/balance';
 import { useTranslation } from '../../hooks/translation';
 import { useAssetAmountFiatEquivalent } from '../../state/asset';
 import { useFormatFiat, useRate } from '../../state/rates';
-import { ChevronRightIcon, SpinnerIcon, TonkeeperProCardIcon } from '../Icon';
+import { ChevronRightIcon, TonkeeperProCardIcon } from '../Icon';
+import { Loader } from '../Loader';
 import { ColumnText } from '../Layout';
 import { ListItem, ListItemPayload } from '../List';
 import { Body1, Body2, Body2Class, Body3, Body3Class, H2, Label1, Label2 } from '../Text';
@@ -550,7 +551,7 @@ export const ActionFeeDetailsUniversal: FC<
                 ) : fee === null || noAvailableTronOptions ? (
                     <>—</>
                 ) : (
-                    <SpinnerIcon />
+                    <Loader size="small" />
                 )}
             </Payload>
         </ListItem>
@@ -832,7 +833,7 @@ const ActionFeeDetailsUniversalTokenValue: FC<{
     const fiatAmount = formatFiatCurrency(fiat, fiatAmountBN?.abs() || '0');
 
     return isLoading ? (
-        <SpinnerIcon />
+        <Loader size="small" />
     ) : (
         <ColumnText
             right
@@ -858,7 +859,7 @@ const ActionFeeDetailsUniversalBatteryValue: FC<{ fee: TransactionFeeBattery }> 
     const { data: balance } = useBatteryBalance();
 
     if (!balance) {
-        return <SpinnerIcon />;
+        return <Loader size="small" />;
     }
 
     const balanceNumber = balance.batteryUnitsBalance.toNumber();

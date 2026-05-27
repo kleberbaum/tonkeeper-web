@@ -6,7 +6,7 @@ import { useSwapFromAmount, useSwapFromAsset, useSwapToAsset } from '../../state
 import { useSwapMobileNotification } from '../../state/swap/useSwapMobileNotification';
 import { swapConfirmation$ } from '../../state/swap/useSwapStreamEffect';
 import { SwapIcon } from '../Icon';
-import { IconButton } from '../fields/IconButton';
+import { LegacyIconButton } from '../fields/IconButton';
 import { SwapButton } from './SwapButton';
 import { SwapFromField } from './SwapFromField';
 import { SwapToField } from './SwapToField';
@@ -22,7 +22,7 @@ const MainFormWrapper = styled.div`
     gap: 0.5rem;
 `;
 
-const ChangeIconStyled = styled(IconButton)`
+const ChangeIconStyled = styled(LegacyIconButton)`
     height: 32px;
     width: 32px;
     position: absolute;

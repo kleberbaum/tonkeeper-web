@@ -34,7 +34,7 @@ import { useRate } from '../../../state/rates';
 import { CloseIcon, DocIcon, ExportIcon } from '../../Icon';
 import { Body2, Body3 } from '../../Text';
 import { Button } from '../../fields/Button';
-import { IconButton } from '../../fields/IconButton';
+import { LegacyIconButton } from '../../fields/IconButton';
 import { SkeletonText } from '../../shared/Skeleton';
 import { AmountInput } from './AmountInput';
 import { MultisendAssetSelect } from './MultisendAssetSelect';
@@ -139,7 +139,7 @@ const Spacer = styled.div`
     flex: 1;
 `;
 
-const IconButtonStyled = styled(IconButton)<{ hide?: boolean }>`
+const IconButtonStyled = styled(LegacyIconButton)<{ hide?: boolean }>`
     padding: 10px 12px;
     ${props =>
         props.hide &&

@@ -8,7 +8,7 @@ import {
     MultiSendList,
     useParseCsvListMutation
 } from '../../../../state/multiSend';
-import { SpinnerRing } from '../../../Icon';
+import { Loader } from '../../../Loader';
 import { useEventListener } from '../../../../hooks/useEventListener';
 import { useAppContext } from '../../../../hooks/appContext';
 import { ImportFiatWarningNotification } from './ImportFiatWarningNotification';
@@ -59,8 +59,9 @@ const ErrorContainer = styled.div`
     ${Body2Class};
 `;
 
-const SpinnerRingStyled = styled(SpinnerRing)`
+const SpinnerRingStyled = styled(Loader)`
     transform: scale(2);
+    color: ${p => p.theme.iconSecondary};
 `;
 
 export const ImportListFileInput: FC<{
@@ -210,7 +211,7 @@ export const ImportListFileInput: FC<{
     return (
         <ImportFileContainer className={className}>
             {isLoading || isParsing || isFiatModalOpen ? (
-                <SpinnerRingStyled />
+                <SpinnerRingStyled size="small" />
             ) : (
                 <>
                     <ImportLabel>{t('import_dot_csv')}</ImportLabel>
