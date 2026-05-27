@@ -112,7 +112,7 @@ The harness loads **both** styling systems the apps use, so components render li
 -   Tailwind — `src/styles/tailwind.css` (preflight, utilities, and the design-token `:root` vars)
     is imported in `playwright/index.tsx` and compiled by the Tailwind PostCSS plugin wired into
     `playwright-ct.config.ts` (`ctViteConfig`, since the CT runner's Vite doesn't read the apps'
-    `postcss.config`). Tailwind utility classes (`bg-textPrimary`, `rounded-cornerSmall`, …) work in
+    `postcss.config`). Tailwind utility classes (`bg-textPrimary`, `rounded-small`, …) work in
     tests. There's a single dark theme, so the static `:root` vars match `defaultTheme` and no
     runtime var sync is needed. Changing token values in `tailwind.css` will shift screenshots →
     regenerate baselines.
@@ -136,21 +136,33 @@ ways:
 1. **GitHub Actions (recommended, authoritative).** Run the **Component Tests → "Update screenshot
    baselines"** workflow (`workflow_dispatch`). It regenerates in the CI container and commits the
    updated baselines to your branch — guaranteed to match what the verify job compares against.
-2. **Locally via Docker.** Use your machine's native arch (avoid `--platform linux/amd64` on Apple
-   Silicon — emulated esbuild can crash) and clear the CT cache first (a host-populated
-   `playwright/.cache` holds paths that don't resolve in the container):
+2. **Locally via Docker.** Run the wrapper script — it spins up the pinned Playwright image,
+   installs, clears the CT cache (a host-populated `playwright/.cache` holds paths that don't
+   resolve in the container) and updates baselines inside Linux:
 
     ```sh
-    # from the repo root
-    docker run --rm -v "$PWD":/work -w /work \
-      mcr.microsoft.com/playwright:v1.48.1-jammy \
-      bash -lc "corepack enable && yarn install \
-        && cd packages/uikit && rm -rf playwright/.cache && yarn test:ct:update"
+    # from packages/uikit
+    yarn test:ct:update:docker     # regenerate baselines in the pinned Linux container
+    yarn test:ct:docker            # just run the suite (incl. screenshots) in the container
     ```
 
-    Locally-generated baselines use your container's CPU arch; CI is amd64. Rendering is normally
-    identical across arch for the same image, but if the verify job ever disagrees, treat the Action
-    (option 1) as the source of truth.
+    It uses your machine's native arch (no `--platform linux/amd64` — emulated esbuild can crash on
+    Apple Silicon). The raw `docker run …` it wraps lives in `package.json`. Locally-generated
+    baselines use your container's CPU arch; CI is amd64. Rendering is normally identical across
+    arch for the same image, but if the verify job ever disagrees, treat the Action (option 1) as
+    the source of truth.
+
+    Two things the script handles / you should know:
+
+    - **chainkit `file:` mount.** `chainkit` is a `file:` dependency resolved from an absolute host
+      path (`~/.npm_local/...`); Yarn re-resolves `file:` deps from source on every install (the
+      `.yarn/cache` zip is only the fetch artifact). The script bind-mounts that dir read-only into
+      the container at the same path so `yarn install` resolves it — no published package needed.
+    - **It shares your `node_modules`.** The repo (incl. `node_modules`) is bind-mounted, so the
+      container's install rebuilds native modules (`esbuild`, `sharp`, …) as **Linux** binaries in
+      place. After running, your macOS host deps are Linux ones — **run `yarn install` on the host
+      to restore them** before `yarn dev`/builds. Prefer option 1 (the Action) if you want zero
+      local side effects.
 
 CI behaviour (`.github/workflows/component-tests.yaml`):
 

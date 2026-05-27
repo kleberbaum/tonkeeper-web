@@ -1,33 +1,33 @@
 import { DefaultTheme } from 'styled-components';
 
 export const defaultTheme: DefaultTheme = {
-    textPrimary: '#EBEBEB',
+    textPrimary: '#FFFFFF',
     textSecondary: '#8994A3',
     textTertiary: '#556170',
     textAccent: '#45AEF5',
-    textPrimaryAlternate: '#10161F',
+    textPrimaryAlternate: '#000000',
 
     backgroundPage: '#10161F',
-    backgroundTransparent: 'rgba(16, 22, 31, 0.92)',
+    backgroundTransparent: 'rgba(16, 22, 31, 0.96)',
     backgroundContent: '#1D2633',
     backgroundContentTint: '#2E3847',
-    backgroundContentAttention: '#424C5C',
+    backgroundContentAttention: '#384457',
     backgroundOverlayStrong: 'rgba(0, 0, 0, 0.72)',
     backgroundOverlayLight: 'rgba(0, 0, 0, 0.48)',
     backgroundOverlayExtraLight: 'rgba(0, 0, 0, 0.24)',
-    backgroundHighlighted: 'rgba(79, 90, 112, 0.24)',
+    backgroundHighlighted: 'rgba(194, 218, 255, 0.04)',
 
-    iconPrimary: '#EBEBEB',
+    iconPrimary: '#FFFFFF',
     iconSecondary: '#8994A3',
     iconTertiary: '#556170',
-    iconPrimaryAlternate: '#10161F',
+    iconPrimaryAlternate: '#000000',
 
     buttonPrimaryBackground: '#45AEF5',
     buttonPrimaryForeground: '#FFFFFF',
     buttonSecondaryBackground: '#1D2633',
-    buttonSecondaryForeground: '#EBEBEB',
+    buttonSecondaryForeground: '#FFFFFF',
     buttonTertiaryBackground: '#2E3847',
-    buttonTertiaryForeground: '#EBEBEB',
+    buttonTertiaryForeground: '#FFFFFF',
     buttonWarnBackground: '#F5A73B',
     buttonWarnForeground: '#FFFFFF',
     buttonPrimaryBackgroundDisabled: '#378AC2',
@@ -60,8 +60,8 @@ export const defaultTheme: DefaultTheme = {
     tabBarActiveIcon: '#45AEF5',
     tabBarInactiveIcon: '#8994A3',
 
-    separatorCommon: 'rgba(79, 90, 112, 0.24)',
-    separatorAlternate: 'rgba(255, 255, 255, 0.04)',
+    separatorCommon: 'rgba(194, 218, 255, 0.08)',
+    separatorAlternate: 'rgba(255, 255, 255, 0.08)',
 
     gradientBackgroundTop:
         'linear-gradient(180deg, #10161F 0%, rgba(16, 22, 31, 0.991353) 6.67%, rgba(16, 22, 31, 0.96449) 13.33%, rgba(16, 22, 31, 0.91834) 20%, rgba(16, 22, 31, 0.852589) 26.67%, rgba(16, 22, 31, 0.768225) 33.33%, rgba(16, 22, 31, 0.668116) 40%, rgba(16, 22, 31, 0.557309) 46.67%, rgba(16, 22, 31, 0.442691) 53.33%, rgba(16, 22, 31, 0.331884) 60%, rgba(16, 22, 31, 0.231775) 66.67%, rgba(16, 22, 31, 0.147411) 73.33%, rgba(16, 22, 31, 0.0816599) 80%, rgba(16, 22, 31, 0.03551) 86.67%, rgba(16, 22, 31, 0.0086472) 93.33%, rgba(16, 22, 31, 0) 100%)',

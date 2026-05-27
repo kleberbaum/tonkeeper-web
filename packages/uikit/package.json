@@ -13,9 +13,12 @@
         "start": "tsc -w",
         "build:pkg": "yarn build",
         "typecheck": "tsc --noEmit",
+        "icons": "svgr --config-file .svgrrc.cjs --out-dir src/icons/components -- src/icons/svg",
         "test:ct": "playwright test -c playwright-ct.config.ts",
         "test:ct:update": "playwright test -c playwright-ct.config.ts --update-snapshots",
-        "test:ct:changed": "node ../../scripts/test-changed-components.mjs"
+        "test:ct:changed": "node ../../scripts/test-changed-components.mjs",
+        "test:ct:docker": "REPO=$(git rev-parse --show-toplevel) && docker run --rm -v \"$REPO\":/work -v \"$HOME/.npm_local\":\"$HOME/.npm_local\":ro -w /work mcr.microsoft.com/playwright:v1.48.1-jammy bash -lc \"corepack enable && yarn install --immutable && cd packages/uikit && rm -rf playwright/.cache && yarn test:ct\"",
+        "test:ct:update:docker": "REPO=$(git rev-parse --show-toplevel) && docker run --rm -v \"$REPO\":/work -v \"$HOME/.npm_local\":\"$HOME/.npm_local\":ro -w /work mcr.microsoft.com/playwright:v1.48.1-jammy bash -lc \"corepack enable && yarn install --immutable && cd packages/uikit && rm -rf playwright/.cache && yarn test:ct:update\""
     },
     "license": "ISC",
     "dependencies": {
@@ -58,6 +61,7 @@
     },
     "devDependencies": {
         "@playwright/experimental-ct-react": "1.48.1",
+        "@svgr/cli": "^8",
         "@types/react": "^18.0.26",
         "@types/react-dom": "^18.0.9",
         "@types/react-router-dom": "^5.3.3",
@@ -66,7 +70,9 @@
         "@types/uuid": "^9.0.1",
         "autoprefixer": "^10.4.20",
         "postcss": "^8.4.49",
+        "svgo": "^3",
         "tailwindcss": "^3.4.17",
         "typescript": "^4.9.4"
-    }
+    },
+    "packageManager": "yarn@4.3.0"
 }

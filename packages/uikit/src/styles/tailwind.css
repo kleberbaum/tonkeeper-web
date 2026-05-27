@@ -22,36 +22,37 @@
 @layer base {
     :root {
         /* Text */
-        --tk-text-primary: #ebebeb;
+        --tk-text-primary: #fff;
         --tk-text-secondary: #8994a3;
         --tk-text-tertiary: #556170;
         --tk-text-accent: #45aef5;
-        --tk-text-primary-alternate: #10161f;
+        --tk-text-primary-alternate: #000;
 
         /* Background */
         --tk-background-page: #10161f;
-        --tk-background-transparent: rgb(16 22 31 / 92%);
+        --tk-background-transparent: rgb(16 22 31 / 96%);
         --tk-background-content: #1d2633;
         --tk-background-content-tint: #2e3847;
-        --tk-background-content-attention: #424c5c;
+        --tk-background-content-attention: #384457;
         --tk-background-overlay-strong: rgb(0 0 0 / 72%);
         --tk-background-overlay-light: rgb(0 0 0 / 48%);
         --tk-background-overlay-extra-light: rgb(0 0 0 / 24%);
-        --tk-background-highlighted: rgb(79 90 112 / 24%);
+        --tk-background-highlighted: rgb(194 218 255 / 4%);
+        --tk-background-content-placeholder: rgb(255 255 255 / 8%);
 
         /* Icon */
-        --tk-icon-primary: #ebebeb;
+        --tk-icon-primary: #fff;
         --tk-icon-secondary: #8994a3;
         --tk-icon-tertiary: #556170;
-        --tk-icon-primary-alternate: #10161f;
+        --tk-icon-primary-alternate: #000;
 
         /* Button */
         --tk-button-primary-background: #45aef5;
         --tk-button-primary-foreground: #fff;
         --tk-button-secondary-background: #1d2633;
-        --tk-button-secondary-foreground: #ebebeb;
+        --tk-button-secondary-foreground: #fff;
         --tk-button-tertiary-background: #2e3847;
-        --tk-button-tertiary-foreground: #ebebeb;
+        --tk-button-tertiary-foreground: #fff;
         --tk-button-warn-background: #f5a73b;
         --tk-button-warn-foreground: #fff;
         --tk-button-primary-background-disabled: #378ac2;
@@ -66,6 +67,14 @@
         --tk-button-secondary-background-highlighted: rgb(34 44 59 / 100%);
         --tk-button-tertiary-background-highlighted: rgb(54 64 82 / 100%);
         --tk-button-warn-background-highlighted: #f5af4e;
+
+        /* Primary button — green & red variants (single blue theme; not bridged) */
+        --tk-button-primary-background-green: #39cc83;
+        --tk-button-primary-background-green-highlighted: #49cc8b;
+        --tk-button-primary-background-green-disabled: #2b9962;
+        --tk-button-primary-background-red: #ff4766;
+        --tk-button-primary-background-red-highlighted: #ff5e79;
+        --tk-button-primary-background-red-disabled: #c2364e;
 
         /* Field */
         --tk-field-background: #1d2633;
@@ -86,8 +95,8 @@
         --tk-tabbar-inactive-icon: #8994a3;
 
         /* Separator */
-        --tk-separator-common: rgb(79 90 112 / 24%);
-        --tk-separator-alternate: rgb(255 255 255 / 4%);
+        --tk-separator-common: rgb(194 218 255 / 8%);
+        --tk-separator-alternate: rgb(255 255 255 / 8%);
 
         /* Constants — same value across themes by design, listed once. */
         --tk-constant-black: #000;
@@ -95,7 +104,8 @@
         --tk-blue: #07f;
         --tk-red: #ff3b30;
 
-        /* Corners (border-radius scale). Static across themes. */
+        /* Legacy corner scale — styled-components mirror, kept for the bridge
+           and the isInsideTonkeeper shrink. Static across themes. */
         --tk-corner-3xsmall: 4px;
         --tk-corner-2xsmall: 8px;
         --tk-corner-extra-small: 12px;
@@ -103,5 +113,14 @@
         --tk-corner-medium: 20px;
         --tk-corner-large: 24px;
         --tk-corner-full: 100%;
+
+        /* Canonical "Corners" rounding scale (Figma) — backs the Tailwind
+           borderRadius tokens. Static (single theme), not bridged. */
+        --tk-rounding-extra-extra-small: 4px;
+        --tk-rounding-extra-small: 8px;
+        --tk-rounding-small: 12px;
+        --tk-rounding-medium: 16px;
+        --tk-rounding-large: 20px;
+        --tk-rounding-full: 100%;
     }
 }

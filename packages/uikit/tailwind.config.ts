@@ -44,6 +44,7 @@ const config: Config = {
                 backgroundContent: 'var(--tk-background-content)',
                 backgroundContentTint: 'var(--tk-background-content-tint)',
                 backgroundContentAttention: 'var(--tk-background-content-attention)',
+                backgroundContentPlaceholder: 'var(--tk-background-content-placeholder)',
                 backgroundOverlayStrong: 'var(--tk-background-overlay-strong)',
                 backgroundOverlayLight: 'var(--tk-background-overlay-light)',
                 backgroundOverlayExtraLight: 'var(--tk-background-overlay-extra-light)',
@@ -77,6 +78,18 @@ const config: Config = {
                 buttonTertiaryBackgroundHighlighted:
                     'var(--tk-button-tertiary-background-highlighted)',
                 buttonWarnBackgroundHighlighted: 'var(--tk-button-warn-background-highlighted)',
+                // Primary button green & red variants — static (single blue theme),
+                // not synced through tailwindBridge.
+                buttonPrimaryBackgroundGreen: 'var(--tk-button-primary-background-green)',
+                buttonPrimaryBackgroundGreenHighlighted:
+                    'var(--tk-button-primary-background-green-highlighted)',
+                buttonPrimaryBackgroundGreenDisabled:
+                    'var(--tk-button-primary-background-green-disabled)',
+                buttonPrimaryBackgroundRed: 'var(--tk-button-primary-background-red)',
+                buttonPrimaryBackgroundRedHighlighted:
+                    'var(--tk-button-primary-background-red-highlighted)',
+                buttonPrimaryBackgroundRedDisabled:
+                    'var(--tk-button-primary-background-red-disabled)',
 
                 fieldBackground: 'var(--tk-field-background)',
                 fieldActiveBorder: 'var(--tk-field-active-border)',
@@ -105,15 +118,16 @@ const config: Config = {
                 red: 'var(--tk-red)'
             },
             borderRadius: {
-                // Mirror the `corner*` scale on the styled-components theme.
-                // Naming matches the source keys so a reader can grep both.
-                corner3xSmall: 'var(--tk-corner-3xsmall)',
-                corner2xSmall: 'var(--tk-corner-2xsmall)',
-                cornerExtraSmall: 'var(--tk-corner-extra-small)',
-                cornerSmall: 'var(--tk-corner-small)',
-                cornerMedium: 'var(--tk-corner-medium)',
-                cornerLarge: 'var(--tk-corner-large)',
-                cornerFull: 'var(--tk-corner-full)'
+                // Canonical design-system "Corners" scale (Figma). Static —
+                // backed by the `--tk-rounding-*` vars in tailwind.css, not the
+                // legacy `--tk-corner-*` mirror (which stays for styled-components
+                // and the isInsideTonkeeper shrink). Figma has no 24px tier.
+                extraExtraSmall: 'var(--tk-rounding-extra-extra-small)',
+                extraSmall: 'var(--tk-rounding-extra-small)',
+                small: 'var(--tk-rounding-small)',
+                medium: 'var(--tk-rounding-medium)',
+                large: 'var(--tk-rounding-large)',
+                full: 'var(--tk-rounding-full)'
             },
             fontFamily: {
                 // Body font is set in `globalStyle.ts`; mono mirrors
@@ -131,10 +145,23 @@ const config: Config = {
                 ]
             },
             fontSize: {
-                // Body1/Body2 sizes — referenced by Q6's WalletName migration
-                // and any future port of a `Body*` consumer.
-                body1: ['16px', '24px'],
-                body2: ['14px', '20px']
+                // Canonical design-system "Type" scale (Figma). Each entry is a
+                // complete text style: size + line-height + weight. `text-body4Caps`
+                // is rendered uppercase — add the `uppercase` utility at the call
+                // site (transform isn't part of a font-size token).
+                num1: ['32px', { lineHeight: '40px', fontWeight: '600' }],
+                h1: ['32px', { lineHeight: '40px', fontWeight: '700' }],
+                num2: ['28px', { lineHeight: '36px', fontWeight: '600' }],
+                h2: ['24px', { lineHeight: '32px', fontWeight: '700' }],
+                h3: ['20px', { lineHeight: '28px', fontWeight: '700' }],
+                label1: ['16px', { lineHeight: '24px', fontWeight: '600' }],
+                label2: ['14px', { lineHeight: '20px', fontWeight: '600' }],
+                label3: ['12px', { lineHeight: '16px', fontWeight: '600' }],
+                body1: ['16px', { lineHeight: '24px', fontWeight: '500' }],
+                body2: ['14px', { lineHeight: '20px', fontWeight: '500' }],
+                body3Alt: ['13px', { lineHeight: '16px', fontWeight: '500' }],
+                body3: ['12px', { lineHeight: '16px', fontWeight: '500' }],
+                body4Caps: ['10px', { lineHeight: '14px', fontWeight: '600' }]
             }
         }
     },
