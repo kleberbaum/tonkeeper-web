@@ -4,43 +4,28 @@ import styled from 'styled-components';
 import { useAppSdk } from '../hooks/appSdk';
 import { useTranslation } from '../hooks/translation';
 import ReactPortal from './ReactPortal';
-import { Label2 } from './Text';
+import { Toast } from './Toast';
 
 const Message = styled.div`
     position: fixed;
     z-index: 20;
     top: env(safe-area-inset-top);
     left: 50%;
-    transform: translateY(${p => (p.theme.proDisplayType === 'mobile' ? '0' : '-30px')}) scale(0.8);
+    transform: translateX(-50%)
+        translateY(${p => (p.theme.proDisplayType === 'mobile' ? '0' : '-30px')}) scale(0.8);
     transition: all 0.1s ease-in-out;
 
     &.enter-done {
         opacity: 1;
         pointer-events: auto;
-        transform: translateY(16px) scale(1);
+        transform: translateX(-50%) translateY(16px) scale(1);
     }
 
     &.exit {
         opacity: 0;
-        transform: translateY(${p => (p.theme.proDisplayType === 'mobile' ? '0' : '-30px')})
-            scale(0.8);
+        transform: translateX(-50%)
+            translateY(${p => (p.theme.proDisplayType === 'mobile' ? '0' : '-30px')}) scale(0.8);
     }
-`;
-
-const Content = styled.div`
-    width: auto;
-    min-width: 50px;
-    max-width: calc(var(--app-width, 90vw) - 1rem);
-    overflow-wrap: break-word;
-    text-align: center;
-    white-space: normal;
-    padding: 14px 24px;
-    box-sizing: border-box;
-    background: ${props => props.theme.backgroundContentTint};
-    border-radius: ${props => props.theme.cornerLarge};
-    margin-left: -50%;
-    margin-right: 50%;
-    box-shadow: 0 4px 16px rgb(0 0 0 / 16%);
 `;
 
 export const CopyNotification: FC<{ hideSimpleCopyNotifications?: boolean }> = React.memo(
@@ -91,10 +76,14 @@ export const CopyNotification: FC<{ hideSimpleCopyNotifications?: boolean }> = R
                     unmountOnExit
                     nodeRef={nodeRef}
                 >
-                    <Message onClick={() => setOpen(false)} ref={nodeRef}>
-                        <Content>
-                            <Label2 onClick={() => sdk.copyToClipboard(text)}>{text}</Label2>
-                        </Content>
+                    <Message
+                        ref={nodeRef}
+                        onClick={() => {
+                            sdk.copyToClipboard(text);
+                            setOpen(false);
+                        }}
+                    >
+                        <Toast text={text} size="medium" className="cursor-pointer" />
                     </Message>
                 </CSSTransition>
             </ReactPortal>
