@@ -4,7 +4,7 @@ import { useTranslation } from '../../hooks/translation';
 import { CenterContainer } from '../Layout';
 import { H2Label2Responsive } from '../Text';
 import { ButtonResponsiveSize } from '../fields/Button';
-import { TextArea } from '../fields/Input';
+import { TextArea } from '../fields/TextArea';
 import { isValidSeed, isValidSKOrSeed } from '@tonkeeper/core/dist/service/mnemonicService';
 import { NotificationFooter, NotificationFooterPortal } from '../Notification';
 import { SKSigningAlgorithm } from '@tonkeeper/core/dist/service/sign';

@@ -1,189 +1,188 @@
-import React, { InputHTMLAttributes, ReactNode, useEffect, useRef, useState } from 'react';
-import styled, { css } from 'styled-components';
-import { XmarkIcon } from '../Icon';
-import { Body2 } from '../Text';
-import { TextareaAutosize } from './TextareaAutosize';
-import { BorderSmallResponsive } from '../shared/Styles';
+import React, {
+    InputHTMLAttributes,
+    ReactNode,
+    forwardRef,
+    useEffect,
+    useRef,
+    useState
+} from 'react';
+import { useTheme } from 'styled-components';
 import { mergeRefs } from '../../libs/common';
+import { cn } from '../../libs/css';
+import { XmarkIcon } from '../Icon';
 
-export const InputBlock = styled.div<{
+/**
+ * Design-system "Field Text" (Figma node `35:3678`). The standard floating-
+ * label text input. Tailwind rewrite of the legacy styled-components Input —
+ * `InputProps`, `Input`, `TextArea` and the sub-exports (`InputBlock`,
+ * `InputField`, `Label`, `OuterBlock`, `HelpText`) keep the same prop shape
+ * so existing consumers — including the `styled(InputBlock)` extensions in
+ * multi-send and `TonRecipientInput` — compile unchanged.
+ *
+ * Visual deltas vs. the previous styled version:
+ *   - corner is `rounded-medium` (16px, was 12px via `BorderSmallResponsive`)
+ *   - border is 1.5px on active/error (matches Figma); single border-color
+ *     class is emitted so Tailwind source order never collides
+ *   - error variant collapses to h-56 with the field-error background tint
+ *   - placeholder-only mode (`size='medium'` with no `label`) renders at h-56
+ *     to match the Figma "Empty Without Title" variant.
+ *
+ * The `displayType === 'full-width'` legacy branch is preserved for label
+ * positioning so this rewrite doesn't shift any existing screen.
+ */
+
+type InputBlockProps = {
     focus: boolean;
     valid: boolean;
     isSuccess?: boolean;
     scanner?: boolean;
     clearButton?: boolean;
     size?: 'small' | 'medium';
-}>`
-    width: 100%;
-    ${p =>
-        p.size === 'small'
-            ? css`
-                  min-height: 36px;
-                  padding: 0 0.75rem;
-              `
-            : css`
-                  min-height: 64px;
-                  padding: 0 1rem;
-              `}
-    ${BorderSmallResponsive};
-    display: flex;
-    gap: 0.5rem;
-    box-sizing: border-box;
-    position: relative;
-    transition: border-color 0.15s ease-in-out;
+    /** Set internally when the field has no floating label — shrinks to h-14. */
+    noLabel?: boolean;
+    className?: string;
+    children?: ReactNode;
+};
 
-    ${props =>
-        props.scanner &&
-        css`
-            padding-right: 3.5rem;
-        `}
+export const InputBlock = forwardRef<HTMLDivElement, InputBlockProps>(
+    (
+        { focus, valid, isSuccess, scanner, clearButton, size, noLabel, className, children },
+        ref
+    ) => {
+        // Emit exactly one border-color and one bg utility so overlapping
+        // classes don't fight on Tailwind source order.
+        const isError = !valid;
+        const borderClass = isSuccess
+            ? 'border-accentGreen'
+            : isError
+            ? 'border-fieldErrorBorder'
+            : focus
+            ? 'border-fieldActiveBorder'
+            : 'border-transparent';
+        const bgClass = isError ? 'bg-fieldErrorBackground' : 'bg-fieldBackground';
 
-    ${props =>
-        props.clearButton &&
-        css`
-            padding-right: 2rem;
-        `}
+        const heightClass =
+            size === 'small'
+                ? 'min-h-9 px-3' //  36 / 12 (legacy small)
+                : isError || noLabel
+                ? 'min-h-14 px-4' //  56 / 16 (Figma "without title" / error)
+                : 'min-h-16 px-4'; //  64 / 16 (Figma "with title")
 
-  &:focus-within label {
-        ${p =>
-            p.size === 'small'
-                ? css`
-                      display: none;
-                  `
-                : p.theme.displayType === 'full-width'
-                ? css`
-                      transform: translate(0, 10px) scale(0.7);
-                  `
-                : css`
-                      transform: translate(0, 12px) scale(0.7);
-                  `}
+        return (
+            <div
+                ref={ref}
+                className={cn(
+                    'relative box-border flex w-full items-center gap-2 rounded-medium border-[1.5px] transition-colors',
+                    heightClass,
+                    borderClass,
+                    bgClass,
+                    scanner && 'pr-14', //   reserve QR scanner button (~3.5rem)
+                    clearButton && 'pr-8', // reserve inline clear button (~2rem)
+                    className
+                )}
+            >
+                {children}
+            </div>
+        );
     }
+);
+InputBlock.displayName = 'InputBlock';
 
-    ${props =>
-        !props.valid
-            ? css`
-                  border: 1px solid ${props.theme.fieldErrorBorder};
-                  background: ${props.theme.fieldErrorBackground};
+type InputFieldProps = {
+    marginRight?: string;
+    size?: 'small' | 'medium';
+} & Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>;
 
-                  &:focus-within label {
-                      color: ${p => p.theme.fieldErrorBorder};
-                  }
-              `
-            : props.focus
-            ? css`
-                  border: 1px solid ${props.theme.fieldActiveBorder};
-                  background: ${props.theme.fieldBackground};
-              `
-            : css`
-                  border: 1px solid ${props.theme.fieldBackground};
-                  background: ${props.theme.fieldBackground};
-              `}
+export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
+    ({ marginRight, size, className, style, ...rest }, ref) => (
+        <input
+            ref={ref}
+            {...rest}
+            style={marginRight ? { ...style, marginRight } : style}
+            className={cn(
+                'min-w-0 grow border-0 bg-transparent text-body1 font-medium text-textPrimary outline-none placeholder:text-textSecondary',
+                size === 'small' ? 'py-2' : 'pb-[10px] pt-[30px]',
+                className
+            )}
+        />
+    )
+);
+InputField.displayName = 'InputField';
 
-    ${props =>
-        props.isSuccess &&
-        css`
-            border: 1px solid ${props.theme.accentGreen};
-        `}
+type LabelProps = {
+    active?: boolean;
+    htmlFor?: string;
+    className?: string;
+    children?: ReactNode;
+};
 
-    ${props =>
-        props.size !== 'small' &&
-        props.theme.displayType === 'full-width' &&
-        css`
-            min-height: 52px;
-        `}
-`;
+/**
+ * Floating label. Resting position is the inputs's vertical centre; on
+ * `active` it animates up and scales down. Position values mirror the legacy
+ * styled-components Label so this rewrite doesn't shift screens that use it.
+ */
+export const Label = forwardRef<HTMLLabelElement, LabelProps>(
+    ({ active, htmlFor, className, children }, ref) => {
+        const theme = useTheme();
+        const isFullWidth = theme?.displayType === 'full-width';
 
-export const InputField = styled.input<{ marginRight?: string; size?: 'small' | 'medium' }>`
-    outline: none;
-    border: none;
-    background: transparent;
-    flex-grow: 1;
-    font-weight: 500;
-    font-size: 16px;
-    padding: 30px 0 10px;
-    box-sizing: border-box;
-    ${p =>
-        p.size === 'small'
-            ? css`
-                  padding: 8px 0;
-              `
-            : css`
-                  padding: 30px 0 10px;
-              `}
-    color: ${props => props.theme.textPrimary};
-    ${props =>
-        props.marginRight &&
-        css`
-            margin-right: ${props.marginRight};
-        `};
-`;
+        const resting = isFullWidth ? 'translate-y-[18px]' : 'translate-y-[23px]';
+        const lifted = isFullWidth
+            ? 'translate-y-[10px] scale-[0.7]'
+            : 'translate-y-[12px] scale-[0.7]';
 
-export const Label = styled.label<{ active?: boolean }>`
-    user-select: none;
-    position: absolute;
-    pointer-events: none;
-    transform: translate(0, 23px) scale(1);
-    transform-origin: top left;
-    transition: 200ms cubic-bezier(0, 0, 0.2, 1) 0ms;
-    color: ${props => props.theme.textSecondary};
-    font-size: 16px;
-    line-height: 1;
-    left: 1rem;
-
-    ${props =>
-        props.theme.displayType === 'full-width' &&
-        css`
-            transform: translate(0, 18px) scale(1);
-        `}
-
-    ${props =>
-        props.active &&
-        (props.theme.displayType === 'full-width'
-            ? css`
-                  transform: translate(0, 10px) scale(0.7);
-              `
-            : css`
-                  transform: translate(0, 12px) scale(0.7);
-              `)}
-`;
-
-export const OuterBlock = styled.div`
-    width: 100%;
-`;
-export const HelpText = styled(Body2)<{ valid: boolean }>`
-    user-select: none;
-    display: inline-block;
-    width: 100%;
-    text-align: left;
-    margin-top: 12px;
-
-    ${props =>
-        props.valid
-            ? css`
-                  color: ${p => p.theme.textSecondary};
-              `
-            : css`
-                  color: ${p => p.theme.fieldErrorBorder};
-              `}
-`;
-
-const RightBlock = styled.div`
-    position: absolute;
-    right: 1rem;
-    height: 100%;
-    display: flex;
-    align-items: center;
-`;
-
-const ClearBlock = styled(RightBlock)`
-    cursor: pointer;
-    color: ${props => props.theme.textSecondary};
-    transition: color 0.15s ease-in-out;
-
-    &:hover {
-        color: ${props => props.theme.textTertiary};
+        return (
+            <label
+                ref={ref}
+                htmlFor={htmlFor}
+                className={cn(
+                    'pointer-events-none absolute left-4 top-0 origin-top-left select-none whitespace-nowrap text-body1 leading-none text-textSecondary transition-transform duration-200 ease-out',
+                    active ? lifted : resting,
+                    className
+                )}
+            >
+                {children}
+            </label>
+        );
     }
-`;
+);
+Label.displayName = 'Label';
+
+export const OuterBlock = forwardRef<HTMLDivElement, { className?: string; children?: ReactNode }>(
+    ({ className, children }, ref) => (
+        <div ref={ref} className={cn('w-full', className)}>
+            {children}
+        </div>
+    )
+);
+OuterBlock.displayName = 'OuterBlock';
+
+type HelpTextProps = {
+    valid: boolean;
+    className?: string;
+    children?: ReactNode;
+};
+
+export const HelpText = forwardRef<HTMLParagraphElement, HelpTextProps>(
+    ({ valid, className, children }, ref) => (
+        <p
+            ref={ref}
+            className={cn(
+                'mt-3 inline-block w-full select-none text-left text-body3',
+                valid ? 'text-textSecondary' : 'text-fieldErrorBorder',
+                className
+            )}
+        >
+            {children}
+        </p>
+    )
+);
+HelpText.displayName = 'HelpText';
+
+const RightBlock: React.FC<{ children?: ReactNode; className?: string }> = ({
+    children,
+    className
+}) => <div className={cn('absolute right-4 flex h-full items-center', className)}>{children}</div>;
 
 export type InputProps = Omit<
     InputHTMLAttributes<HTMLInputElement>,
@@ -209,7 +208,7 @@ export type InputProps = Omit<
     autoSelect?: boolean;
 };
 
-export const Input = React.forwardRef<HTMLInputElement, InputProps>(
+export const Input = forwardRef<HTMLInputElement, InputProps>(
     (
         {
             id,
@@ -240,7 +239,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             onFocusChange?.(v);
         };
 
-        const onClear: React.MouseEventHandler<HTMLDivElement> = e => {
+        const onClear: React.MouseEventHandler<HTMLButtonElement> = e => {
             e.stopPropagation();
             e.preventDefault();
             if (disabled) return;
@@ -270,6 +269,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             }
         }, [autoFocus, autoSelect]);
 
+        const showsFloatingLabel = !!label && size !== 'small';
+
         return (
             <OuterBlock className={className}>
                 <InputBlock
@@ -278,6 +279,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                     isSuccess={isSuccess}
                     clearButton={clearButton}
                     size={size}
+                    noLabel={!showsFloatingLabel && size !== 'small'}
                 >
                     <InputField
                         {...rest}
@@ -294,19 +296,24 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                         onFocus={() => setFocus(true)}
                         onBlur={() => setFocus(false)}
                         size={size}
-                        placeholder={size === 'small' ? label : undefined}
+                        placeholder={size === 'small' || !showsFloatingLabel ? label : undefined}
                         autoFocus={!!autoFocus}
                     />
-                    {label && size !== 'small' && (
+                    {showsFloatingLabel && (
                         <Label active={value !== ''} htmlFor={id}>
                             {label}
                         </Label>
                     )}
                     {rightElement && <RightBlock>{rightElement}</RightBlock>}
                     {!!value && clearButton && !rightElement && (
-                        <ClearBlock onClick={onClear}>
+                        <button
+                            type="button"
+                            aria-label="Clear"
+                            onClick={onClear}
+                            className="absolute right-4 flex h-full cursor-pointer items-center border-0 bg-transparent p-0 text-textSecondary transition-colors hover:text-textTertiary"
+                        >
                             <XmarkIcon />
-                        </ClearBlock>
+                        </button>
                     )}
                 </InputBlock>
                 {helpText && <HelpText valid={isValid}>{helpText}</HelpText>}
@@ -314,27 +321,9 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         );
     }
 );
+Input.displayName = 'Input';
 
-export const TextArea = React.forwardRef<HTMLTextAreaElement, InputProps>(
-    ({ value, onChange, isValid = true, label, disabled, helpText, onSubmit }, ref) => {
-        const [focus, setFocus] = useState(false);
-
-        return (
-            <OuterBlock>
-                <InputBlock focus={focus} valid={isValid}>
-                    <TextareaAutosize
-                        onSubmit={onSubmit}
-                        ref={ref}
-                        disabled={disabled}
-                        value={value}
-                        onChange={e => onChange && onChange(e.target.value)}
-                        onFocus={() => setFocus(true)}
-                        onBlur={() => setFocus(false)}
-                    />
-                    {label && <Label active={value !== ''}>{label}</Label>}
-                </InputBlock>
-                {helpText && <HelpText valid={isValid}>{helpText}</HelpText>}
-            </OuterBlock>
-        );
-    }
-);
+// `TextArea` lives in `./TextArea.tsx` so importing `Input` doesn't drag the
+// @tonkeeper/core crypto chain (Buffer-using utilities) into every chunk.
+// Two callers (`transfer/RecipientView`, `create/SKInput`) import it directly
+// from there.

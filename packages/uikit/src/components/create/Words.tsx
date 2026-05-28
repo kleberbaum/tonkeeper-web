@@ -6,6 +6,7 @@ import { useTranslation } from '../../hooks/translation';
 import { CenterContainer } from '../Layout';
 import { Body1, Body2, Body2Class, Body3, H2Label2Responsive, Label2 } from '../Text';
 import { Button, ButtonResponsiveSize } from '../fields/Button';
+import { FieldWord } from '../fields/FieldWord';
 import { BorderSmallResponsive } from '../shared/Styles';
 import { ExclamationMarkCircleIcon } from '../Icon';
 import { validateMnemonicTonOrMAM } from '@tonkeeper/core/dist/service/mnemonicService';
@@ -81,14 +82,6 @@ export const WorldNumber = styled(Body2)`
     line-height: 24px;
     color: ${props => props.theme.textSecondary};
     user-select: none;
-`;
-
-const Number1 = styled(Body1)`
-    display: inline-block;
-    width: 26px;
-    text-align: right;
-    font-size: 15px;
-    color: ${props => props.theme.textSecondary};
 `;
 
 const WorldsGridStyled = styled(WorldsGrid)`
@@ -263,104 +256,6 @@ export const Words: FC<{
     );
 };
 
-const Input = styled.input`
-    outline: none;
-    border: none;
-    background: transparent;
-    flex-grow: 1;
-    font-weight: 500;
-    font-size: 16px;
-    color: ${props => props.theme.textPrimary};
-`;
-
-const InputBlock = styled.label<{
-    active: boolean;
-    valid: boolean;
-    submitted?: boolean;
-}>`
-    width: 100%;
-    line-height: 54px;
-    ${BorderSmallResponsive};
-    padding: 0 1rem;
-    box-sizing: border-box;
-    text-align: left;
-
-    ${props => {
-        if (props.submitted) {
-            return !props.valid
-                ? css`
-                      border: 1px solid ${props.theme.fieldErrorBorder};
-                      background: ${props.theme.fieldErrorBackground};
-                  `
-                : props.active
-                ? css`
-                      border: 1px solid ${props.theme.fieldActiveBorder};
-                      background: ${props.theme.fieldBackground};
-                  `
-                : css`
-                      border: 1px solid ${props.theme.fieldBackground};
-                      background: ${props.theme.fieldBackground};
-                  `;
-        } else {
-            return props.active
-                ? css`
-                      border: 1px solid ${props.theme.fieldActiveBorder};
-                      background: ${props.theme.fieldBackground};
-                  `
-                : !props.valid
-                ? css`
-                      border: 1px solid ${props.theme.fieldErrorBorder};
-                      background: ${props.theme.fieldErrorBackground};
-                  `
-                : css`
-                      border: 1px solid ${props.theme.fieldBackground};
-                      background: ${props.theme.fieldBackground};
-                  `;
-        }
-    }}
-
-    ${Number1} {
-        display: inline-block;
-        line-height: 54px;
-        padding-right: 0.35rem;
-
-        ${p =>
-            p.theme.displayType === 'full-width' &&
-            css`
-                width: 3ch;
-                height: fit-content;
-                text-wrap: nowrap;
-                line-height: normal;
-                ${Body2Class};
-            `}
-    }
-    ${Input} {
-        display: inline-block;
-        width: calc(100% - 38px);
-        height: 54px;
-        line-height: 54px;
-        box-sizing: border-box;
-
-        ${p =>
-            p.theme.displayType === 'full-width' &&
-            css`
-                height: fit-content;
-                line-height: normal;
-                ${Body2Class};
-            `}
-    }
-
-    ${p =>
-        p.theme.displayType === 'full-width' &&
-        css`
-            height: 36px;
-            line-height: normal;
-            display: flex;
-            align-items: center;
-            padding: 0 12px;
-        `}
-`;
-
 const WordInput: FC<{
     value: string;
     onChange: (value: string) => void;
@@ -368,28 +263,22 @@ const WordInput: FC<{
     isValid: boolean;
     tabIndex: number;
 }> = ({ value, test, onChange, isValid, tabIndex }) => {
-    const [isActive, setIsActive] = useState(false);
+    // Show the error border only after the user has left the field once — typing
+    // an unfinished word shouldn't paint the box red mid-keystroke.
     const [isTouched, setIsTouched] = useState(false);
 
-    const isInputValid = isTouched ? isValid : isValid || isActive;
-
     return (
-        <InputBlock submitted={isTouched} active={isActive} valid={isInputValid}>
-            <Number1>{test}:</Number1>
-            <Input
-                tabIndex={tabIndex}
-                autoComplete="off"
-                autoCorrect="off"
-                spellCheck={false}
-                value={value}
-                onChange={e => onChange(e.target.value.toLocaleLowerCase())}
-                onFocus={() => setIsActive(true)}
-                onBlur={() => {
-                    setIsTouched(true);
-                    setIsActive(false);
-                }}
-            />
-        </InputBlock>
+        <FieldWord
+            value={value}
+            number={test}
+            error={isTouched && !isValid}
+            tabIndex={tabIndex}
+            autoComplete="off"
+            autoCorrect="off"
+            spellCheck={false}
+            onChange={v => onChange(v.toLocaleLowerCase())}
+            onBlur={() => setIsTouched(true)}
+        />
     );
 };
 
