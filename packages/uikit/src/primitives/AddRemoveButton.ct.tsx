@@ -1,5 +1,5 @@
 import { AddRemoveButton } from './AddRemoveButton';
-import { expect, screenshot, test } from '../../../playwright/test';
+import { expect, screenshot, test } from '../../playwright/test';
 
 screenshot('AddRemoveButton add', () => <AddRemoveButton type="add" />);
 screenshot('AddRemoveButton remove', () => <AddRemoveButton type="remove" />);

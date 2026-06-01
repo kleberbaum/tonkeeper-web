@@ -1,5 +1,5 @@
 import { Switch } from './Switch';
-import { expect, screenshot, test } from '../../../playwright/test';
+import { expect, screenshot, test } from '../../playwright/test';
 
 screenshot('Switch on', () => <Switch checked onChange={() => {}} />);
 screenshot('Switch off', () => <Switch checked={false} onChange={() => {}} />);

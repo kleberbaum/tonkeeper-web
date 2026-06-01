@@ -1,5 +1,5 @@
 import { FC, MouseEventHandler } from 'react';
-import { Button } from '../../components/fields/Button';
+import { Button } from '../../primitives/Button';
 import { useAddWalletNotification } from '../../components/modals/AddWalletNotificationControlled';
 import { useAppSdk } from '../../hooks/appSdk';
 import { useLegalLinks } from '../../state/legal';
@@ -61,7 +61,7 @@ const StartScreen: FC = () => {
                 {/* "Create" is intentionally disabled — the multichain create
                     flow lands in a later commit; the entry stays so the layout
                     matches the design and users see what's coming. */}
-                <Button size="large" variant="primary" fullWidth disabled>
+                <Button size="large" variant="primaryBlue" fullWidth disabled>
                     {t('start_screen_create_wallet_button')}
                 </Button>
                 <Button size="large" variant="secondary" fullWidth onClick={onImport}>

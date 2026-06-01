@@ -1,8 +1,6 @@
 import { SearchField } from './SearchField';
-import { expect, screenshot, test } from '../../../playwright/test';
+import { expect, screenshot, test } from '../../playwright/test';
 
-// Variants from the Figma "Search Field" frame: standalone empty, standalone
-// typing (clear button visible), header layout empty, header typing.
 screenshot('SearchField empty', () => (
     <div className="w-[390px]">
         <SearchField value="" onChange={() => {}} />

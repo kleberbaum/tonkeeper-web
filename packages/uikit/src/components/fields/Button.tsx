@@ -4,26 +4,7 @@ import { cn } from '../../libs/css';
 import { Loader } from '../Loader';
 
 /**
- * Design-system Button (Figma "Buttons" + "Buttons States").
- *
- * The Figma library's API surface is fully covered:
- *   - `variant` enum: 'primary' | 'secondary' | 'tertiary' | 'warn'
- *   - `size`: 'small' (36) | 'large' (56)  (plus the legacy 'medium' 48 tier)
- *   - `leftIcon` / `rightIcon` slots (Figma calls these out as named layers)
- *   - Icon-only is auto-detected (a single `leftIcon` with no children + no
- *     `rightIcon`) and renders as a square at the chosen size
- *   - `loading` and `disabled` states
- *
- * The legacy `ButtonProps` are kept so the existing call sites compile
- * unchanged. New code should prefer `variant` + `leftIcon`/`rightIcon`; the
- * boolean variant flags (`primary` / `secondary` / `warn`) remain as soft
- * aliases — `variant` wins if both are set.
- *
- * Visual deltas vs. the previous styled-components rendering:
- *   - small (h=36) is now a pill (matches Figma `rounded-[18px]`)
- *   - medium / large use `rounded-medium` (16px) per the design library
- *   - typography drops to Body2/Body1 and corners to 8px when the theme is
- *     `displayType="full-width"` (desktop / mobile-app shells) — unchanged.
+ * @deprecated Use `Button` from `../../primitives/Button`.
  */
 
 export type ButtonVariant = 'primary' | 'secondary' | 'tertiary' | 'warn';

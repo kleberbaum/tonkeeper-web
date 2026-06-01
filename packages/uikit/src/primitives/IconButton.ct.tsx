@@ -1,9 +1,7 @@
 import { IconButton } from './IconButton';
-import { SendIcon, ReceiveIcon } from './home/HomeIcons';
+import { SendIcon, ReceiveIcon } from '../components/home/HomeIcons';
 import { expect, screenshot, test } from '../../playwright/test';
 
-// The design-system "Icon Button" (round icon + Label3 caption). No app context,
-// so it mounts directly. App-level `home/Actions` composes it with analytics/SDK.
 screenshot('IconButton default', () => <IconButton icon={<SendIcon />} label="Send" />);
 screenshot('IconButton hovered', () => (
     <IconButton icon={<ReceiveIcon />} label="Receive" hovered />

@@ -1,5 +1,5 @@
 import { Checkbox, Radio } from './Checkbox';
-import { expect, screenshot, test } from '../../../playwright/test';
+import { expect, screenshot, test } from '../../playwright/test';
 
 screenshot('Checkbox checked', () => <Checkbox checked onChange={() => {}} />);
 screenshot('Checkbox unchecked', () => <Checkbox checked={false} onChange={() => {}} />);

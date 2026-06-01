@@ -17,6 +17,32 @@ six platform apps:
 -   **`apps/twa`** — Telegram Mini App (Vite)
 -   **`apps/mobile`** — Capacitor iPad app (Vite)
 
+## Project context: redesign rebuild
+
+The app is being rebuilt almost end-to-end against new Figma mockups. Treat the existing codebase as
+**outdated reference material, not a source of truth**:
+
+-   **Mockups are canonical.** When the mockup and the current code disagree, the mockup wins —
+    every time. Do not propagate current visuals, props, layouts, or behaviour into new code on the
+    grounds that "this is how the app does it today." The current behaviour is precisely what is
+    being replaced.
+-   **Designs are fetched via the Figma MCP.** When the user shares a Figma URL, use the Figma MCP
+    tools (`get_design_context`, `get_screenshot`, `get_metadata`, …) to pull the spec rather than
+    inferring intent from prose. Load the `/figma-use` skill before any `use_figma` write call.
+-   **New screens use new primitives only.** New screens build against
+    `packages/uikit/src/primitives/`. Legacy `packages/uikit/src/components/*` exist to keep
+    un-redesigned screens running and stay untouched (see "UI primitives vs legacy components"
+    below).
+-   **No styled-components in new code.** Tailwind only — see the "Styling" section.
+-   **Folder structure and file names in `primitives/` are not load-bearing.** The current names
+    were inherited from the legacy tree and are often misleading (e.g. form controls that lived
+    under `components/fields/`). If a name or location is awkward for the new design system, rename
+    or move the file — don't work around it. Update imports as part of the same change.
+-   **One file, one export.** Each primitive lives in its own file and is the sole default-shape
+    export of that file. Internal helpers (`InputBlock`, sub-parts of compound components, etc.) may
+    live alongside it but stay un-re-exported from `primitives/index.ts`. No barrel files that
+    bundle unrelated primitives.
+
 ## Common commands
 
 ```sh
@@ -156,6 +182,38 @@ If you find yourself reaching for `styled.something` in a new file, stop and use
 Tailwind utilities instead. Conditional styling goes through
 `cn(base, condition && 'class', other && 'class')`; the local `cn` accepts
 `string | undefined | boolean` (no arrays — pass each condition as its own argument).
+
+## UI primitives vs legacy components
+
+Two component layers coexist:
+
+-   **`packages/uikit/src/primitives/`** — the new design-system components (Button, Input, Loader,
+    Toast, IconButton, Checkbox, Radio, Switch, AddRemoveButton, SearchField, FieldWord, TextArea,
+    Link). **100% Figma-faithful, nothing else.** No adaptive shell-dependent sizing, no legacy
+    boolean props, no compatibility shims. New screens build against these only.
+-   **`packages/uikit/src/components/`** — legacy components consumed by un-redesigned screens. Stay
+    as they are. **Do not modify them when building new features**, and **do not extend the
+    primitive's API to "help" legacy callers** — the primitive must not gain props or branches that
+    Figma doesn't specify, even if a legacy file imports from `primitives/`.
+
+### Concrete rules
+
+1.  **A primitive prop or branch must trace to a node in the Figma "Current Version" library.** If
+    you can't point at the mockup, don't add it. "Preserving existing styled-components behavior" is
+    NOT a valid justification — the pre-Figma code is itself legacy and may have invented its own
+    rules (e.g. shell-dependent typography/corners on Button were a styled-components-era override,
+    never in the design library; do not propagate them).
+2.  **Legacy adapters at `components/fields/<Foo>.tsx` are allowed to wrap primitives** and add
+    their own old-prop shims (e.g. `primary`/`secondary`/`warn` booleans, `bottom`/`marginTop`
+    shorthands, polymorphic `as`). Those props live in the adapter file only — never bubble them
+    into the primitive.
+3.  **The primitives folder is flat**: one component per file (`primitives/Button.tsx`,
+    `primitives/Button.ct.tsx`, …). Internal building blocks (`InputBlock`, `InputField`, etc.) can
+    be exported from the same file but are not re-exported from `primitives/index.ts`.
+4.  **Showcase**: `packages/uikit/src/pages/showcase/UiShowcase.tsx` is the temporary catalogue of
+    every primitive in its key variants. Wired into `apps/web` at `/ui-showcase` behind
+    `import.meta.env.DEV`. Use it to eyeball changes — and to confirm a new variant is in the mockup
+    before adding it.
 
 ## Multichain feature gate
 

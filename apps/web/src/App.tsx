@@ -40,6 +40,7 @@ import { MobileView } from './AppMobile';
 import { BrowserAppSdk } from './libs/appSdk';
 import { useAnalytics, useAppHeight, useLayout } from './libs/hooks';
 import { useGlobalPreferencesQuery } from '@tonkeeper/uikit/dist/state/global-preferences';
+import { UiShowcase } from '@tonkeeper/uikit/dist/pages/showcase/UiShowcase';
 import { useGlobalSetup } from '@tonkeeper/uikit/dist/state/globalSetup';
 import { useIsActiveAccountMultisig } from '@tonkeeper/uikit/dist/state/multisig';
 import { BrowserRouter } from 'react-router-dom';
@@ -107,6 +108,10 @@ const ThemeAndContent = () => {
     const { data } = useProBackupState();
     const isMobile = useLayout();
 
+    // Temporary DEV-only route for eyeballing every primitive in one place. Renders
+    // before the wallet/lock gate so it's reachable without an unlocked account.
+    const isShowcase = import.meta.env.DEV && window.location.pathname.startsWith('/ui-showcase');
+
     return (
         <UserThemeProvider
             isPro={Boolean(data?.valid)}
@@ -120,8 +125,14 @@ const ThemeAndContent = () => {
                 <FooterGlobalStyle />
                 <SybHeaderGlobalStyle />
                 <GlobalListStyle />
-                <Loader />
-                <UnlockNotification sdk={sdk} />
+                {isShowcase ? (
+                    <UiShowcase />
+                ) : (
+                    <>
+                        <Loader />
+                        <UnlockNotification sdk={sdk} />
+                    </>
+                )}
             </DarkThemeContext.Provider>
         </UserThemeProvider>
     );

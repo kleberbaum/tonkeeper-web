@@ -1,7 +1,6 @@
 import { Toast } from './Toast';
 import { expect, screenshot, test } from '../../playwright/test';
 
-// Toast has no breakpoint-dependent layout — one screenshot per variant is enough.
 screenshot('Toast small', () => <Toast text="Label" size="small" />);
 screenshot('Toast medium', () => <Toast text="Label" size="medium" />);
 screenshot('Toast loading', () => <Toast text="Loading" loading />);

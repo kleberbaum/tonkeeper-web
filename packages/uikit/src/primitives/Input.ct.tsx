@@ -1,9 +1,6 @@
 import { Input } from './Input';
-import { expect, screenshot, test } from '../../../playwright/test';
+import { expect, screenshot, test } from '../../playwright/test';
 
-// Figma "Field Text" frame variants. The CT harness runs in
-// `displayType="full-width"`, which is the same theme our apps use, so these
-// snapshots match the production rendering.
 screenshot('Input empty with label', () => (
     <div className="w-[358px]">
         <Input id="i1" value="" onChange={() => {}} label="Label" />
@@ -71,7 +68,6 @@ test('Clear button calls onChange with an empty string', async ({ mount }) => {
     const component = await mount(
         <Input id="i" value="Thanks" label="Label" clearButton onChange={v => (last = v)} />
     );
-    // The clear affordance is the inline XmarkIcon — click it directly.
     await component.locator('svg').last().click();
     expect(last).toBe('');
 });

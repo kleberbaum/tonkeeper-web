@@ -1,8 +1,6 @@
 import { FieldWord } from './FieldWord';
-import { expect, screenshot, test } from '../../../playwright/test';
+import { expect, screenshot, test } from '../../playwright/test';
 
-// FieldWord is controlled — screenshots render with a static `value` for each
-// visual state, matching the Figma "Field Word" frame.
 screenshot('FieldWord empty', () => (
     <div className="w-[358px]">
         <FieldWord number={17} value="" onChange={() => {}} />
@@ -25,9 +23,6 @@ screenshot('FieldWord focused', () => (
 ));
 
 test('FieldWord forwards typing to onChange', async ({ mount }) => {
-    // FieldWord is controlled and rendered with a fixed `value=""`, so React
-    // resets the DOM input after each keystroke. We can't observe accumulated
-    // text, but we can verify onChange fires with the single typed character.
     let last = '';
     let calls = 0;
     const component = await mount(
@@ -48,6 +43,5 @@ test('FieldWord forwards typing to onChange', async ({ mount }) => {
 test('error prop applies the error border colour', async ({ mount }) => {
     const component = await mount(<FieldWord number={1} value="x" onChange={() => {}} error />);
     const borderColor = await component.evaluate(el => getComputedStyle(el).borderTopColor);
-    // The error token is #ff4766 — anything but transparent confirms the class applied.
     expect(borderColor).not.toBe('rgba(0, 0, 0, 0)');
 });

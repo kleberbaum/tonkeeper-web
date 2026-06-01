@@ -3,7 +3,7 @@ import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAppSdk } from '../../hooks/appSdk';
 import { useTranslation } from '../../hooks/translation';
 import { H2Label2Responsive } from '../Text';
-import { Button } from '../fields/Button';
+import { Button } from '../../primitives/Button';
 import {
     parseMnemonicPaste,
     validateMnemonicTonOrMAM
@@ -94,7 +94,7 @@ export const MnemonicInputForm: FC<{
 
     useEffect(() => {
         onIsDirtyChange?.(isDirty);
-    }, [isDirty]);
+    }, [isDirty, onIsDirtyChange]);
 
     const onChange = useCallback(
         (newValue: string, index: number) => {
@@ -127,7 +127,7 @@ export const MnemonicInputForm: FC<{
             });
             focusInput(ref.current, max - 1);
         },
-        [ref.current]
+        [setMnemonic]
     );
 
     const validations = useMemo(() => {
@@ -242,10 +242,8 @@ export const MnemonicInputForm: FC<{
                             type="button"
                             size="small"
                             variant="tertiary"
-                            corner="full"
-                            fitContent
                             onClick={onPaste}
-                            className="pointer-events-auto bg-transparent hover:enabled:bg-transparent"
+                            className="pointer-events-auto"
                         >
                             {t('paste')}
                         </Button>
@@ -253,7 +251,7 @@ export const MnemonicInputForm: FC<{
                 )}
             </div>
 
-            <Button size="large" fullWidth primary loading={isLoading} type="submit" marginTop>
+            <Button size="large" fullWidth variant="primaryBlue" loading={isLoading} type="submit">
                 {t('continue')}
             </Button>
         </form>
