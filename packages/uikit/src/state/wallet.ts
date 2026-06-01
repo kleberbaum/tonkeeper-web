@@ -4,6 +4,7 @@ import {
     Account,
     AccountId,
     AccountMAM,
+    AccountMultichain,
     AccountSecretMnemonic,
     AccountSecretSK,
     AccountsState,
@@ -64,6 +65,7 @@ import {
     standardTonAccountToAccountWithTron,
     tronWalletByTonMnemonic
 } from '@tonkeeper/core/dist/service/walletService';
+import { createAccountMultichainByMnemonic } from '@tonkeeper/core/dist/service/multichainCreateService';
 import { Account as TonapiAccount, AccountsApi } from '@tonkeeper/core/dist/tonApiV2';
 import { seeIfValidTonAddress } from '@tonkeeper/core/dist/utils/common';
 import { useMemo } from 'react';
@@ -699,6 +701,111 @@ export const useCreateAccountMnemonic = () => {
 
         authBattery({
             signer: tonProofSignerByTonMnemonic(mnemonic, mnemonicType),
+            wallet: account.activeTonWallet
+        });
+
+        mutateMetaEncryptionKey({
+            wallet: account.activeTonWallet,
+            account,
+            mnemonic
+        });
+
+        return account;
+    });
+};
+
+/**
+ * Phase 2 multichain. Wraps `createAccountMultichainByMnemonic` with the
+ * same keychain / password / battery-auth / meta-encryption-key plumbing
+ * `useCreateAccountMnemonic` uses, so a BIP39 import lands an
+ * `AccountMultichain` in storage with TON + per-chain wallets ready to
+ * render.
+ *
+ * Chains the chain-kit adapter can't derive yet (e.g. SOL today) are
+ * silently dropped inside the service — caller doesn't need to know.
+ */
+export const useCreateAccountMultichain = () => {
+    const sdk = useAppSdk();
+    const context = useAppContext();
+    const { mutateAsync: addAccountToState } = useAddAccountToStateMutation();
+    const { mutateAsync: selectAccountMutation } = useMutateActiveAccount();
+    const { mutateAsync: authBattery } = useRequestBatteryAuthToken();
+    const { mutateAsync: mutateMetaEncryptionKey } = useMutateMetaKeyAndCertificates();
+
+    return useMutation<
+        AccountMultichain,
+        Error,
+        {
+            mnemonic: string[];
+            enabledChains: ChainId[];
+            password?: string;
+            selectAccount?: boolean;
+        }
+    >(async ({ mnemonic, enabledChains, password, selectAccount }) => {
+        const accountSecret: AccountSecretMnemonic = { type: 'mnemonic', mnemonic };
+        const valid = await seeIfMnemonicValid(mnemonic);
+        if (!valid) {
+            throw new Error('Mnemonic is not valid.');
+        }
+
+        if (sdk.keychain) {
+            const account = await createAccountMultichainByMnemonic(
+                context,
+                sdk.storage,
+                mnemonic,
+                {
+                    enabledChains,
+                    auth: { kind: 'keychain' },
+                    defaultTonVersion: context.defaultWalletVersion
+                }
+            );
+
+            await sdk.keychain.setData(
+                (account.auth as AuthKeychain).keychainStoreKey,
+                walletSecretToString(accountSecret)
+            );
+
+            await addAccountToState(account);
+            if (selectAccount) {
+                await selectAccountMutation(account.id);
+            }
+
+            authBattery({
+                // BIP39 is the only mnemonic shape multichain accepts (see
+                // service docstring); pin the signer accordingly.
+                signer: tonProofSignerByTonMnemonic(mnemonic, 'bip39'),
+                wallet: account.activeTonWallet
+            });
+
+            mutateMetaEncryptionKey({
+                wallet: account.activeTonWallet,
+                account,
+                mnemonic
+            });
+
+            return account;
+        }
+
+        if (!password) {
+            password = await getPasswordByNotification(sdk);
+        }
+
+        const account = await createAccountMultichainByMnemonic(context, sdk.storage, mnemonic, {
+            enabledChains,
+            auth: {
+                kind: 'password',
+                encryptedSecret: await encryptWalletSecret(accountSecret, password)
+            },
+            defaultTonVersion: context.defaultWalletVersion
+        });
+
+        await addAccountToState(account);
+        if (selectAccount) {
+            await selectAccountMutation(account.id);
+        }
+
+        authBattery({
+            signer: tonProofSignerByTonMnemonic(mnemonic, 'bip39'),
             wallet: account.activeTonWallet
         });
 

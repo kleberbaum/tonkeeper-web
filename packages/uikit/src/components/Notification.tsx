@@ -191,6 +191,8 @@ const Content = styled.div<{ standalone: boolean }>`
     padding: 1rem;
     flex-shrink: 0;
     box-sizing: border-box;
+    interpolate-size: allow-keywords;
+    transition: height 0.2s ease;
 
     ${props =>
         props.standalone &&
@@ -883,27 +885,25 @@ export const NotificationDesktopAndWeb: FC<{
                                         ref={containerRef}
                                         className="dialog-content"
                                     >
-                                        <AnimateHeightChange>
-                                            <HeaderWrapper ref={headerRef}>
-                                                {(title || !hideButton) && (
-                                                    <NotificationHeader
-                                                        className="dialog-header"
-                                                        noPaddingBottom={!title}
+                                        <HeaderWrapper ref={headerRef}>
+                                            {(title || !hideButton) && (
+                                                <NotificationHeader
+                                                    className="dialog-header"
+                                                    noPaddingBottom={!title}
+                                                >
+                                                    <NotificationTitleRow
+                                                        onBack={onBack}
+                                                        handleClose={
+                                                            hideButton ? undefined : onClose
+                                                        }
                                                     >
-                                                        <NotificationTitleRow
-                                                            onBack={onBack}
-                                                            handleClose={
-                                                                hideButton ? undefined : onClose
-                                                            }
-                                                        >
-                                                            {title}
-                                                        </NotificationTitleRow>
-                                                    </NotificationHeader>
-                                                )}
-                                            </HeaderWrapper>
-                                            {Child}
-                                            <FooterWrapper ref={footerRef}>{footer}</FooterWrapper>
-                                        </AnimateHeightChange>
+                                                        {title}
+                                                    </NotificationTitleRow>
+                                                </NotificationHeader>
+                                            )}
+                                        </HeaderWrapper>
+                                        {Child}
+                                        <FooterWrapper ref={footerRef}>{footer}</FooterWrapper>
                                     </Content>
                                     <PaddingAdjusted onClick={handleCloseOnlyOnNotFullWidth} />
                                 </Wrapper>

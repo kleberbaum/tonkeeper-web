@@ -7,7 +7,7 @@ import { useTrackLocation } from '@tonkeeper/uikit/dist/hooks/analytics';
 import { useDebuggingTools } from '@tonkeeper/uikit/dist/hooks/useDebuggingTools';
 import { Unlock } from '@tonkeeper/uikit/dist/pages/home/Unlock';
 import { AppProRoute, AppRoute } from '@tonkeeper/uikit/dist/libs/routes';
-import Initialize, { InitializeContainer } from '@tonkeeper/uikit/dist/pages/import/Initialize';
+import StartScreen from '@tonkeeper/uikit/dist/pages/import/StartScreen';
 import { AsideMenu } from '@tonkeeper/uikit/dist/components/desktop/aside/AsideMenu';
 import DesktopBrowser from '@tonkeeper/uikit/dist/desktop-pages/browser';
 import { DesktopMultiSendPage } from '@tonkeeper/uikit/dist/desktop-pages/multi-send';
@@ -27,8 +27,8 @@ import { DesktopPreferencesHeader } from '@tonkeeper/uikit/dist/components/deskt
 import { PreferencesAsideMenu } from '@tonkeeper/uikit/dist/components/desktop/aside/PreferencesAsideMenu';
 import { DesktopPreferencesRouting } from '@tonkeeper/uikit/dist/desktop-pages/preferences/DesktopPreferencesRouting';
 import MemoryScroll from '@tonkeeper/uikit/dist/components/MemoryScroll';
+import { AppLayout } from '@tonkeeper/uikit/dist/components/layout/AppLayout';
 import styled from 'styled-components';
-import { Container } from '@tonkeeper/uikit';
 import { desktopHeaderContainerHeight } from '@tonkeeper/uikit/dist/components/desktop/header/DesktopHeaderElements';
 import { BackgroundElements, usePrefetch } from './common';
 import { PullToRefresh } from '../components/PullToRefresh';
@@ -39,10 +39,6 @@ import DashboardPage from '@tonkeeper/uikit/dist/desktop-pages/dashboard';
 import { SecureWalletNotification } from '@tonkeeper/uikit/dist/components/desktop/SecureWalletNotification';
 import { DesktopCancelLegacySubscriptionBanner } from '@tonkeeper/uikit/dist/components/legacy-plugins/DesktopCancelLegacySubscriptionBanner';
 
-const FullSizeWrapper = styled(Container)`
-    max-width: 800px;
-`;
-
 const Wrapper = styled.div`
     box-sizing: border-box;
     height: 100%;
@@ -50,18 +46,6 @@ const Wrapper = styled.div`
     flex-direction: column;
     background-color: ${props => props.theme.backgroundPage};
     white-space: pre-wrap;
-`;
-
-const WideLayout = styled.div`
-    width: 100%;
-    height: 100%;
-    display: flex;
-`;
-
-const WideContentStyled = styled.div`
-    flex: 1;
-    min-width: 0;
-    min-height: 0;
 `;
 
 const WalletLayout = styled.div`
@@ -94,12 +78,6 @@ const PreferencesRoutingWrapper = styled.div`
     position: relative;
 `;
 
-const FullSizeWrapperBounded = styled(FullSizeWrapper)`
-    max-height: 100%;
-    overflow: auto;
-    justify-content: center;
-`;
-
 export const WideContent: FC<{
     activeAccount?: Account | null;
     lock: boolean;
@@ -130,31 +108,26 @@ export const WideContent: FC<{
 
     if (!activeAccount || location.pathname.startsWith(AppRoute.import)) {
         return (
-            <FullSizeWrapperBounded className="full-size-wrapper">
-                <InitializeContainer fullHeight={false}>
-                    <Initialize />
-                </InitializeContainer>
-            </FullSizeWrapperBounded>
+            <AppLayout bare>
+                <StartScreen />
+            </AppLayout>
         );
     }
 
     return (
-        <WideLayout>
-            <AsideMenu />
-            <WideContentStyled>
-                <Switch>
-                    <Route path={AppProRoute.dashboard} component={DashboardPage} />
-                    <Route path={AppRoute.browser} component={DesktopBrowser} />
-                    <Route path={AppRoute.settings} component={PreferencesContent} />
-                    <Route path={AppProRoute.multiSend} component={DesktopMultiSendPage} />
-                    <Route path={AppRoute.accountSettings} component={DesktopAccountSettingsPage} />
-                    <Route path="*" component={WalletContent} />
-                </Switch>
-            </WideContentStyled>
+        <AppLayout sidebar={<AsideMenu />}>
+            <Switch>
+                <Route path={AppProRoute.dashboard} component={DashboardPage} />
+                <Route path={AppRoute.browser} component={DesktopBrowser} />
+                <Route path={AppRoute.settings} component={PreferencesContent} />
+                <Route path={AppProRoute.multiSend} component={DesktopMultiSendPage} />
+                <Route path={AppRoute.accountSettings} component={DesktopAccountSettingsPage} />
+                <Route path="*" component={WalletContent} />
+            </Switch>
             <BackgroundElements />
             <SecureWalletNotification />
             <PullToRefresh onRefresh={onRefresh} />
-        </WideLayout>
+        </AppLayout>
     );
 };
 

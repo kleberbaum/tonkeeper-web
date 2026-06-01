@@ -1,5 +1,6 @@
 import { Account } from '@tonkeeper/core/dist/entries/account';
 import { useWindowsScroll } from '@tonkeeper/uikit/dist/components/Body';
+import { AppLayout } from '@tonkeeper/uikit/dist/components/layout/AppLayout';
 import MemoryScroll from '@tonkeeper/uikit/dist/components/MemoryScroll';
 import { AsideMenu } from '@tonkeeper/uikit/dist/components/desktop/aside/AsideMenu';
 import { PreferencesAsideMenu } from '@tonkeeper/uikit/dist/components/desktop/aside/PreferencesAsideMenu';
@@ -28,9 +29,9 @@ import { useRecommendations } from '@tonkeeper/uikit/dist/hooks/browser/useRecom
 import { useDebuggingTools } from '@tonkeeper/uikit/dist/hooks/useDebuggingTools';
 import { AppProRoute, AppRoute } from '@tonkeeper/uikit/dist/libs/routes';
 import { Unlock } from '@tonkeeper/uikit/dist/pages/home/Unlock';
-import Initialize from '@tonkeeper/uikit/dist/pages/import/Initialize';
-import { Container, GlobalStyleCss } from '@tonkeeper/uikit/dist/styles/globalStyle';
-import React, { FC, PropsWithChildren, Suspense, useLayoutEffect, useMemo } from 'react';
+import StartScreen from '@tonkeeper/uikit/dist/pages/import/StartScreen';
+import { GlobalStyleCss } from '@tonkeeper/uikit/dist/styles/globalStyle';
+import React, { FC, Suspense, useMemo } from 'react';
 import { Route, Switch, useLocation } from 'react-router-dom';
 import styled, { ThemeProvider, createGlobalStyle, useTheme } from 'styled-components';
 import { useAppWidth } from './libs/hooks';
@@ -104,10 +105,6 @@ const GlobalStyle = createGlobalStyle`
     }
 `;
 
-const FullSizeWrapper = styled(Container)`
-    max-width: 800px;
-`;
-
 const Wrapper = styled.div`
     box-sizing: border-box;
     height: 100%;
@@ -115,18 +112,6 @@ const Wrapper = styled.div`
     flex-direction: column;
     background-color: ${props => props.theme.backgroundPage};
     white-space: pre-wrap;
-`;
-
-const WideLayout = styled.div`
-    width: 100%;
-    height: 100%;
-    display: flex;
-`;
-
-const WideContent = styled.div`
-    flex: 1;
-    min-width: 0;
-    min-height: 0;
 `;
 
 const WalletLayout = styled.div`
@@ -185,25 +170,6 @@ const DesktopView: FC<{
     );
 };
 
-const InitializeContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    min-height: var(--app-height);
-    padding: 1rem;
-    box-sizing: border-box;
-    position: relative;
-    justify-content: center;
-`;
-
-const FullScreen: FC<PropsWithChildren> = ({ children }) => {
-    useLayoutEffect(() => {
-        document.documentElement.classList.add('scroll');
-        return () => {
-            document.documentElement.classList.remove('scroll');
-        };
-    }, []);
-    return <FullSizeWrapper>{children}</FullSizeWrapper>;
-};
 export const DesktopContent: FC<{
     activeAccount?: Account | null;
     lock: boolean;
@@ -214,31 +180,28 @@ export const DesktopContent: FC<{
         return <Unlock />;
     }
 
-    if (!activeAccount || location.pathname.startsWith(AppRoute.import)) {
+    const isOnboarding = !activeAccount || location.pathname.startsWith(AppRoute.import);
+
+    if (isOnboarding) {
         return (
-            <FullScreen>
-                <InitializeContainer>
-                    <Initialize />
-                </InitializeContainer>
-            </FullScreen>
+            <AppLayout bare>
+                <StartScreen />
+            </AppLayout>
         );
     }
 
     return (
-        <WideLayout>
-            <AsideMenu />
-            <WideContent>
-                <Switch>
-                    <Route path={AppProRoute.dashboard} component={DashboardPage} />
-                    <Route path={AppRoute.browser} component={DesktopBrowser} />
-                    <Route path={AppRoute.settings} component={PreferencesContent} />
-                    <Route path={AppProRoute.multiSend} component={DesktopMultiSendPage} />
-                    <Route path={AppRoute.accountSettings} component={DesktopAccountSettingsPage} />
-                    <Route path="*" component={WalletContent} />
-                </Switch>
-            </WideContent>
+        <AppLayout sidebar={<AsideMenu />}>
+            <Switch>
+                <Route path={AppProRoute.dashboard} component={DashboardPage} />
+                <Route path={AppRoute.browser} component={DesktopBrowser} />
+                <Route path={AppRoute.settings} component={PreferencesContent} />
+                <Route path={AppProRoute.multiSend} component={DesktopMultiSendPage} />
+                <Route path={AppRoute.accountSettings} component={DesktopAccountSettingsPage} />
+                <Route path="*" component={WalletContent} />
+            </Switch>
             <BackgroundElements />
-        </WideLayout>
+        </AppLayout>
     );
 };
 

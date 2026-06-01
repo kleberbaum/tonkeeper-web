@@ -45,6 +45,7 @@ import { useIsActiveAccountMultisig } from '@tonkeeper/uikit/dist/state/multisig
 import { BrowserRouter } from 'react-router-dom';
 import { localesList } from '@tonkeeper/locales/localesList';
 import { CryptoStrategyInstaller } from '@tonkeeper/uikit/dist/components/pro/CryptoStrategyInstaller';
+import { MULTICHAIN_ENABLED } from '@tonkeeper/core/dist/multichain';
 
 const QrScanner = React.lazy(() => import('@tonkeeper/uikit/dist/components/QrScanner'));
 const DesktopView = React.lazy(() => import('./AppDesktop'));
@@ -201,7 +202,7 @@ const Loader: FC = () => {
         defaultWalletVersion: WalletVersion.V5R1,
         hideMultisig: isMobile,
         hideFireblocks: true,
-        multichainEnabled: import.meta.env.VITE_MULTICHAIN_ENABLED === 'true',
+        multichainEnabled: MULTICHAIN_ENABLED,
         tracker: tracker?.track
     };
 

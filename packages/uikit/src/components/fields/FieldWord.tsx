@@ -9,8 +9,9 @@ import { cn } from '../../libs/css';
  * forces the error styling. The 1.5px border is always present but
  * transparent so toggling state doesn't shift the inner content.
  *
- * Used by `WordInput` in `components/create/Words.tsx`, which layers on
- * paste handling, BIP-39 validation and focus auto-advance.
+ * Wrapped by `WordInput` (`components/create/WordInput.tsx`); the
+ * `MnemonicInputForm` and `CheckMnemonic` screens layer on paste
+ * handling, BIP-39 validation and focus auto-advance.
  */
 export interface FieldWordProps {
     value: string;

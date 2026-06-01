@@ -6,6 +6,7 @@ import { InnerBody, useWindowsScroll } from '@tonkeeper/uikit/dist/components/Bo
 import { CopyNotification } from '@tonkeeper/uikit/dist/components/CopyNotification';
 import { Footer, FooterGlobalStyle } from '@tonkeeper/uikit/dist/components/Footer';
 import { Header, HeaderGlobalStyle } from '@tonkeeper/uikit/dist/components/Header';
+import { AppLayout } from '@tonkeeper/uikit/dist/components/layout/AppLayout';
 import { DarkThemeContext } from '@tonkeeper/uikit/dist/components/Icon';
 import { GlobalListStyle } from '@tonkeeper/uikit/dist/components/List';
 import { Loading } from '@tonkeeper/uikit/dist/components/Loading';
@@ -47,7 +48,7 @@ import {
     useActiveTonNetwork
 } from '@tonkeeper/uikit/dist/state/wallet';
 import { defaultTheme } from '@tonkeeper/uikit/dist/styles/defaultTheme';
-import { Container, GlobalStyle } from '@tonkeeper/uikit/dist/styles/globalStyle';
+import { GlobalStyle } from '@tonkeeper/uikit/dist/styles/globalStyle';
 import { lightTheme } from '@tonkeeper/uikit/dist/styles/lightTheme';
 import React, { FC, PropsWithChildren, Suspense, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -68,7 +69,7 @@ import { useNavigate } from "@tonkeeper/uikit/dist/hooks/router/useNavigate";
 import { useRealtimeUpdatesInvalidation } from '@tonkeeper/uikit/dist/hooks/realtime';
 import { RedirectFromDesktopSettings } from "@tonkeeper/uikit/dist/pages/settings/RedirectFromDesktopSettings";
 
-const Initialize = React.lazy(() => import('@tonkeeper/uikit/dist/pages/import/Initialize'));
+const StartScreen = React.lazy(() => import('@tonkeeper/uikit/dist/pages/import/StartScreen'));
 const ImportRouter = React.lazy(() => import('@tonkeeper/uikit/dist/pages/import'));
 const Browser = React.lazy(() => import('@tonkeeper/uikit/dist/pages/browser'));
 const Settings = React.lazy(() => import('@tonkeeper/uikit/dist/pages/settings'));
@@ -204,16 +205,6 @@ const TwaApp: FC<{ sdk: TwaAppSdk }> = ({ sdk }) => {
     );
 };
 
-const FullSizeWrapper = styled(Container)``;
-
-const Wrapper = styled(FullSizeWrapper)<{ standalone: boolean }>`
-    height: var(--app-height);
-    transition: height 0.4s ease;
-
-    box-sizing: border-box;
-    padding-top: 64px;
-    padding-bottom: ${props => (props.standalone ? '96' : '80')}px;
-`;
 
 const seeIfShowQrScanner = (platform: TwaPlatform): boolean => {
     switch (platform) {
@@ -307,28 +298,14 @@ export const Loader: FC<{ sdk: TwaAppSdk }> = ({ sdk }) => {
     );
 };
 
-const InitWrapper = styled(Container)`
-    height: var(--app-height);
-    min-height: auto;
-
-    transition: height 0.4s ease;
-
-    overflow: auto;
-    display: flex;
-    flex-direction: column;
-    padding: 16px;
-    box-sizing: border-box;
-    position: relative;
-`;
-
 const InitPages: FC<{ sdk: TwaAppSdk }> = ({ sdk }) => {
     useTwaAppViewport(true, sdk);
     return (
-        <InitWrapper>
+        <AppLayout bare>
             <Suspense fallback={<Loading />}>
-                <Initialize />
+                <StartScreen />
             </Suspense>
-        </InitWrapper>
+        </AppLayout>
     );
 };
 
@@ -346,9 +323,9 @@ const Content: FC<{
 
     if (lock) {
         return (
-            <FullSizeWrapper>
+            <AppLayout bare>
                 <Unlock />
-            </FullSizeWrapper>
+            </AppLayout>
         );
     }
 
@@ -396,7 +373,10 @@ const MainPages: FC<{ showQrScan: boolean; sdk: TwaAppSdk }> = ({ showQrScan, sd
 
     return (
         <TwaNotification>
-            <Wrapper standalone={getUsePadding(sdk.launchParams.platform)}>
+            <AppLayout
+                standalone={getUsePadding(sdk.launchParams.platform)}
+                bottomBar={<Footer standalone={getUsePadding(sdk.launchParams.platform)} />}
+            >
                 <Switch>
                     <Route
                         path={AppRoute.activity}
@@ -442,12 +422,11 @@ const MainPages: FC<{ showQrScan: boolean; sdk: TwaAppSdk }> = ({ showQrScan, sd
                         </>
                     </Route>
                 </Switch>
-                <Footer standalone={getUsePadding(sdk.launchParams.platform)} />
                 <MemoryScroll />
                 <Suspense>
                     <WebTonConnectSubscription />
                 </Suspense>
-            </Wrapper>
+            </AppLayout>
         </TwaNotification>
     );
 };

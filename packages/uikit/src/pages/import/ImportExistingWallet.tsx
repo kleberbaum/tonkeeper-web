@@ -1,12 +1,14 @@
 import React, { FC, useContext, useEffect, useMemo, useState } from 'react';
 import { UpdateWalletName } from '../../components/create/WalletName';
-import { ImportMnemonicType, ImportWords, SelectMnemonicType } from '../../components/create/Words';
+import { MnemonicInputForm } from '../../components/create/MnemonicInputForm';
+import { ImportMnemonicType, SelectMnemonicType } from '../../components/create/SelectMnemonicType';
 import { useAppSdk } from '../../hooks/appSdk';
 import { FinalView } from './Password';
 import { Subscribe } from './Subscribe';
 import {
     useAccountsState,
     useCreateAccountMAM,
+    useCreateAccountMultichain,
     useMutateRenameAccount,
     useCreateAccountMnemonic,
     useMutateRenameAccountDerivations
@@ -14,6 +16,7 @@ import {
 import { ChoseWalletVersionsByMnemonic } from '../../components/create/ChoseWalletVersions';
 import {
     AccountMAM,
+    AccountMultichain,
     AccountTonMnemonic,
     getAccountByWalletById
 } from '@tonkeeper/core/dist/entries/account';
@@ -49,6 +52,15 @@ import { useTranslation } from '../../hooks/translation';
 import { useAutoAuthMutation } from '../../state/pro';
 import { tonProofSignerByTonMnemonic } from '../../hooks/accountUtils';
 import { maxOneCall } from '@tonkeeper/core/dist/utils/common';
+import { ChainId } from '@tonkeeper/core/dist/chains';
+
+/**
+ * Default chain set for a multichain account created via import. SOL is
+ * intentionally omitted — chain-kit has no Solana module yet, and the
+ * create service would drop it anyway (see `multichainCreateService` for
+ * the opportunistic-skip rule).
+ */
+const DEFAULT_MULTICHAIN_CHAINS: ChainId[] = ['ton', 'evm', 'btc', 'tron'];
 
 const useProcessMnemonic = () => {
     const context = useAppContext();
@@ -237,10 +249,14 @@ const getMnemonicTypeFallback = async (mnemonic: string[]) => {
 export const ImportExistingWallet: FC<{ afterCompleted: () => void }> = ({ afterCompleted }) => {
     const sdk = useAppSdk();
     const { t } = useTranslation();
+    const { multichainEnabled } = useAppContext();
 
     const [mnemonic, setMnemonic] = useState<string[] | undefined>();
+    // `AccountMultichain` joins the union once `multichainEnabled` is on —
+    // a BIP39 phrase is then routed to the multichain create path instead of
+    // the TON-only one.
     const [createdAccount, setCreatedAccount] = useState<
-        AccountTonMnemonic | AccountMAM | undefined
+        AccountTonMnemonic | AccountMAM | AccountMultichain | undefined
     >(undefined);
     const [existingAccountAndWallet, setExistingAccountAndWallet] = useState<
         | {
@@ -262,6 +278,8 @@ export const ImportExistingWallet: FC<{ afterCompleted: () => void }> = ({ after
     const { mutateAsync: createWalletsAsync, isLoading: isCreatingWallets } =
         useCreateAccountMnemonic();
     const { mutateAsync: createAccountMam, isLoading: isCreatingMam } = useCreateAccountMAM();
+    const { mutateAsync: createAccountMultichain, isLoading: isCreatingMultichain } =
+        useCreateAccountMultichain();
 
     const {
         mutateAsync: processMnemonic,
@@ -287,6 +305,13 @@ export const ImportExistingWallet: FC<{ afterCompleted: () => void }> = ({ after
                     selectAccount: true
                 });
                 setCreatedAccount(newAccountMam.account);
+            } else if (typeToSet === 'bip39' && multichainEnabled) {
+                const newAccount = await createAccountMultichain({
+                    mnemonic: m,
+                    enabledChains: DEFAULT_MULTICHAIN_CHAINS,
+                    selectAccount: true
+                });
+                setCreatedAccount(newAccount);
             }
             setSelectedMnemonicType(typeToSet);
         } else if (availableOptions.length === 1) {
@@ -305,14 +330,23 @@ export const ImportExistingWallet: FC<{ afterCompleted: () => void }> = ({ after
 
         if (acc.type === 'exisiting') {
             setExistingAccountAndWallet(acc);
-        }
-
-        if (acc.type === 'create') {
+        } else if (acc.type === 'create') {
             const newAccountMam = await createAccountMam({
                 mnemonic: m,
                 selectAccount: true
             });
             setCreatedAccount(newAccountMam.account);
+        } else if (mnemonicType === 'bip39' && multichainEnabled) {
+            // Multichain mode owns the BIP39 branch — skip the per-version
+            // picker and create the multichain account with the default TON
+            // version. Users can still switch the TON version afterwards
+            // from the account-version settings.
+            const newAccount = await createAccountMultichain({
+                mnemonic: m,
+                enabledChains: DEFAULT_MULTICHAIN_CHAINS,
+                selectAccount: true
+            });
+            setCreatedAccount(newAccount);
         }
 
         setSelectedMnemonicType(mnemonicType);
@@ -323,7 +357,7 @@ export const ImportExistingWallet: FC<{ afterCompleted: () => void }> = ({ after
     };
 
     const onRename = async (form: { name: string; emoji: string }) => {
-        let newAcc: AccountTonMnemonic | AccountMAM = await renameAccount({
+        let newAcc: AccountTonMnemonic | AccountMAM | AccountMultichain = await renameAccount({
             id: createdAccount!.id,
             ...form
         });
@@ -363,7 +397,7 @@ export const ImportExistingWallet: FC<{ afterCompleted: () => void }> = ({ after
         }
 
         if (!selectedMnemonicType) {
-            if (isCreatingMam) {
+            if (isCreatingMam || isCreatingMultichain) {
                 return undefined;
             }
             return () => setMnemonic(undefined);
@@ -390,6 +424,7 @@ export const ImportExistingWallet: FC<{ afterCompleted: () => void }> = ({ after
         isMnemonicFormDirty,
         selectedMnemonicType,
         isCreatingMam,
+        isCreatingMultichain,
         editNamePagePassed,
         selectNetworksPassed
     ]);
@@ -446,7 +481,7 @@ export const ImportExistingWallet: FC<{ afterCompleted: () => void }> = ({ after
 
     if (!mnemonic) {
         return (
-            <ImportWords
+            <MnemonicInputForm
                 onMnemonic={onMnemonic}
                 isLoading={isProcessMnemonic || processedMnemonicResult !== undefined}
                 onIsDirtyChange={setIsMnemonicFormDirty}
@@ -459,7 +494,7 @@ export const ImportExistingWallet: FC<{ afterCompleted: () => void }> = ({ after
             <SelectMnemonicType
                 availableTypes={availableMnemonicTypes}
                 onSelect={onSelectMnemonicType}
-                isLoading={isCreatingMam}
+                isLoading={isCreatingMam || isCreatingMultichain}
             />
         );
     }

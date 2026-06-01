@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MULTICHAIN_ENABLED } from './constants';
+import { MULTICHAIN_ENABLED } from '@tonkeeper/core/dist/multichain';
 import { localizationFrom } from '@tonkeeper/core/dist/entries/language';
 import { getApiConfig, setProApiUrl } from '@tonkeeper/core/dist/entries/network';
 import { WalletVersion } from '@tonkeeper/core/dist/entries/wallet';
@@ -35,15 +35,16 @@ import {
 import { AppRoute, SettingsRoute } from '@tonkeeper/uikit/dist/libs/routes';
 import { Unlock } from '@tonkeeper/uikit/dist/pages/home/Unlock';
 import { UnlockNotification } from '@tonkeeper/uikit/dist/pages/home/UnlockNotification';
-import Initialize, { InitializeContainer } from '@tonkeeper/uikit/dist/pages/import/Initialize';
+import StartScreen from '@tonkeeper/uikit/dist/pages/import/StartScreen';
 import { UserThemeProvider } from '@tonkeeper/uikit/dist/providers/UserThemeProvider';
 import { useUserFiatQuery } from '@tonkeeper/uikit/dist/state/fiat';
 import { useTonendpoint, useTonenpointConfig } from '@tonkeeper/uikit/dist/state/tonendpoint';
 import { useActiveAccountQuery, useAccountsStateQuery } from '@tonkeeper/uikit/dist/state/wallet';
+import { AppLayout } from '@tonkeeper/uikit/dist/components/layout/AppLayout';
 import { Container, GlobalStyleCss } from '@tonkeeper/uikit/dist/styles/globalStyle';
 import React, { FC, PropsWithChildren, Suspense, useCallback, useEffect, useMemo } from 'react';
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom';
-import styled, { createGlobalStyle, css } from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import browser from 'webextension-polyfill';
 import { TonConnectSubscription } from './components/TonConnectSubscription';
 import { connectToBackground } from './event';
@@ -150,9 +151,9 @@ export const App: FC<{ isInCustomPopup: boolean }> = ({ isInCustomPopup }) => {
                                     <GlobalListStyle />
                                     <Suspense
                                         fallback={
-                                            <FullSizeWrapper standalone={false}>
+                                            <ExtensionPopupRoot>
                                                 <Loading />
-                                            </FullSizeWrapper>
+                                            </ExtensionPopupRoot>
                                         }
                                     >
                                         <Loader />
@@ -168,8 +169,16 @@ export const App: FC<{ isInCustomPopup: boolean }> = ({ isInCustomPopup }) => {
     );
 };
 
-const PageWrapper = styled(Container)`
+/**
+ * Extension popup geometry — Container plus the 385px-min / 600px-tall
+ * shape every entry path used to set via `FullSizeWrapper` / `Wrapper`.
+ * Routes use `AppLayout` for chrome; this wrapper only constrains the
+ * popup box itself.
+ */
+const ExtensionPopupRoot = styled(Container)`
     min-width: 385px;
+    height: 600px;
+    width: var(--app-width);
 
     > * {
         overflow: auto;
@@ -177,32 +186,6 @@ const PageWrapper = styled(Container)`
         max-width: 548px;
         box-sizing: border-box;
     }
-`;
-
-const FullSizeWrapper = styled(Container)<{ standalone: boolean }>`
-    min-width: 385px;
-    height: 600px;
-    width: var(--app-width);
-
-    > * {
-        ${props =>
-            props.standalone &&
-            css`
-                overflow: auto;
-                width: var(--app-width);
-                max-width: 548px;
-                box-sizing: border-box;
-            `}
-    }
-`;
-
-const Wrapper = styled(FullSizeWrapper)<{
-    standalone: boolean;
-    recovery: boolean;
-}>`
-    box-sizing: border-box;
-    padding-top: ${props => (props.recovery ? 0 : 64)}px;
-    padding-bottom: 80px;
 `;
 
 export const Loader: FC = React.memo(() => {
@@ -245,9 +228,9 @@ export const Loader: FC = React.memo(() => {
         globalSetupLoading
     ) {
         return (
-            <FullSizeWrapper standalone={false}>
+            <ExtensionPopupRoot>
                 <Loading />
-            </FullSizeWrapper>
+            </ExtensionPopupRoot>
         );
     }
 
@@ -316,11 +299,13 @@ export const Content: FC<{
 
     if (location.pathname === AppRoute.connectLedger) {
         return (
-            <PageWrapper>
-                <Suspense fallback={<Loading />}>
-                    <ConnectLedgerPage />
-                </Suspense>
-            </PageWrapper>
+            <ExtensionPopupRoot>
+                <AppLayout bare>
+                    <Suspense fallback={<Loading />}>
+                        <ConnectLedgerPage />
+                    </Suspense>
+                </AppLayout>
+            </ExtensionPopupRoot>
         );
     }
 
@@ -330,70 +315,75 @@ export const Content: FC<{
 
     if (pageView) {
         return (
-            <PageWrapper>
-                <Suspense fallback={<Loading />}>
-                    <InitializeContainer>
-                        <Initialize />
-                    </InitializeContainer>
-                </Suspense>
-            </PageWrapper>
+            <ExtensionPopupRoot>
+                <AppLayout bare>
+                    <Suspense fallback={<Loading />}>
+                        <StartScreen />
+                    </Suspense>
+                </AppLayout>
+            </ExtensionPopupRoot>
         );
     }
 
     return (
-        <Wrapper standalone recovery={location.pathname.includes(SettingsRoute.recovery)}>
-            <Switch>
-                <Route path={AppRoute.activity}>
-                    <Suspense fallback={<ActivitySkeletonPage />}>
-                        <Activity />
-                    </Suspense>
-                </Route>
-                <Route path={AppRoute.browser}>
-                    <Suspense fallback={<BrowserSkeletonPage />}>
-                        <Browser />
-                    </Suspense>
-                </Route>
-                <Route path={AppRoute.settings}>
-                    <Suspense fallback={<SettingsSkeletonPage />}>
-                        <Settings />
-                    </Suspense>
-                </Route>
-                <Route path={AppRoute.walletSettings}>
-                    <RedirectFromDesktopSettings />
-                </Route>
-                <Route path={`${AppRoute.coins}/:name`}>
-                    <Suspense fallback={<CoinSkeletonPage />}>
-                        <Coin />
-                    </Suspense>
-                </Route>
-                <Route path={AppRoute.swap}>
-                    <Suspense fallback={null}>
-                        <SwapPage />
-                    </Suspense>
-                </Route>
-                <Route path={AppRoute.staking}>
-                    <Suspense fallback={null}>
-                        <StakingPage />
-                    </Suspense>
-                </Route>
-                <Route path="*" component={IndexPage} />
-            </Switch>
-            <Footer />
-            <MemoryScroll />
-            <Notifications />
-            <TonConnectSubscription />
-            <Suspense>
-                <SendActionNotification />
-                <ReceiveNotification />
-                <NftNotification />
-                <SendNftNotification />
-                <AddFavoriteNotification />
-                <EditFavoriteNotification />
-                <ConnectLedgerNotification />
-                <SwapMobileNotification />
-                <PairKeystoneNotification />
-            </Suspense>
-        </Wrapper>
+        <ExtensionPopupRoot>
+            <AppLayout
+                standalone
+                recovery={location.pathname.includes(SettingsRoute.recovery)}
+                bottomBar={<Footer />}
+            >
+                <Switch>
+                    <Route path={AppRoute.activity}>
+                        <Suspense fallback={<ActivitySkeletonPage />}>
+                            <Activity />
+                        </Suspense>
+                    </Route>
+                    <Route path={AppRoute.browser}>
+                        <Suspense fallback={<BrowserSkeletonPage />}>
+                            <Browser />
+                        </Suspense>
+                    </Route>
+                    <Route path={AppRoute.settings}>
+                        <Suspense fallback={<SettingsSkeletonPage />}>
+                            <Settings />
+                        </Suspense>
+                    </Route>
+                    <Route path={AppRoute.walletSettings}>
+                        <RedirectFromDesktopSettings />
+                    </Route>
+                    <Route path={`${AppRoute.coins}/:name`}>
+                        <Suspense fallback={<CoinSkeletonPage />}>
+                            <Coin />
+                        </Suspense>
+                    </Route>
+                    <Route path={AppRoute.swap}>
+                        <Suspense fallback={null}>
+                            <SwapPage />
+                        </Suspense>
+                    </Route>
+                    <Route path={AppRoute.staking}>
+                        <Suspense fallback={null}>
+                            <StakingPage />
+                        </Suspense>
+                    </Route>
+                    <Route path="*" component={IndexPage} />
+                </Switch>
+                <MemoryScroll />
+                <Notifications />
+                <TonConnectSubscription />
+                <Suspense>
+                    <SendActionNotification />
+                    <ReceiveNotification />
+                    <NftNotification />
+                    <SendNftNotification />
+                    <AddFavoriteNotification />
+                    <EditFavoriteNotification />
+                    <ConnectLedgerNotification />
+                    <SwapMobileNotification />
+                    <PairKeystoneNotification />
+                </Suspense>
+            </AppLayout>
+        </ExtensionPopupRoot>
     );
 };
 

@@ -58,17 +58,36 @@ export const GlobalStyleCss = css`
         right: 0;
     }
 
-    .win32 #body::-webkit-scrollbar,
-    .linux #body::-webkit-scrollbar,
-    .win32 .full-size-wrapper::-webkit-scrollbar,
-    .linux .full-size-wrapper::-webkit-scrollbar,
-    .win32 .notification-overlay::-webkit-scrollbar,
-    .linux .notification-overlay::-webkit-scrollbar,
-    .win32 .dialog-content::-webkit-scrollbar,
-    .linux .dialog-content::-webkit-scrollbar,
-    .win32 .hide-scrollbar::-webkit-scrollbar,
-    .linux .hide-scrollbar::-webkit-scrollbar {
+    /*
+     * Hide native scrollbars on every scroll surface — page body, the
+     * mobile-app body id, the desktop content wrappers, and the notification
+     * modal's overlay + inner dialog. Was previously gated to .win32/.linux
+     * because macOS Electron used to inherit nice overlay scrollbars from the
+     * OS; in practice (macOS "Always show scrollbars" + Chrome / Firefox
+     * across all OSes) it leaves a chunky persistent bar that doesn't match
+     * the dark theme. Consistency across platforms wins.
+     *
+     * The body { overflow-y: scroll } rule above still reserves the gutter
+     * so the page never shifts when content grows past the viewport; this
+     * just hides the visible track.
+     */
+    body,
+    #body,
+    .full-size-wrapper,
+    .notification-overlay,
+    .dialog-content,
+    .hide-scrollbar {
+        scrollbar-width: none; /* Firefox / non-WebKit */
+    }
+
+    body::-webkit-scrollbar,
+    #body::-webkit-scrollbar,
+    .full-size-wrapper::-webkit-scrollbar,
+    .notification-overlay::-webkit-scrollbar,
+    .dialog-content::-webkit-scrollbar,
+    .hide-scrollbar::-webkit-scrollbar {
         width: 0;
+        height: 0;
     }
 
     .pointer-events-none {

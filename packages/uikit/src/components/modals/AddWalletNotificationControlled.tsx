@@ -1,7 +1,7 @@
 import { Notification } from '../Notification';
 import { createModalControl } from './createModalControl';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { AddWalletContent } from '../create/AddWallet';
+import { AddWalletPicker, AddWalletPickerMode } from '../create/AddWalletPicker';
 import styled, { css } from 'styled-components';
 import { Body1, Body2Class, H2, Label2Class } from '../Text';
 import { useTranslation } from '../../hooks/translation';
@@ -25,14 +25,33 @@ import { ImportBySKWallet } from '../../pages/import/ImportBySKWallet';
 import { useProFeaturesNotification } from './ProFeaturesNotificationControlled';
 import { AddWalletMethod } from '@tonkeeper/core/dist/entries/wallet';
 
-const { hook, paramsControl } = createModalControl<{ walletType?: AddWalletMethod } | undefined>();
+const { hook, paramsControl } = createModalControl<
+    | {
+          walletType?: AddWalletMethod;
+          /**
+           * `'import'` narrows the picker to import-shaped entries — used
+           * from the onboarding start screen, which has a separate primary
+           * action for the create flow. Defaults to `'all'`.
+           */
+          pickerMode?: AddWalletPickerMode;
+      }
+    | undefined
+>();
 
 export const useAddWalletNotification = () => {
     const { mutateAsync: securityCheck } = useSecurityCheck();
     const { onOpen: onOpenHook, ...rest } = hook();
 
     const onOpen = useCallback(
-        async (p?: { walletType?: AddWalletMethod; skipSecurityCheck?: boolean } | undefined) => {
+        async (
+            p?:
+                | {
+                      walletType?: AddWalletMethod;
+                      pickerMode?: AddWalletPickerMode;
+                      skipSecurityCheck?: boolean;
+                  }
+                | undefined
+        ) => {
             try {
                 if (p?.walletType && !p.skipSecurityCheck) {
                     await securityCheck();
@@ -142,13 +161,25 @@ export const AddWalletNotificationControlled = () => {
         };
     }, [isSubscriptionValid, openBuyPro, setSelectedMethod, sdk, onClose]);
 
+    const pickerMode = params?.pickerMode ?? 'all';
+
     const Content = useCallback(() => {
         if (!selectedMethod) {
             return (
                 <NotificationContentWrapper>
-                    <Heading>{t('import_add_wallet')}</Heading>
-                    <SubHeading>{t('import_add_wallet_description')}</SubHeading>
-                    <AddWalletContent onSelect={onSelect} />
+                    <Heading>
+                        {t(
+                            pickerMode === 'import' ? 'import_existing_wallet' : 'import_add_wallet'
+                        )}
+                    </Heading>
+                    <SubHeading>
+                        {t(
+                            pickerMode === 'import'
+                                ? 'import_wallet_picker_subtitle'
+                                : 'import_add_wallet_description'
+                        )}
+                    </SubHeading>
+                    <AddWalletPicker onSelect={onSelect} mode={pickerMode} />
                 </NotificationContentWrapper>
             );
         }
@@ -193,7 +224,7 @@ export const AddWalletNotificationControlled = () => {
                 assertUnreachable(selectedMethod);
             }
         }
-    }, [t, selectedMethod, onCloseCallback, onSelect]);
+    }, [t, selectedMethod, onCloseCallback, onSelect, pickerMode]);
 
     const navigateHome = useMemo(
         () =>
@@ -212,6 +243,7 @@ export const AddWalletNotificationControlled = () => {
                 handleClose={onCloseCallback}
                 mWidth={'750px'}
                 mobileFullScreen
+                disableHeightAnimation
                 afterClose={() => {
                     setSelectedMethod(undefined);
                 }}

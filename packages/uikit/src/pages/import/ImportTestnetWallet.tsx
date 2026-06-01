@@ -1,6 +1,7 @@
 import React, { FC, useContext, useMemo, useState } from 'react';
 import { UpdateWalletName } from '../../components/create/WalletName';
-import { ImportMnemonicType, ImportWords } from '../../components/create/Words';
+import { MnemonicInputForm } from '../../components/create/MnemonicInputForm';
+import { ImportMnemonicType } from '../../components/create/SelectMnemonicType';
 import { useAppSdk } from '../../hooks/appSdk';
 import { FinalView } from './Password';
 import { Subscribe } from './Subscribe';
@@ -218,7 +219,7 @@ export const ImportTestnetWallet: FC<{ afterCompleted: () => void }> = ({ afterC
 
     if (!mnemonic) {
         return (
-            <ImportWords
+            <MnemonicInputForm
                 onMnemonic={onMnemonic}
                 isLoading={isProcessMnemonic || processedMnemonicResult !== undefined}
                 onIsDirtyChange={setIsMnemonicFormDirty}

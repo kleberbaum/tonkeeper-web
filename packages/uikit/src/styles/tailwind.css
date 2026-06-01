@@ -121,6 +121,13 @@
         --tk-rounding-small: 12px;
         --tk-rounding-medium: 16px;
         --tk-rounding-large: 20px;
-        --tk-rounding-full: 100%;
+
+        /* `9999px`, NOT `100%`. `border-radius: 100%` resolves per-axis and
+           draws an ellipse on rectangles (rounded-full on a fullWidth button
+           rendered as an oval — see commit history). The conventional CSS
+           pill idiom is "any large length", which the browser clamps to
+           `min(width, height) / 2`: semicircle caps on rectangles, full
+           circle on squares. Matches Tailwind's stock default. */
+        --tk-rounding-full: 9999px;
     }
 }

@@ -186,3 +186,25 @@ export const generateBip39Mnemonic = (wordsCount: 12 | 24): string[] => {
     const bits = wordsCount === 12 ? 128 : 256;
     return generateMnemonic(bits).split(' ');
 };
+
+/**
+ * Clean a clipboard string into a list of mnemonic-word candidates.
+ *
+ * Other wallets paste phrases in a dozen shapes: `1. word`, `1) word`,
+ * `#1 word`, `word1, word2`, tab- or newline-separated, NBSP between
+ * words, ALL CAPS, etc. The robust rule is "every run of non-letters is
+ * a separator" — so we lowercase, collapse any non-`a-z` sequence to a
+ * single space, trim, split.
+ *
+ * Returns `[]` for empty / garbage input (e.g. `"123"`) so the caller
+ * can no-op without a special check. Does NOT validate against the
+ * BIP39 wordlist — that's the next layer's job.
+ */
+export const parseMnemonicPaste = (text: string): string[] => {
+    return text
+        .toLowerCase()
+        .replace(/[^a-z]+/g, ' ')
+        .trim()
+        .split(' ')
+        .filter(Boolean);
+};

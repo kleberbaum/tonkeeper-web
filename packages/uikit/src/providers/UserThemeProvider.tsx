@@ -39,15 +39,23 @@ export const UserThemeProvider: FC<
 
         themeName = themeName || 'dark';
 
-        let theme = availableThemes[themeName];
+        // Clone so the per-render overrides below (displayType, proDisplayType,
+        // os, isInsideTonkeeper corners) never mutate the shared
+        // availableThemes[themeName] singleton. Mutating it caused a
+        // viewport-resize bug: desktop→mobile left `proDisplayType` stuck on
+        // `'desktop'` because the mobile branch doesn't touch the field, so
+        // `Button` kept reading the desktop size.
+        let theme: DefaultTheme = { ...availableThemes[themeName] };
 
         if (displayType) {
             theme.displayType = displayType;
         }
 
-        if (displayType === 'full-width' && proDisplayType) {
-            theme.proDisplayType = proDisplayType;
-        }
+        // Always assign proDisplayType deterministically (never carry the
+        // previous render's value via the shared object). Only the
+        // `full-width` shell honors it; in `compact` mode the field is
+        // intentionally cleared so Button falls back to `'large'`.
+        theme.proDisplayType = displayType === 'full-width' ? proDisplayType : undefined;
 
         theme.os = getUserOS();
 

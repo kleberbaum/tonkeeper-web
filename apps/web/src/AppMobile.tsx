@@ -2,6 +2,7 @@ import { Account } from '@tonkeeper/core/dist/entries/account';
 import { InnerBody, useWindowsScroll } from '@tonkeeper/uikit/dist/components/Body';
 import { Footer } from '@tonkeeper/uikit/dist/components/Footer';
 import { Header } from '@tonkeeper/uikit/dist/components/Header';
+import { AppLayout } from '@tonkeeper/uikit/dist/components/layout/AppLayout';
 import { Loading } from '@tonkeeper/uikit/dist/components/Loading';
 import MemoryScroll from '@tonkeeper/uikit/dist/components/MemoryScroll';
 import {
@@ -19,11 +20,10 @@ import { useTrackLocation } from '@tonkeeper/uikit/dist/hooks/analytics';
 import { useDebuggingTools } from '@tonkeeper/uikit/dist/hooks/useDebuggingTools';
 import { AppRoute, SignerRoute, SettingsRoute } from '@tonkeeper/uikit/dist/libs/routes';
 import { Unlock } from '@tonkeeper/uikit/dist/pages/home/Unlock';
-import Initialize, { InitializeContainer } from '@tonkeeper/uikit/dist/pages/import/Initialize';
-import { Container } from '@tonkeeper/uikit/dist/styles/globalStyle';
+import StartScreen from '@tonkeeper/uikit/dist/pages/import/StartScreen';
 import React, { FC, Suspense, useMemo } from 'react';
 import { Route, Switch, useLocation } from 'react-router-dom';
-import styled, { ThemeProvider, css, useTheme } from 'styled-components';
+import { ThemeProvider, useTheme } from 'styled-components';
 import { useAppWidth } from './libs/hooks';
 import { UrlTonConnectSubscription } from './components/UrlTonConnectSubscription';
 import { useRealtimeUpdatesInvalidation } from '@tonkeeper/uikit/dist/hooks/realtime';
@@ -70,40 +70,6 @@ const SwapMobileNotification = React.lazy(
     () => import('@tonkeeper/uikit/dist/pages/swap/SwapMobileNotification')
 );
 
-const FullSizeWrapper = styled(Container)<{ standalone: boolean }>`
-    ${props =>
-        props.standalone
-            ? css`
-                  position: fixed;
-                  top: 0;
-                  height: calc(var(--app-height) - 2px);
-                  -webkit-overflow-scrolling: touch;
-              `
-            : css`
-                  @media (width >= 600px) {
-                      border-left: 1px solid ${props.theme.separatorCommon};
-                      border-right: 1px solid ${props.theme.separatorCommon};
-                  }
-              `};
-
-    > * {
-        ${props =>
-            props.standalone &&
-            css`
-                overflow: auto;
-                width: var(--app-width);
-                max-width: 548px;
-                box-sizing: border-box;
-            `}
-    }
-`;
-
-const Wrapper = styled(FullSizeWrapper)<{ standalone: boolean; recovery: boolean }>`
-    box-sizing: border-box;
-    padding-top: ${props => (props.recovery ? 0 : 64)}px;
-    padding-bottom: ${props => (props.standalone ? '96' : '80')}px;
-`;
-
 export const MobileView: FC<{
     activeAccount?: Account | null;
     lock: boolean;
@@ -141,7 +107,7 @@ export const MobileContent: FC<{
 
     if (location.pathname.startsWith(AppRoute.signer)) {
         return (
-            <Wrapper standalone={standalone}>
+            <AppLayout standalone={standalone}>
                 <Switch>
                     <Route path={AppRoute.signer}>
                         <Route path={SignerRoute.link}>
@@ -151,26 +117,25 @@ export const MobileContent: FC<{
                         </Route>
                     </Route>
                 </Switch>
-            </Wrapper>
+            </AppLayout>
         );
     }
 
     if (!activeAccount || location.pathname.startsWith(AppRoute.import)) {
         return (
-            <FullSizeWrapper standalone={false}>
+            <AppLayout bare>
                 <Suspense fallback={<Loading />}>
-                    <InitializeContainer fullHeight={false}>
-                        <Initialize />
-                    </InitializeContainer>
+                    <StartScreen />
                 </Suspense>
-            </FullSizeWrapper>
+            </AppLayout>
         );
     }
 
     return (
-        <Wrapper
+        <AppLayout
             standalone={standalone}
             recovery={location.pathname.includes(SettingsRoute.recovery)}
+            bottomBar={<Footer standalone={standalone} />}
         >
             <Switch>
                 <Route path={AppRoute.activity}>
@@ -217,11 +182,10 @@ export const MobileContent: FC<{
                     </>
                 </Route>
             </Switch>
-            <Footer standalone={standalone} />
             <MemoryScroll />
             <Notifications />
             <UrlTonConnectSubscription />
-        </Wrapper>
+        </AppLayout>
     );
 };
 

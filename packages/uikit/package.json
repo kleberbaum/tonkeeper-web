@@ -8,8 +8,8 @@
     "scripts": {
         "storybook": "start-storybook -p 6006",
         "build-storybook": "build-storybook",
-        "build": "rm -fr dist && tsc -p tsconfig.build.json && mkdir -p dist/components/staking dist/styles && cp -R src/components/staking/assets dist/components/staking/ && cp src/styles/tailwind.css dist/styles/tailwind.css",
-        "dev": "tsc -w",
+        "build": "rm -fr dist && tsc -p tsconfig.build.json && mkdir -p dist/components/staking dist/styles dist/illustrations/png && cp -R src/components/staking/assets dist/components/staking/ && cp src/styles/tailwind.css dist/styles/tailwind.css && cp src/illustrations/png/*.png src/illustrations/png/*.webp dist/illustrations/png/",
+        "dev": "tsc -w -p tsconfig.build.json",
         "start": "tsc -w",
         "build:pkg": "yarn build",
         "typecheck": "tsc --noEmit",

@@ -1,7 +1,8 @@
 import React, { FC, useContext, useEffect, useMemo, useState } from 'react';
 import { IconPage } from '../../components/Layout';
 import { UpdateWalletName } from '../../components/create/WalletName';
-import { Check, Words } from '../../components/create/Words';
+import { CheckMnemonic } from '../../components/create/CheckMnemonic';
+import { ShowMnemonic } from '../../components/create/ShowMnemonic';
 import { Button } from '../../components/fields/Button';
 import {
     CheckLottieIcon,
@@ -209,12 +210,12 @@ export const CreateMAMWallet: FC<{ afterCompleted: () => void }> = ({ afterCompl
     }
 
     if (!wordsPagePassed) {
-        return <Words mnemonic={mnemonic} onCheck={() => setWordsPagePassed(true)} />;
+        return <ShowMnemonic mnemonic={mnemonic} onCheck={() => setWordsPagePassed(true)} />;
     }
 
     if (!createdAccount) {
         return (
-            <Check
+            <CheckMnemonic
                 mnemonic={mnemonic}
                 onConfirm={() => {
                     createWalletsAsync({

@@ -51,6 +51,7 @@ import { queryClient } from '../libs/query-client';
 import { localesList } from '@tonkeeper/locales/localesList';
 import { useAppCountryInfo } from '@tonkeeper/uikit/dist/state/country';
 import { CryptoStrategyInstaller } from '@tonkeeper/uikit/dist/components/pro/CryptoStrategyInstaller';
+import { MULTICHAIN_ENABLED } from '@tonkeeper/core/dist/multichain';
 
 setupIonicReact({
     swipeBackEnabled: true,
@@ -252,7 +253,7 @@ export const Loader: FC = () => {
         experimental: true,
         ios: false,
         defaultWalletVersion: WalletVersion.V5R1,
-        multichainEnabled: import.meta.env.VITE_MULTICHAIN_ENABLED === 'true',
+        multichainEnabled: MULTICHAIN_ENABLED,
         tracker: tracker?.track
     };
 

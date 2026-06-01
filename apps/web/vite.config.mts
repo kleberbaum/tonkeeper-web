@@ -20,7 +20,21 @@ export default defineConfig({
     server: {
         // Required for local development to test Telegram OAuth callbacks.
         // Vite rejects requests with Host header different from localhost by default.
-        allowedHosts: ['wallet.tonkeeper.com', 'wallet.tonkeeper.local']
+        allowedHosts: ['wallet.tonkeeper.com', 'wallet.tonkeeper.local'],
+        watch: {
+            // tsc writes many files at once; wait for the burst to settle before
+            // triggering a reload, otherwise the page reloads on every individual file.
+            awaitWriteFinish: {
+                stabilityThreshold: 300,
+                pollInterval: 50
+            }
+        }
+    },
+    optimizeDeps: {
+        // Never pre-bundle local workspace packages — they are rebuilt frequently in dev
+        // and pre-bundling them causes Vite to serve a stale server-side cache that
+        // survives browser hard-resets.
+        exclude: ['@tonkeeper/uikit', '@tonkeeper/core', '@tonkeeper/locales']
     },
     resolve: {
         alias: {

@@ -9,7 +9,7 @@ import { WalletId } from '@tonkeeper/core/dist/entries/wallet';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { BackButtonBlock } from '../../components/BackButton';
-import { WordsGridAndHeaders } from '../../components/create/Words';
+import { MnemonicDisplay } from '../../components/create/MnemonicDisplay';
 import { useAppSdk } from '../../hooks/appSdk';
 import { getAccountSecret, getMAMWalletMnemonic } from '../../state/mnemonic';
 import { useAccountState, useActiveAccount } from '../../state/wallet';
@@ -241,7 +241,7 @@ export const RecoveryContent: FC<{
         <PageWrapper isPage$={isPage}>
             <Wrapper>
                 {isPage && <BackButtonBlockStyled onClick={onBack} />}
-                <WordsGridAndHeaders
+                <MnemonicDisplay
                     descriptionDown={isPage || window.innerHeight < 800}
                     mnemonic={mnemonicToShow!}
                     type={wordsType}

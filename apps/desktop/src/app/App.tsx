@@ -1,10 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MULTICHAIN_ENABLED } from '../constants';
+import { MULTICHAIN_ENABLED } from '@tonkeeper/core/dist/multichain';
 import { Account } from '@tonkeeper/core/dist/entries/account';
 import { localizationText } from '@tonkeeper/core/dist/entries/language';
 import { getApiConfig, setProApiUrl } from '@tonkeeper/core/dist/entries/network';
 import { WalletVersion } from '@tonkeeper/core/dist/entries/wallet';
 import { useWindowsScroll } from '@tonkeeper/uikit/dist/components/Body';
+import { AppLayout } from '@tonkeeper/uikit/dist/components/layout/AppLayout';
 import ConnectLedgerNotification from '@tonkeeper/uikit/dist/components/ConnectLedgerNotification';
 import { CopyNotification } from '@tonkeeper/uikit/dist/components/CopyNotification';
 import { FooterGlobalStyle } from '@tonkeeper/uikit/dist/components/Footer';
@@ -60,7 +61,7 @@ import { useDebuggingTools } from '@tonkeeper/uikit/dist/hooks/useDebuggingTools
 import { AppProRoute, AppRoute } from '@tonkeeper/uikit/dist/libs/routes';
 import { Unlock } from '@tonkeeper/uikit/dist/pages/home/Unlock';
 import { UnlockNotification } from '@tonkeeper/uikit/dist/pages/home/UnlockNotification';
-import Initialize, { InitializeContainer } from '@tonkeeper/uikit/dist/pages/import/Initialize';
+import StartScreen from '@tonkeeper/uikit/dist/pages/import/StartScreen';
 import { UserThemeProvider } from '@tonkeeper/uikit/dist/providers/UserThemeProvider';
 import { useDevSettings } from '@tonkeeper/uikit/dist/state/dev';
 import { useUserFiatQuery } from '@tonkeeper/uikit/dist/state/fiat';
@@ -69,7 +70,7 @@ import { useCanPromptTouchId } from '@tonkeeper/uikit/dist/state/password';
 import { useProApiUrl, useProBackupState } from '@tonkeeper/uikit/dist/state/pro';
 import { useTonendpoint, useTonenpointConfig } from '@tonkeeper/uikit/dist/state/tonendpoint';
 import { useAccountsStateQuery, useActiveAccountQuery } from '@tonkeeper/uikit/dist/state/wallet';
-import { Container, GlobalStyleCss } from '@tonkeeper/uikit/dist/styles/globalStyle';
+import { GlobalStyleCss } from '@tonkeeper/uikit/dist/styles/globalStyle';
 import { FC, Suspense, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Route, useLocation, Switch, MemoryRouter } from 'react-router-dom';
@@ -196,10 +197,6 @@ const ThemeAndContent = () => {
     );
 };
 
-const FullSizeWrapper = styled(Container)`
-    max-width: 800px;
-`;
-
 const Wrapper = styled.div`
     box-sizing: border-box;
     height: 100%;
@@ -207,18 +204,6 @@ const Wrapper = styled.div`
     flex-direction: column;
     background-color: ${props => props.theme.backgroundPage};
     white-space: pre-wrap;
-`;
-
-const WideLayout = styled.div`
-    width: 100%;
-    height: 100%;
-    display: flex;
-`;
-
-const WideContent = styled.div`
-    flex: 1;
-    min-width: 0;
-    min-height: 0;
 `;
 
 const WalletLayout = styled.div`
@@ -250,12 +235,6 @@ const PreferencesRoutingWrapper = styled.div`
     flex: 1;
     overflow: auto;
     position: relative;
-`;
-
-const FullSizeWrapperBounded = styled(FullSizeWrapper)`
-    max-height: 100%;
-    overflow: auto;
-    justify-content: center;
 `;
 
 export const Loader: FC = () => {
@@ -373,29 +352,24 @@ export const Content: FC<{
 
     if (!activeAccount || location.pathname.startsWith(AppRoute.import)) {
         return (
-            <FullSizeWrapperBounded className="full-size-wrapper">
-                <InitializeContainer fullHeight={false}>
-                    <Initialize />
-                </InitializeContainer>
-            </FullSizeWrapperBounded>
+            <AppLayout bare>
+                <StartScreen />
+            </AppLayout>
         );
     }
 
     return (
-        <WideLayout>
-            <AsideMenu />
-            <WideContent>
-                <Switch>
-                    <Route path={AppProRoute.dashboard} component={DashboardPage} />
-                    <Route path={AppRoute.browser} component={DesktopBrowser} />
-                    <Route path={AppRoute.settings} component={PreferencesContent} />
-                    <Route path={AppProRoute.multiSend} component={DesktopMultiSendPage} />
-                    <Route path={AppRoute.accountSettings} component={DesktopAccountSettingsPage} />
-                    <Route path="*" component={WalletContent} />
-                </Switch>
-            </WideContent>
+        <AppLayout sidebar={<AsideMenu />}>
+            <Switch>
+                <Route path={AppProRoute.dashboard} component={DashboardPage} />
+                <Route path={AppRoute.browser} component={DesktopBrowser} />
+                <Route path={AppRoute.settings} component={PreferencesContent} />
+                <Route path={AppProRoute.multiSend} component={DesktopMultiSendPage} />
+                <Route path={AppRoute.accountSettings} component={DesktopAccountSettingsPage} />
+                <Route path="*" component={WalletContent} />
+            </Switch>
             <BackgroundElements />
-        </WideLayout>
+        </AppLayout>
     );
 };
 
