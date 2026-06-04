@@ -30,7 +30,7 @@ import { Label2 } from '../../Text';
 import { AsideMenuItem } from '../../shared/AsideItem';
 import { AsideHeader } from './AsideHeader';
 import { SubscriptionInfoBlock } from './SubscriptionInfoBlock';
-import { useAddWalletNotification } from '../../modals/AddWalletNotificationControlled';
+import { useAddWalletFlow } from '../../modals/AddWalletFlow';
 import { closestCenter, DndContext, DragOverlay, DragStartEvent } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
@@ -308,7 +308,7 @@ const AccountDNDBlock: FC<{
 
 const AsideMenuPayload: FC<{ className?: string }> = ({ className }) => {
     const { t } = useTranslation();
-    const { onOpen: addWallet } = useAddWalletNotification();
+    const { onOpen: addWallet } = useAddWalletFlow();
     const { proFeatures } = useAppContext();
     const items = useSideBarItems();
     const navigate = useNavigate();

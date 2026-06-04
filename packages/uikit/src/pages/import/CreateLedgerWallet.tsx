@@ -17,16 +17,16 @@ import { Loader } from '../../components/Loader';
 import { ListBlock, ListItem } from '../../components/List';
 import { formatAddress } from '@tonkeeper/core/dist/utils/common';
 import { Checkbox } from '../../components/fields/Checkbox';
-import { UpdateWalletName } from '../../components/create/WalletName';
+import { CustomizeWallet } from '../../components/create/CustomizeWallet';
 import { toFormattedTonBalance } from '../../hooks/balance';
 import { AddWalletContext } from '../../components/create/AddWalletContext';
 import {
-    NotificationFooter,
-    NotificationFooterPortal,
+    ModalFooter,
+    ModalFooterPortal,
     OnCloseInterceptor,
-    useSetNotificationOnBack,
-    useSetNotificationOnCloseInterceptor
-} from '../../components/Notification';
+    useSetModalOnBack,
+    useSetModalOnCloseInterceptor
+} from '../../primitives/Modal';
 import { LedgerConnectionSteps } from '../../components/ledger/LedgerConnectionSteps';
 import { useConfirmDiscardNotification } from '../../components/modals/ConfirmDiscardNotificationControlled';
 import { useNavigate } from '../../hooks/router/useNavigate';
@@ -99,7 +99,7 @@ export const CreateLedgerWallet: FC<{ afterCompleted: () => void }> = ({ afterCo
     }, [tonTransport]);
 
     const { navigateHome: navigateBackNotification } = useContext(AddWalletContext);
-    useSetNotificationOnBack(navigateBackNotification);
+    useSetModalOnBack(navigateBackNotification);
 
     if (moveNext) {
         return (
@@ -123,8 +123,8 @@ export const CreateLedgerWallet: FC<{ afterCompleted: () => void }> = ({ afterCo
         <ConnectLedgerWrapper>
             <H2Styled>{t('ledger_connect_header')}</H2Styled>
             <LedgerConnectionSteps currentStep={currentStep} isErrored={isConnectionError} />
-            <NotificationFooterPortal>
-                <NotificationFooter>
+            <ModalFooterPortal>
+                <ModalFooter>
                     <ButtonsBlock>
                         <ButtonResponsiveSize secondary onClick={afterCompleted}>
                             {t('cancel')}
@@ -133,8 +133,8 @@ export const CreateLedgerWallet: FC<{ afterCompleted: () => void }> = ({ afterCo
                             {t('try_again')}
                         </ButtonResponsiveSize>
                     </ButtonsBlock>
-                </NotificationFooter>
-            </NotificationFooterPortal>
+                </ModalFooter>
+            </ModalFooterPortal>
         </ConnectLedgerWrapper>
     );
 };
@@ -211,7 +211,7 @@ const ChooseLedgerAccounts: FC<{
 
         return () => setAccountsSelected(false);
     }, [navigateHome, accountsSelected]);
-    useSetNotificationOnBack(onBack);
+    useSetModalOnBack(onBack);
 
     const { onOpen: openConfirmDiscard } = useConfirmDiscardNotification();
     const onCloseInterceptor = useMemo<OnCloseInterceptor>(() => {
@@ -227,11 +227,11 @@ const ChooseLedgerAccounts: FC<{
             });
         };
     }, [openConfirmDiscard]);
-    useSetNotificationOnCloseInterceptor(onCloseInterceptor);
+    useSetModalOnCloseInterceptor(onCloseInterceptor);
 
     if (accountsSelected) {
         return (
-            <UpdateWalletName
+            <CustomizeWallet
                 walletEmoji={ledgerAccountData!.emoji}
                 name={ledgerAccountData!.name}
                 submitHandler={({ name, emoji }) =>
@@ -282,8 +282,8 @@ const ChooseLedgerAccounts: FC<{
                     </ListBlock>
                 )}
             </AccountsListWrapper>
-            <NotificationFooterPortal>
-                <NotificationFooter>
+            <ModalFooterPortal>
+                <ModalFooter>
                     <ButtonsBlock>
                         <ButtonResponsiveSize secondary onClick={onCancel}>
                             {t('cancel')}
@@ -297,8 +297,8 @@ const ChooseLedgerAccounts: FC<{
                             {t('continue')}
                         </ButtonResponsiveSize>
                     </ButtonsBlock>
-                </NotificationFooter>
-            </NotificationFooterPortal>
+                </ModalFooter>
+            </ModalFooterPortal>
         </ConnectLedgerWrapper>
     );
 };

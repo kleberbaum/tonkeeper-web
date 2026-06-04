@@ -1,5 +1,5 @@
 import React, { FC, useContext, useEffect, useMemo, useState } from 'react';
-import { UpdateWalletName } from '../../components/create/WalletName';
+import { CustomizeWallet } from '../../components/create/CustomizeWallet';
 import { MnemonicInputForm } from '../../components/create/MnemonicInputForm';
 import { ImportMnemonicType, SelectMnemonicType } from '../../components/create/SelectMnemonicType';
 import { useAppSdk } from '../../hooks/appSdk';
@@ -33,9 +33,9 @@ import { useConfirmDiscardNotification } from '../../components/modals/ConfirmDi
 import { AddWalletContext } from '../../components/create/AddWalletContext';
 import {
     OnCloseInterceptor,
-    useSetNotificationOnBack,
-    useSetNotificationOnCloseInterceptor
-} from '../../components/Notification';
+    useSetModalOnBack,
+    useSetModalOnCloseInterceptor
+} from '../../primitives/Modal';
 import { TonKeychainRoot } from '@ton-keychain/core';
 import { useMutation } from '@tanstack/react-query';
 import { useUserFiat } from '../../state/fiat';
@@ -52,15 +52,7 @@ import { useTranslation } from '../../hooks/translation';
 import { useAutoAuthMutation } from '../../state/pro';
 import { tonProofSignerByTonMnemonic } from '../../hooks/accountUtils';
 import { maxOneCall } from '@tonkeeper/core/dist/utils/common';
-import { ChainId } from '@tonkeeper/core/dist/chains';
-
-/**
- * Default chain set for a multichain account created via import. SOL is
- * intentionally omitted — chain-kit has no Solana module yet, and the
- * create service would drop it anyway (see `multichainCreateService` for
- * the opportunistic-skip rule).
- */
-const DEFAULT_MULTICHAIN_CHAINS: ChainId[] = ['ton', 'evm', 'btc', 'tron'];
+import { DEFAULT_MULTICHAIN_CHAINS } from '@tonkeeper/core/dist/multichain';
 
 const useProcessMnemonic = () => {
     const context = useAppContext();
@@ -428,7 +420,7 @@ export const ImportExistingWallet: FC<{ afterCompleted: () => void }> = ({ after
         editNamePagePassed,
         selectNetworksPassed
     ]);
-    useSetNotificationOnBack(onBack);
+    useSetModalOnBack(onBack);
 
     const onCloseInterceptor = useMemo<OnCloseInterceptor>(() => {
         if (!isMnemonicFormDirty) {
@@ -451,7 +443,7 @@ export const ImportExistingWallet: FC<{ afterCompleted: () => void }> = ({ after
             });
         };
     }, [isMnemonicFormDirty, openConfirmDiscard, createdAccount, existingAccountAndWallet]);
-    useSetNotificationOnCloseInterceptor(onCloseInterceptor);
+    useSetModalOnCloseInterceptor(onCloseInterceptor);
 
     useEffect(() => {
         if (
@@ -537,7 +529,7 @@ export const ImportExistingWallet: FC<{ afterCompleted: () => void }> = ({ after
 
     if (!editNamePagePassed) {
         return (
-            <UpdateWalletName
+            <CustomizeWallet
                 name={createdAccount.name}
                 submitHandler={onRename}
                 walletEmoji={createdAccount.emoji}

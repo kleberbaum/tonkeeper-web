@@ -37,12 +37,14 @@ import {
  *
  * ## Multichain mode
  *
- * When `multichainEnabled` is on, the only supported entry is the BIP39
- * import (which lands as `AccountMultichain`). The picker still renders
- * the full list so users see what's coming, but every entry other than
- * "Import existing wallet" is rendered as disabled. The flag drives a
- * single uniform `disabled` prop on each non-import row rather than a
- * web of per-section conditionals.
+ * `multichainEnabled` toggles the **outcome** of the create-standard
+ * entry — same picker, same route, but the create flow lands an
+ * `AccountMultichain` instead of `AccountTonMnemonic`. Picker entries
+ * that aren't wired for multichain yet (MAM / hardware / watch-only /
+ * multisig / fireblocks / testnet) stay visible-but-disabled when the
+ * flag is on, so users see what's coming without being able to click
+ * into a flow that hasn't been wired up. Import stays enabled always —
+ * its mnemonic-shape detection routes BIP39 to multichain internally.
  */
 
 export type AddWalletPickerMode = 'all' | 'import';
@@ -130,10 +132,11 @@ export const AddWalletPicker: FC<{
         }
     };
 
-    // Multichain currently supports only the BIP39 → multichain-account
-    // import path. Every other entry is rendered visible-but-disabled so
-    // the user sees what's coming without being able to click into a
-    // create / hardware / watch-only flow that isn't wired up yet.
+    // `create-standard` is wired for both modes — its inner flow branches
+    // on `multichainEnabled` to either generate a BIP39 multichain account
+    // or the legacy TON-only one. Other create / hardware / watch-only
+    // entries aren't wired for multichain yet; they stay
+    // visible-but-disabled when the flag is on so users see what's coming.
     const disableNonImport = multichainEnabled;
 
     // Cells the user sees first — actively creating or importing a wallet.
@@ -149,7 +152,6 @@ export const AddWalletPicker: FC<{
                 icon={<WalletPlusIcon />}
                 title={t('import_new_wallet')}
                 description={t('import_new_wallet_description')}
-                disabled={disableNonImport}
                 onClick={() => onSelect('create-standard')}
             />
         );

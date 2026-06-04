@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { useTranslation } from '../../hooks/translation';
 import { H2Label2Responsive } from '../Text';
 import { ButtonResponsiveSize } from '../fields/Button';
-import { NotificationFooter, NotificationFooterPortal } from '../Notification';
+import { ModalFooter, ModalFooterPortal } from '../../primitives/Modal';
 
 /**
  * Which seed shape the imported phrase should be interpreted as.
@@ -33,8 +33,8 @@ export const SelectMnemonicType: FC<{
                     {t('import_chose_mnemonic_type_description')}
                 </p>
             </div>
-            <NotificationFooterPortal>
-                <NotificationFooter>
+            <ModalFooterPortal>
+                <ModalFooter>
                     {isLoading ? (
                         <ButtonResponsiveSize fullWidth secondary loading />
                     ) : (
@@ -49,8 +49,8 @@ export const SelectMnemonicType: FC<{
                             </ButtonResponsiveSize>
                         ))
                     )}
-                </NotificationFooter>
-            </NotificationFooterPortal>
+                </ModalFooter>
+            </ModalFooterPortal>
         </>
     );
 };

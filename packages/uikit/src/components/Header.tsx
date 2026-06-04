@@ -27,7 +27,7 @@ import { ListItem, ListItemPayload } from './List';
 import { H1, H3, Label1, Label2 } from './Text';
 import { AccountAndWalletBadgesGroup, NetworkBadge } from './account/AccountBadge';
 import { ScanButton } from './connect/ScanButton';
-import { useAddWalletNotification } from './modals/AddWalletNotificationControlled';
+import { useAddWalletFlow } from './modals/AddWalletFlow';
 import { SkeletonText } from './shared/Skeleton';
 import { WalletEmoji } from './shared/emoji/WalletEmoji';
 import { isAccountTonWalletStandard } from '@tonkeeper/core/dist/entries/account';
@@ -342,7 +342,7 @@ const TwoFARecoveryStarted = styled(Link)`
 
 export const Header: FC<{ showQrScan?: boolean }> = ({ showQrScan = true }) => {
     const account = useActiveAccount();
-    const { onOpen: addWallet } = useAddWalletNotification();
+    const { onOpen: addWallet } = useAddWalletFlow();
     const { t } = useTranslation();
     const { data: twoFAConfig } = useTwoFAWalletConfig();
 

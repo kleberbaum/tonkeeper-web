@@ -7,7 +7,7 @@ import { ButtonResponsiveSize } from '../fields/Button';
 import { useMutateActiveAccountAndWallet } from '../../state/wallet';
 import { useTranslation } from '../../hooks/translation';
 import { handleSubmit } from '../../libs/form';
-import { NotificationFooter, NotificationFooterPortal } from '../Notification';
+import { ModalFooter, ModalFooterPortal } from '../../primitives/Modal';
 
 const Wrapper = styled.form`
     display: flex;
@@ -38,8 +38,8 @@ export const AccountIsAlreadyAdded: FC<{
         <Wrapper onSubmit={handleSubmit(onClick)}>
             <Label1>{t('account_is_already_added_label')}</Label1>
             <AccountAndWalletInfoStyled noPrefix account={account} walletId={walletId} />
-            <NotificationFooterPortal>
-                <NotificationFooter>
+            <ModalFooterPortal>
+                <ModalFooter>
                     <ButtonResponsiveSize
                         autoFocus
                         fullWidth
@@ -49,8 +49,8 @@ export const AccountIsAlreadyAdded: FC<{
                     >
                         {t('account_is_already_added_action')}
                     </ButtonResponsiveSize>
-                </NotificationFooter>
-            </NotificationFooterPortal>
+                </ModalFooter>
+            </ModalFooterPortal>
         </Wrapper>
     );
 };

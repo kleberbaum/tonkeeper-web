@@ -1,3 +1,5 @@
+import { ChainId } from './chains/types';
+
 /**
  * Single source of truth for the multichain feature gate, used by every
  * app shell to populate `AppContext.multichainEnabled`.
@@ -27,3 +29,17 @@
  * be wired later if we need per-environment flips without a recompile.
  */
 export const MULTICHAIN_ENABLED = true;
+
+/**
+ * Chains every newly-created `AccountMultichain` ships with. SOL is
+ * intentionally excluded — chain-kit has no Solana module today, so a
+ * SOL wallet would derive nothing usable. Add SOL here once chain-kit
+ * lands its Solana adapter (see `chains/types.ts` notes on
+ * `deriveAddress` / `derivePublicKey`).
+ *
+ * Used by the create-standard and BIP39-import flows in `uikit` when
+ * `MULTICHAIN_ENABLED` is on; service-level code (e.g.
+ * `multichainCreateService`) takes the chain set as an argument and
+ * doesn't depend on this constant directly.
+ */
+export const DEFAULT_MULTICHAIN_CHAINS: ChainId[] = ['ton', 'evm', 'btc', 'tron'];

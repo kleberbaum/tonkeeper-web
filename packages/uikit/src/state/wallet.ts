@@ -1579,6 +1579,15 @@ export const useMutateMetaKeyAndCertificates = () => {
                     });
                 })
             );
+        } else if (account.type === 'multichain') {
+            // BIP39 mnemonic, single TON wallet. Mirror the 'mnemonic'
+            // branch but pin the type explicitly — `AccountMultichain`
+            // doesn't carry a `mnemonicType` field.
+            await createAndStoreMetaEncryptionKeys(sdk, {
+                seedPrase,
+                rawAddress: wallet.rawAddress,
+                mnemonicType: 'bip39'
+            });
         } else {
             if (account.type !== 'mnemonic') {
                 throw new Error('Incorrect mnemonic type!');

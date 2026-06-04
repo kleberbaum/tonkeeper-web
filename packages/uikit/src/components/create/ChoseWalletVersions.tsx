@@ -24,7 +24,7 @@ import { MnemonicType } from '@tonkeeper/core/dist/entries/password';
 import { Network } from '@tonkeeper/core/dist/entries/network';
 import { mayBeCreateAccountId } from '@tonkeeper/core/dist/service/walletService';
 import { handleSubmit } from '../../libs/form';
-import { NotificationFooter, NotificationFooterPortal } from '../Notification';
+import { ModalFooter, ModalFooterPortal } from '../../primitives/Modal';
 
 const Wrapper = styled.form`
     flex: 1;
@@ -180,8 +180,8 @@ export const ChoseWalletVersions: FC<{
                             </ListItem>
                         ))}
                     </ListBlockStyled>
-                    <NotificationFooterPortal>
-                        <NotificationFooter>
+                    <ModalFooterPortal>
+                        <ModalFooter>
                             <ButtonResponsiveSize
                                 fullWidth
                                 primary
@@ -193,8 +193,8 @@ export const ChoseWalletVersions: FC<{
                             >
                                 {t('continue')}
                             </ButtonResponsiveSize>
-                        </NotificationFooter>
-                    </NotificationFooterPortal>
+                        </ModalFooter>
+                    </ModalFooterPortal>
                 </>
             )}
         </Wrapper>

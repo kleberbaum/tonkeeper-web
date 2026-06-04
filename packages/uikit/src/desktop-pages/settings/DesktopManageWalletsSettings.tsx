@@ -38,7 +38,7 @@ import {
     AccountTonTestnet,
     AccountTonWatchOnly
 } from '@tonkeeper/core/dist/entries/account';
-import { useAddWalletNotification } from '../../components/modals/AddWalletNotificationControlled';
+import { useAddWalletFlow } from '../../components/modals/AddWalletFlow';
 import {
     DesktopViewHeader,
     DesktopViewHeaderContent,
@@ -202,7 +202,7 @@ const FolderItemOverlay: FC<{ acc: Account; tabLevel: number }> = ({ acc, tabLev
 
 export const DesktopManageAccountsPage = () => {
     const { ref: scrollRef, closeTop } = useIsScrolled();
-    const { onOpen: addWallet } = useAddWalletNotification();
+    const { onOpen: addWallet } = useAddWalletFlow();
     const { onOpen: manageFolders } = useManageFolderNotification();
     const { t } = useTranslation();
 

@@ -236,6 +236,27 @@ honor this split exactly:
 Flip the constant locally for development / QA. A build-time replacement (Vite `define` / webpack
 `DefinePlugin`) can be wired later if we need per-environment flips without a recompile.
 
+### Scope of the flag: creation only, not runtime behaviour
+
+The flag has one job: **decide what type of account a brand-new wallet creation produces.** Past
+that single fork, behaviour follows the account that's already on disk, not the flag.
+
+-   **Create flow** — `multichainEnabled` is the gate. `true` → BIP39 mnemonic, `AccountMultichain`.
+    `false` → TON mnemonic, `AccountTonMnemonic`. Same UI flow either way; the branch sits at
+    "generate mnemonic" + "call the create-account hook."
+-   **Import flow** — the imported mnemonic's shape decides the account type. TON-style mnemonic →
+    `AccountTonMnemonic`. MAM mnemonic → `AccountMAM`. BIP39 → `AccountMultichain` if
+    `multichainEnabled`, else `AccountTonMnemonic` (legacy behaviour). The flag participates only at
+    the BIP39 fork in `ImportExistingWallet`.
+-   **Everything else** — already-created wallets render and behave according to their **account
+    type**, not the flag. `AccountMultichain` always shows multichain UI; `AccountTonMnemonic`
+    always shows TON-only UI. Do not gate per-feature UI on `multichainEnabled` — that's a category
+    error. Flipping the flag should not change how an existing wallet looks or works, only what the
+    next created wallet looks like.
+
+Promoting a legacy account to multichain (e.g. "upgrade your TON wallet to multichain") is a
+separate future feature, not part of the flag. Don't bake migration paths into flag branches.
+
 ### Forking style: copy-paste over conditionals
 
 Because both flows ship from the same tree, components that diverge meaningfully between the

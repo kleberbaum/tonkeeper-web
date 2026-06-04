@@ -7,11 +7,8 @@ import { Loader } from '../Loader';
 import { useAccountsState, useActiveConfig, useCreateAccountTonMultisig } from '../../state/wallet';
 import { AccountTonMultisig } from '@tonkeeper/core/dist/entries/account';
 import { WalletId } from '@tonkeeper/core/dist/entries/wallet';
-import {
-    Notification,
-    useSetNotificationOnBack,
-    useSetNotificationOnCloseInterceptor
-} from '../Notification';
+import { Notification } from '../Notification';
+import { useSetModalOnBack, useSetModalOnCloseInterceptor } from '../../primitives/Modal';
 import { useEstimateDeployMultisig } from '../../hooks/blockchain/multisig/useEstimateDeployMultisig';
 import {
     useAwaitMultisigIsDeployed,
@@ -93,7 +90,7 @@ const CreateMultisigRenamePage: FC<{ account: AccountTonMultisig; onClose: () =>
     account,
     onClose
 }) => {
-    useSetNotificationOnBack(undefined);
+    useSetModalOnBack(undefined);
     const { t } = useTranslation();
     return (
         <ContentWrapper>
@@ -167,8 +164,8 @@ const CreateMultisigAwaitDeployPage: FC<{
         [openConfirmDiscard]
     );
 
-    useSetNotificationOnBack(onNotificationBack);
-    useSetNotificationOnCloseInterceptor(onNotificationCloseInterceptor);
+    useSetModalOnBack(onNotificationBack);
+    useSetModalOnCloseInterceptor(onNotificationCloseInterceptor);
 
     useEffect(() => {
         setTimeout(() => setShowHelpButton(true), 1500 * 20);

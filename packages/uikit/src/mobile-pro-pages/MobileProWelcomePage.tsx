@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { Body1, H2 } from '../components/Text';
 import { Button } from '../components/fields/Button';
-import { useAddWalletNotification } from '../components/modals/AddWalletNotificationControlled';
+import { useAddWalletFlow } from '../components/modals/AddWalletFlow';
 import { useTranslation } from '../hooks/translation';
 
 const Container = styled.div`
@@ -42,7 +42,7 @@ const ButtonsContainer = styled.div`
 `;
 
 export const MobileProWelcomePage = () => {
-    const { onOpen } = useAddWalletNotification();
+    const { onOpen } = useAddWalletFlow();
     const { t } = useTranslation();
     return (
         <Container>

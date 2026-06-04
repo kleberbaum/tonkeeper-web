@@ -1,5 +1,5 @@
 import React, { FC, useContext, useMemo, useState } from 'react';
-import { UpdateWalletName } from '../../components/create/WalletName';
+import { CustomizeWallet } from '../../components/create/CustomizeWallet';
 import { MnemonicInputForm } from '../../components/create/MnemonicInputForm';
 import { ImportMnemonicType } from '../../components/create/SelectMnemonicType';
 import { useAppSdk } from '../../hooks/appSdk';
@@ -24,9 +24,9 @@ import { useConfirmDiscardNotification } from '../../components/modals/ConfirmDi
 import { AddWalletContext } from '../../components/create/AddWalletContext';
 import {
     OnCloseInterceptor,
-    useSetNotificationOnBack,
-    useSetNotificationOnCloseInterceptor
-} from '../../components/Notification';
+    useSetModalOnBack,
+    useSetModalOnCloseInterceptor
+} from '../../primitives/Modal';
 import { useMutation } from '@tanstack/react-query';
 import { useUserFiat } from '../../state/fiat';
 import { mnemonicValidate } from '@ton/crypto';
@@ -192,7 +192,7 @@ export const ImportTestnetWallet: FC<{ afterCompleted: () => void }> = ({ afterC
         selectedMnemonicType
     ]);
 
-    useSetNotificationOnBack(onBack);
+    useSetModalOnBack(onBack);
 
     const onCloseInterceptor = useMemo<OnCloseInterceptor>(() => {
         if (!isMnemonicFormDirty) {
@@ -215,7 +215,7 @@ export const ImportTestnetWallet: FC<{ afterCompleted: () => void }> = ({ afterC
             });
         };
     }, [isMnemonicFormDirty, openConfirmDiscard, createdAccount, existingAccountAndWallet]);
-    useSetNotificationOnCloseInterceptor(onCloseInterceptor);
+    useSetModalOnCloseInterceptor(onCloseInterceptor);
 
     if (!mnemonic) {
         return (
@@ -255,7 +255,7 @@ export const ImportTestnetWallet: FC<{ afterCompleted: () => void }> = ({ afterC
 
     if (!editNamePagePassed) {
         return (
-            <UpdateWalletName
+            <CustomizeWallet
                 name={createdAccount.name}
                 submitHandler={onRename}
                 walletEmoji={createdAccount.emoji}

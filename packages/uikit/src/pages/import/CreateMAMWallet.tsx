@@ -1,14 +1,9 @@
 import React, { FC, useContext, useEffect, useMemo, useState } from 'react';
-import { IconPage } from '../../components/Layout';
-import { UpdateWalletName } from '../../components/create/WalletName';
-import { CheckMnemonic } from '../../components/create/CheckMnemonic';
-import { ShowMnemonic } from '../../components/create/ShowMnemonic';
-import { Button } from '../../components/fields/Button';
-import {
-    CheckLottieIcon,
-    GearLottieIcon,
-    WriteLottieIcon
-} from '../../components/lottie/LottieIcons';
+import { CustomizeWallet } from '../../components/create/CustomizeWallet';
+import { BackupIntro } from '../../components/create/BackupIntro';
+import { BackupShow } from '../../components/create/BackupShow';
+import { BackupCheck } from '../../components/create/BackupCheck';
+import { CheckLottieIcon, GearLottieIcon } from '../../components/lottie/LottieIcons';
 import { useTranslation } from '../../hooks/translation';
 import { FinalView } from './Password';
 import { Account, AccountMAM } from '@tonkeeper/core/dist/entries/account';
@@ -22,12 +17,10 @@ import { TonKeychainRoot } from '@ton-keychain/core';
 import { useConfirmDiscardNotification } from '../../components/modals/ConfirmDiscardNotificationControlled';
 import { AddWalletContext } from '../../components/create/AddWalletContext';
 import {
-    NotificationFooter,
-    NotificationFooterPortal,
     OnCloseInterceptor,
-    useSetNotificationOnBack,
-    useSetNotificationOnCloseInterceptor
-} from '../../components/Notification';
+    useSetModalOnBack,
+    useSetModalOnCloseInterceptor
+} from '../../primitives/Modal';
 import { SelectWalletNetworks } from '../../components/create/SelectWalletNetworks';
 import { defaultAccountConfig } from '@tonkeeper/core/dist/service/wallet/configService';
 import { useIsTronEnabledGlobally } from '../../state/tron/tron';
@@ -151,7 +144,7 @@ export const CreateMAMWallet: FC<{ afterCompleted: () => void }> = ({ afterCompl
         editNamePagePassed,
         selectNetworksPassed
     ]);
-    useSetNotificationOnBack(onBack);
+    useSetModalOnBack(onBack);
 
     const onCloseInterceptor = useMemo<OnCloseInterceptor>(() => {
         if (!wordsShown) {
@@ -174,48 +167,39 @@ export const CreateMAMWallet: FC<{ afterCompleted: () => void }> = ({ afterCompl
             });
         };
     }, [wordsShown, openConfirmDiscard, createdAccount]);
-    useSetNotificationOnCloseInterceptor(onCloseInterceptor);
+    useSetModalOnCloseInterceptor(onCloseInterceptor);
 
     if (!mnemonic) {
-        return <IconPage icon={<GearLottieIcon />} title={t('create_wallet_generating')} />;
-    }
-
-    if (!creatingAnimationPassed) {
-        return <IconPage icon={<CheckLottieIcon />} title={t('create_wallet_generated')} />;
-    }
-
-    if (!infoPagePassed) {
         return (
-            <IconPage
-                icon={<WriteLottieIcon />}
-                title={t('create_wallet_title')}
-                description={t('create_wallet_caption')}
-                button={
-                    <NotificationFooterPortal>
-                        <NotificationFooter>
-                            <Button
-                                size="large"
-                                fullWidth
-                                primary
-                                marginTop
-                                onClick={() => setInfoPagePassed(true)}
-                            >
-                                {t('continue')}
-                            </Button>
-                        </NotificationFooter>
-                    </NotificationFooterPortal>
-                }
-            />
+            <div className="flex flex-1 flex-col items-center justify-center text-center">
+                <GearLottieIcon />
+                <h2 className="text-h2 text-textPrimary">{t('create_wallet_generating')}</h2>
+            </div>
         );
     }
 
+    if (!creatingAnimationPassed) {
+        return (
+            <div className="flex flex-1 flex-col items-center justify-center text-center">
+                <CheckLottieIcon />
+                <h2 className="text-h2 text-textPrimary">{t('create_wallet_generated')}</h2>
+            </div>
+        );
+    }
+
+    if (!infoPagePassed) {
+        return <BackupIntro onContinue={() => setInfoPagePassed(true)} />;
+    }
+
     if (!wordsPagePassed) {
-        return <ShowMnemonic mnemonic={mnemonic} onCheck={() => setWordsPagePassed(true)} />;
+        return (
+            <BackupShow mnemonic={mnemonic} onCheck={() => setWordsPagePassed(true)} showMamInfo />
+        );
     }
 
     if (!createdAccount) {
         return (
-            <CheckMnemonic
+            <BackupCheck
                 mnemonic={mnemonic}
                 onConfirm={() => {
                     createWalletsAsync({
@@ -231,7 +215,7 @@ export const CreateMAMWallet: FC<{ afterCompleted: () => void }> = ({ afterCompl
 
     if (!editNamePagePassed) {
         return (
-            <UpdateWalletName
+            <CustomizeWallet
                 name={createdAccount.account.name}
                 submitHandler={onRename}
                 walletEmoji={createdAccount.account.emoji}

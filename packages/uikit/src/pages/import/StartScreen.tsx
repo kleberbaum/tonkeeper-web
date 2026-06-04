@@ -1,6 +1,6 @@
 import { FC, MouseEventHandler } from 'react';
 import { Button } from '../../primitives/Button';
-import { useAddWalletNotification } from '../../components/modals/AddWalletNotificationControlled';
+import { useAddWalletFlow } from '../../components/modals/AddWalletFlow';
 import { useAppSdk } from '../../hooks/appSdk';
 import { useLegalLinks } from '../../state/legal';
 import { useTranslation } from '../../hooks/translation';
@@ -18,9 +18,16 @@ import cover2x from '../../illustrations/png/cover@2x.webp';
  */
 const StartScreen: FC = () => {
     const { t } = useTranslation();
-    const { onOpen: openAddWallet } = useAddWalletNotification();
+    const { onOpen: openAddWallet } = useAddWalletFlow();
     const sdk = useAppSdk();
     const { termsLink } = useLegalLinks();
+
+    const onCreate = () => {
+        sdk.twaExpand?.();
+        sdk.requestExtensionPermission().then(() =>
+            openAddWallet({ walletType: 'create-standard' })
+        );
+    };
 
     const onImport = () => {
         sdk.twaExpand?.();
@@ -58,10 +65,7 @@ const StartScreen: FC = () => {
             </div>
 
             <div className="flex flex-col gap-4 px-8 pb-8">
-                {/* "Create" is intentionally disabled — the multichain create
-                    flow lands in a later commit; the entry stays so the layout
-                    matches the design and users see what's coming. */}
-                <Button size="large" variant="primaryBlue" fullWidth disabled>
+                <Button size="large" variant="primaryBlue" fullWidth onClick={onCreate}>
                     {t('start_screen_create_wallet_button')}
                 </Button>
                 <Button size="large" variant="secondary" fullWidth onClick={onImport}>

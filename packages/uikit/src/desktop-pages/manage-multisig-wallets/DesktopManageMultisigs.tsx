@@ -31,7 +31,7 @@ import { styled } from 'styled-components';
 import { Dot } from '../../components/Dot';
 import { IconButtonTransparentBackground } from '../../components/fields/IconButton';
 import { useAppSdk } from '../../hooks/appSdk';
-import { useAddWalletNotification } from '../../components/modals/AddWalletNotificationControlled';
+import { useAddWalletFlow } from '../../components/modals/AddWalletFlow';
 import { useRenameNotification } from '../../components/modals/RenameNotificationControlled';
 import { getFallbackAccountEmoji } from '@tonkeeper/core/dist/service/walletService';
 import { Address } from '@ton/core';
@@ -58,7 +58,7 @@ export const DesktopManageMultisigsPage = () => {
     const { t } = useTranslation();
     const activeAccount = useActiveAccount();
     const isActiveAccountMultisigManagable = isAccountCanManageMultisigs(activeAccount);
-    const { onOpen: addWallet } = useAddWalletNotification();
+    const { onOpen: addWallet } = useAddWalletFlow();
 
     if (!isActiveAccountMultisigManagable) {
         return <Navigate to={AppRoute.home} />;
@@ -292,7 +292,7 @@ const EmptyMultisigsPage = () => {
     const { t } = useTranslation();
     const config = useActiveConfig();
     const sdk = useAppSdk();
-    const { onOpen: addWallet } = useAddWalletNotification();
+    const { onOpen: addWallet } = useAddWalletFlow();
 
     const multisig_about_url = config.multisig_about_url;
 

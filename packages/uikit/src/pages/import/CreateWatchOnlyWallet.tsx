@@ -1,7 +1,7 @@
 import { Account } from '@tonkeeper/core/dist/entries/account';
 import React, { FC, useContext, useMemo, useState } from 'react';
 import { AddressInput } from '../../components/create/AddressInput';
-import { UpdateWalletName } from '../../components/create/WalletName';
+import { CustomizeWallet } from '../../components/create/CustomizeWallet';
 import {
     useAccountsState,
     useCreateAccountReadOnly,
@@ -12,9 +12,9 @@ import { useConfirmDiscardNotification } from '../../components/modals/ConfirmDi
 import { AddWalletContext } from '../../components/create/AddWalletContext';
 import {
     OnCloseInterceptor,
-    useSetNotificationOnBack,
-    useSetNotificationOnCloseInterceptor
-} from '../../components/Notification';
+    useSetModalOnBack,
+    useSetModalOnCloseInterceptor
+} from '../../primitives/Modal';
 import { AccountIsAlreadyAdded } from '../../components/create/AccountIsAlreadyAdded';
 import { WalletId } from '@tonkeeper/core/dist/entries/wallet';
 import { Address } from '@ton/core';
@@ -49,7 +49,7 @@ export const CreateWatchOnlyWallet: FC<{ afterCompleted: () => void }> = ({ afte
         }
         return undefined;
     }, [navigateHome, createdAccount, isDirty, openConfirmDiscard]);
-    useSetNotificationOnBack(onBack);
+    useSetModalOnBack(onBack);
 
     const onCloseInterceptor = useMemo<OnCloseInterceptor>(() => {
         if (!isDirty) {
@@ -72,7 +72,7 @@ export const CreateWatchOnlyWallet: FC<{ afterCompleted: () => void }> = ({ afte
             });
         };
     }, [createdAccount, openConfirmDiscard, isDirty]);
-    useSetNotificationOnCloseInterceptor(onCloseInterceptor);
+    useSetModalOnCloseInterceptor(onCloseInterceptor);
 
     const [existingAccountAndWallet, setExistingAccountAndWallet] = useState<
         | {
@@ -114,7 +114,7 @@ export const CreateWatchOnlyWallet: FC<{ afterCompleted: () => void }> = ({ afte
 
     if (!editNamePagePassed) {
         return (
-            <UpdateWalletName
+            <CustomizeWallet
                 name={createdAccount.name}
                 submitHandler={val => {
                     renameWallet({

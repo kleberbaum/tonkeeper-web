@@ -21,7 +21,7 @@ import { Account } from '@tonkeeper/core/dist/entries/account';
 import { WalletId } from '@tonkeeper/core/dist/entries/wallet';
 import { useParseAndAddSigner } from '@tonkeeper/uikit/dist/state/wallet';
 import { useRenameNotification } from '@tonkeeper/uikit/dist/components/modals/RenameNotificationControlled';
-import { closeNotification } from '@tonkeeper/uikit/dist/components/Notification';
+import { closeModal } from '@tonkeeper/uikit/dist/primitives/Modal';
 import { useAppSdk } from '@tonkeeper/uikit/dist/hooks/appSdk';
 import {
     RedirectToTonkeeperMobile,
@@ -44,7 +44,7 @@ export const useMobileProPairSignerSubscription = () => {
     useEffect(() => {
         return subscribeToSignerUrlOpened(link => {
             mutateAsync({ link, source: 'deeplink' }).then(acc => {
-                closeNotification('add-wallet-signer');
+                closeModal('add-wallet-signer');
                 onOpen({ accountId: acc.id });
             });
         });

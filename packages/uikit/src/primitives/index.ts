@@ -32,3 +32,6 @@ export type { SearchFieldProps } from './SearchField';
 
 export { FieldWord } from './FieldWord';
 export type { FieldWordProps } from './FieldWord';
+
+export { Modal, useSetModalOnBack, useSetModalOnCloseInterceptor } from './Modal';
+export type { ModalProps, OnCloseInterceptor } from './Modal';

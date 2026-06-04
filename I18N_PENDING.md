@@ -13,8 +13,13 @@ Only list keys that are **new to Tolgee**. Keys you added to the English source 
 completeness but that already exist in Tolgee (translated) don't need a row — Tolgee already has
 them.
 
-| Key                             | English                         | Added in               | Notes                                              |
-| ------------------------------- | ------------------------------- | ---------------------- | -------------------------------------------------- |
-| `start_screen_terms_caption`    | By continuing, you agree to our | Start screen redesign  | Prefix sentence before the "Terms of Use" link     |
-| `start_screen_terms_link`       | Terms of Use                    | Start screen redesign  | Inline accent-blue link                            |
-| `import_wallet_picker_subtitle` | Choose from the option below.   | Import picker redesign | Heading subtitle when picker is in `'import'` mode |
+| Key                             | English                                                                  | Added in               | Notes                                                                                       |
+| ------------------------------- | ------------------------------------------------------------------------ | ---------------------- | ------------------------------------------------------------------------------------------- |
+| `start_screen_terms_caption`    | By continuing, you agree to our                                          | Start screen redesign  | Prefix sentence before the "Terms of Use" link                                              |
+| `start_screen_terms_link`       | Terms of Use                                                             | Start screen redesign  | Inline accent-blue link                                                                     |
+| `import_wallet_picker_subtitle` | Choose from the option below.                                            | Import picker redesign | Heading subtitle when picker is in `'import'` mode                                          |
+| `check_backup_button`           | Check Backup                                                             | Create flow redesign   | CTA on the Show-mnemonic screen, before backup verification                                 |
+| `check_backup_caption`          | Let's see if you've got everything right. Enter words %1%, %2%, and %3%. | Create flow redesign   | Subhead on the backup-check screen — replaces legacy `check_words_caption` for the new flow |
+| `create_wallet_done_button`     | Done                                                                     | Create flow redesign   | CTA on the Backup-check screen after 3 words match                                          |
+| `customize_wallet_title`        | Customize your wallet                                                    | Create flow redesign   | Heading on the wallet name/emoji screen                                                     |
+| `customize_wallet_description`  | Wallet name and icon are stored locally on your device.                  | Create flow redesign   | Subhead on the wallet name/emoji screen                                                     |
