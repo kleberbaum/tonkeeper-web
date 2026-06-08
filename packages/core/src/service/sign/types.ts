@@ -24,10 +24,10 @@ export type LedgerSigner = ((messages: LedgerTransaction[]) => Promise<Cell[]>) 
 };
 
 /**
- * Multichain signer union. Phase 1 only populates the two TON variants;
- * later phases extend this union with `'eth-typed'`, `'btc-psbt'`, etc.
- * Existing consumers continue to import `Signer` from `entries/signer`,
- * which re-exports this type.
+ * Multichain signer union. Today only the two TON variants are
+ * populated; non-TON variants (`'eth-typed'`, `'btc-psbt'`, etc.) extend
+ * this union when their strategies land. Existing consumers continue to
+ * import `Signer` from `entries/signer`, which re-exports this type.
  */
 export type ChainSigner = CellSigner | LedgerSigner;
 export type Signer = ChainSigner;
@@ -39,9 +39,9 @@ export type MultiTransactionsSigner = (
 ) => Promise<((Transaction & SignedTransaction) | Buffer)[]>;
 
 /**
- * Inputs every `SignerFactory` receives. `chain` is `'ton'` in Phase 1;
- * later phases pass `'evm' | 'btc' | 'tron' | 'sol'` and the registry
- * picks the matching strategy.
+ * Inputs every `SignerFactory` receives. `chain` is `'ton'` today; once
+ * non-TON strategies are registered the registry will dispatch on the
+ * full set (`'evm' | 'btc' | 'tron' | 'sol'`).
  */
 export interface SignerFactoryArgs {
     sdk: IAppSdk;

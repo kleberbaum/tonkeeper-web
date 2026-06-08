@@ -6,9 +6,9 @@ import { useActiveConfig } from '../../state/wallet';
 import { ExclamationMarkCircleIcon } from '../Icon';
 
 /**
- * Create-flow recovery phrase display (Figma `5228:177318`
- * "Recovery_phrase"). Renders the freshly generated 12/24-word mnemonic
- * as a numbered two-column grid and advances to the verification step.
+ * Create-flow recovery phrase display. Renders the freshly generated
+ * 12/24-word mnemonic as a numbered two-column grid and advances to the
+ * verification step.
  *
  * `showMamInfo` switches the screen into the MAM (multi-account
  * mnemonic) variant: an explainer callout sits above the grid and the

@@ -129,10 +129,7 @@ export const signDataOver = ({
                 );
             }
             case 'multichain': {
-                // Phase 3+: wire to the multichain TON signing strategy
-                // (Track O3) once secret resolution lands for the BIP39
-                // seed inside AccountMultichain.
-                throw new Error('Phase 3+: signDataOver not wired for multichain accounts');
+                throw new Error('signDataOver is not implemented for multichain accounts');
             }
             default: {
                 assertUnreachable(account);
@@ -225,10 +222,7 @@ export const signTonConnectOver = ({
                 );
             }
             case 'multichain': {
-                // Phase 3+: TonConnect over multichain accounts depends
-                // on the multichain TON signing strategy (Track O3) and
-                // BIP39-seed unlock plumbing.
-                throw new Error('Phase 3+: signTonConnectOver not wired for multichain accounts');
+                throw new Error('signTonConnectOver is not implemented for multichain accounts');
             }
             default: {
                 assertUnreachable(account);

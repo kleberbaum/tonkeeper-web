@@ -22,9 +22,9 @@ describe('wallet contract strategy registry', () => {
     });
 
     it.each(['evm', 'btc', 'tron', 'sol'] as const)(
-        'throws a Phase 2+ error for unregistered chain %s',
+        'throws a clear not-registered error for unregistered chain %s',
         chain => {
-            expect(() => getStrategy(chain)).toThrow(/Phase 2\+/);
+            expect(() => getStrategy(chain)).toThrow(/not registered/);
             expect(() => getStrategy(chain)).toThrow(new RegExp(`"${chain}"`));
         }
     );

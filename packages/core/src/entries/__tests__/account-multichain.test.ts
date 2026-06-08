@@ -252,7 +252,7 @@ describe('AccountMultichain — Account union predicates', () => {
         expect(isAccountVersionEditable(account)).toBe(false);
     });
 
-    it('isAccountSupportTonConnect → false (Phase 3+ wires TonConnect)', () => {
+    it('isAccountSupportTonConnect → false (TonConnect is not wired for multichain)', () => {
         expect(isAccountSupportTonConnect(account)).toBe(false);
     });
 

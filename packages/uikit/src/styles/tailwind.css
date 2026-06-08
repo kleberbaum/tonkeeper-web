@@ -114,7 +114,7 @@
         --tk-corner-large: 24px;
         --tk-corner-full: 100%;
 
-        /* Canonical "Corners" rounding scale (Figma) — backs the Tailwind
+        /* Canonical "Corners" rounding scale — backs the Tailwind
            borderRadius tokens. Static (single theme), not bridged. */
         --tk-rounding-extra-extra-small: 4px;
         --tk-rounding-extra-small: 8px;

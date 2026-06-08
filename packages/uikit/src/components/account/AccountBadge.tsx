@@ -236,10 +236,10 @@ export const AccountAndWalletBadgesGroup: FC<{
     }
 
     if (account.type === 'multichain') {
-        // Phase 4 (Track P): per-chain account badge. Multichain accounts
-        // never reach legacy badge code in Phase 2 (gated by
-        // `multichainEnabled`); return null to keep the predicate
-        // exhaustive without throwing inside a render path.
+        // No per-chain badge yet; multichain accounts are gated behind
+        // `multichainEnabled`, so they don't surface in production. The
+        // branch keeps the predicate exhaustive without throwing inside
+        // a render path.
         return null;
     }
 

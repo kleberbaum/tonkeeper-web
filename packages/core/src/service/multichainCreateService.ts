@@ -6,18 +6,18 @@ import { EvmWallet } from '../entries/evm/evm-wallet';
 import { BtcWallet } from '../entries/btc/btc-wallet';
 import { MultichainTronWallet } from '../entries/tron/multichain-tron-wallet';
 import { SolWallet } from '../entries/sol/sol-wallet';
-import { ChainId, getAdapter, NotImplementedError } from '../chains';
+import { ChainId, ensureReady, getAdapter, NotImplementedError } from '../chains';
 import { DEFAULT_BIP44_PATH } from '../chains/derivation';
 import { APIConfig } from '../entries/apis';
 import { IStorage } from '../Storage';
 import { createStandardTonAccountByMnemonic, getWalletAddress } from './walletService';
 
 /**
- * Phase 2 multichain account creation. Bridges the BIP39 mnemonic that
- * lands in the create UI into:
+ * Multichain account creation. Bridges the BIP39 mnemonic that lands in
+ * the create UI into:
  *
  * 1. A list of per-chain `MultichainWallet` entries with addresses and
- *    pubkeys ready to render (M5) and persist (M6).
+ *    pubkeys ready to render and persist.
  * 2. An `AccountMultichain` constructed from those entries plus a
  *    name/emoji/auth bundle that mirrors the legacy
  *    `AccountTonMnemonic` shape.
@@ -26,8 +26,8 @@ import { createStandardTonAccountByMnemonic, getWalletAddress } from './walletSe
  * service routes TON through the existing
  * `createStandardTonAccountByMnemonic` to reuse `walletContract()` rather
  * than re-implementing the version-aware path. Every other chain goes
- * through the chain-kit adapter introduced in Phase 1 / extended in
- * Track K — `getAdapter(chain).deriveAddress` + `.derivePublicKey`.
+ * through the chain-kit adapter (`getAdapter(chain).deriveAddress` +
+ * `.derivePublicKey`).
  *
  * `'sol'` is opportunistically skipped only while chain-kit has no
  * Solana module. Other chain-kit errors must fail account creation so a
@@ -72,6 +72,12 @@ const deriveNonTonMultichainWallets = async (
     chains: ChainId[],
     mnemonic: string[]
 ): Promise<NonTonMultichainWallet[]> => {
+    // chain-kit's Kotlin/JS runtime must finish booting before any
+    // CryptoWallet/Address call. Without this await the `catch` below
+    // would silently swallow the first-call lifecycle error and the
+    // multichain account would end up with `ton` as its only chain.
+    await ensureReady();
+
     const phrase = mnemonic.join(' ');
     const wallets: NonTonMultichainWallet[] = [];
     for (const chain of chains) {

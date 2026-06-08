@@ -85,15 +85,14 @@ describe('signer snapshot harness — getSigner() regression', () => {
 });
 
 /**
- * G5 — hardware-signer call shape.
+ * Hardware-signer call shape.
  *
- * Ledger and Keystone can't be reproduced without hardware. What we *can* lock
- * down is the upstream transformation: the BIP32 derivation path Ledger receives
- * for a given account index, and the keystone message body shape. The Phase 1
- * refactor (B) splits the dispatch into per-strategy modules; this snapshot
- * proves those modules preserve the existing input mapping.
+ * Ledger and Keystone can't be reproduced without hardware. What we
+ * *can* lock down is the upstream transformation: the BIP32 derivation
+ * path Ledger receives for a given account index, and the keystone
+ * message body shape. This snapshot proves those mappings stay stable.
  */
-describe('hardware-signer call shapes (Phase 1 / Track G — G5)', () => {
+describe('hardware-signer call shapes', () => {
     const LEDGER_INDICES = [0, 1, 5, 42];
     const LEDGER_SHAPE_FILE = join(SNAPSHOT_DIR, 'ledger-call-shapes.json');
 

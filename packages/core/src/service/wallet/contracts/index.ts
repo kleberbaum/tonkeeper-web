@@ -8,8 +8,9 @@ export type { TonWalletContract, TonWalletContractArgs } from './ton-strategy';
 let registered = false;
 
 /**
- * Register every Phase 1 chain strategy. Idempotent — safe to call from
- * multiple entry points without exploding on duplicate registration.
+ * Register every wallet contract strategy. Idempotent — safe to call
+ * from multiple entry points without exploding on duplicate
+ * registration.
  */
 export const registerWalletContractStrategies = (): void => {
     if (registered) return;

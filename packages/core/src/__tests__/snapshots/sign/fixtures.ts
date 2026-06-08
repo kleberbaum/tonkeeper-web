@@ -1,13 +1,12 @@
 /**
- * Fixtures for the signer snapshot harness (Phase 1 / Track G).
+ * Fixtures for the signer snapshot harness.
  *
- * WARNING: every seed and secret in this file is intentionally public and
- * throwaway. Never fund any wallet derived from these values — they would be
- * drained immediately.
+ * WARNING: every seed and secret in this file is intentionally public
+ * and throwaway. Never fund any wallet derived from these values —
+ * they would be drained immediately.
  *
- * The harness uses these fixtures to lock down byte-identical signed BOCs
- * across the Phase 1 refactor of `getSigner()` (mnemonic.ts → factory) and
- * `walletContract()` (contractService.ts → strategy registry).
+ * The harness uses these fixtures to lock down byte-identical signed
+ * BOCs produced by `getSigner()` and `walletContract()`.
  */
 
 import { Network } from '../../../entries/network';

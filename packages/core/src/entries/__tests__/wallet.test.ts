@@ -159,8 +159,7 @@ describe('TonWalletStandard.derivationPath round-trip', () => {
         expect(parsed.derivationPath).toBe("m/44'/607'/0'");
     });
 
-    it('legacy → Phase 2 read keeps derivationPath undefined', () => {
-        // Simulates: Phase 1 wrote `tonWallet` to disk; Phase 2 reads it back.
+    it('round-trips legacy on-disk shape without derivationPath', () => {
         const onDisk = JSON.parse(JSON.stringify(tonWallet));
         const asTyped: TonWalletStandard = onDisk;
         expect(asTyped.derivationPath).toBeUndefined();

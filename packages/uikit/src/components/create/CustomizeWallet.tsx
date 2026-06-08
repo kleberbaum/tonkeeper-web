@@ -6,15 +6,9 @@ import { EmojisList } from '../shared/emoji/EmojisList';
 import { WalletEmoji } from '../shared/emoji/WalletEmoji';
 
 /**
- * Create-flow "Customize your wallet" (Figma `5228:177114`). Wallet
- * name + emoji selection in the same screen — the user picks the icon
- * from the grid below and the picked emoji renders as the input's right
- * affordance.
- *
- * The Figma also shows a row of color swatches between the name field
- * and the emoji grid; we intentionally don't render it here. The
- * `Account` model has no `color` field today and persisting one is out
- * of scope for the redesign — see the multichain-wallet creation thread.
+ * Create-flow "Customize your wallet". Wallet name + emoji selection in
+ * the same screen — the user picks the icon from the grid below and the
+ * picked emoji renders as the input's right affordance.
  */
 export const CustomizeWallet: FC<{
     walletEmoji: string;

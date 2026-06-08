@@ -17,12 +17,10 @@ import { Input } from '../../primitives/Input';
  *   - existing wallet on this device (`useIsPasswordSet() === true`) →
  *     enter the existing password (validated against `passwordStorage`)
  *
- * The legacy flow collected the password via `getPasswordByNotification`
- * during the create-account mutation — i.e. after the user had already
- * seen and confirmed the recovery phrase. Moving the prompt to the front
- * of the wizard makes it a step like any other (Figma multichain
- * onboarding) and lets the caller pass the captured password straight
- * into the mutation, skipping the global UnlockNotification round-trip.
+ * Collecting the password up front (rather than via
+ * `getPasswordByNotification` inside the create-account mutation) lets
+ * the caller pass the captured password straight into the mutation,
+ * skipping the global UnlockNotification round-trip.
  *
  * Platforms with `sdk.keychain` (desktop, mobile) don't need a password
  * at all — secrets land in the OS keychain. The caller is expected to

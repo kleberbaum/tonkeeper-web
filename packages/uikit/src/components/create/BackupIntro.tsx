@@ -4,10 +4,10 @@ import { useTranslation } from '../../hooks/translation';
 import { WriteLottieIcon } from '../lottie/LottieIcons';
 
 /**
- * Create-flow backup intro (Figma `5228:177313` "Back_up"). Sits between
- * the mnemonic-generation loading screens and `BackupShow` — the user
- * sees what they're about to do ("write down your recovery phrase")
- * before the 24 words actually appear.
+ * Create-flow backup intro. Sits between the mnemonic-generation
+ * loading screens and `BackupShow` — the user sees what they're about
+ * to do ("write down your recovery phrase") before the words actually
+ * appear.
  *
  * Pure content. The surrounding `Notification` modal owns back/close
  * chrome. The action button is rendered inline at the bottom of the

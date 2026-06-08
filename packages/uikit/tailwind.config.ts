@@ -118,10 +118,10 @@ const config: Config = {
                 red: 'var(--tk-red)'
             },
             borderRadius: {
-                // Canonical design-system "Corners" scale (Figma). Static —
-                // backed by the `--tk-rounding-*` vars in tailwind.css, not the
-                // legacy `--tk-corner-*` mirror (which stays for styled-components
-                // and the isInsideTonkeeper shrink). Figma has no 24px tier.
+                // Canonical design-system "Corners" scale. Static — backed by
+                // the `--tk-rounding-*` vars in tailwind.css, not the legacy
+                // `--tk-corner-*` mirror (which stays for styled-components
+                // and the isInsideTonkeeper shrink).
                 extraExtraSmall: 'var(--tk-rounding-extra-extra-small)',
                 extraSmall: 'var(--tk-rounding-extra-small)',
                 small: 'var(--tk-rounding-small)',
@@ -155,9 +155,9 @@ const config: Config = {
                 ]
             },
             fontSize: {
-                // Canonical design-system "Type" scale (Figma). Each entry is a
-                // complete text style: size + line-height + weight. `text-body4Caps`
-                // is rendered uppercase — add the `uppercase` utility at the call
+                // Canonical design-system "Type" scale. Each entry is a complete
+                // text style: size + line-height + weight. `text-body4Caps` is
+                // rendered uppercase — add the `uppercase` utility at the call
                 // site (transform isn't part of a font-size token).
                 num1: ['32px', { lineHeight: '40px', fontWeight: '600' }],
                 h1: ['32px', { lineHeight: '40px', fontWeight: '700' }],

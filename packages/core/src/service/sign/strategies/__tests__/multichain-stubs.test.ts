@@ -15,7 +15,7 @@ const stubSdk = {} as IAppSdk;
 
 describe('multichain non-TON signer stubs', () => {
     it.each(['evm', 'btc', 'tron', 'sol'] as const)(
-        'multichain × %s throws the Phase 4 phase-pointer message',
+        'multichain × %s throws a not-implemented error',
         async chain => {
             await expect(
                 resolve({
@@ -24,7 +24,7 @@ describe('multichain non-TON signer stubs', () => {
                     chain,
                     accountType: 'multichain'
                 })
-            ).rejects.toThrow(`Multichain ${chain} signing lands in Phase 4`);
+            ).rejects.toThrow(`Multichain ${chain} signing is not implemented`);
         }
     );
 });

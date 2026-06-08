@@ -17,16 +17,16 @@ import { cn } from '../../libs/css';
  *
  * `AppLayout` owns the two product layouts and the onboarding opt-out:
  *
- * - **Desktop** (`displayType === 'full-width'`, Figma 199:265572) —
- *   two-column: the `sidebar` slot pinned on the left, content on the
- *   right. The sidebar is the persistent left-rail navigation (e.g.
- *   `AsideMenu`); secondary, page-level chrome (page header, sub-sidebar,
- *   in-page tabs) belongs inside `children`.
+ * - **Desktop** (`displayType === 'full-width'`) — two-column: the
+ *   `sidebar` slot pinned on the left, content on the right. The
+ *   sidebar is the persistent left-rail navigation (e.g. `AsideMenu`);
+ *   secondary, page-level chrome (page header, sub-sidebar, in-page
+ *   tabs) belongs inside `children`.
  *
- * - **Mobile / compact** (`displayType === 'compact'`, Figma 4156:155023)
- *   — single column with a sticky `topBar` and a sticky `bottomBar`
- *   surrounding the content. The bars are themselves `position: fixed`
- *   today (`Header.tsx`, `Footer.tsx`); `AppLayout` reserves the matching
+ * - **Mobile / compact** (`displayType === 'compact'`) — single column
+ *   with a sticky `topBar` and a sticky `bottomBar` surrounding the
+ *   content. The bars are themselves `position: fixed` today
+ *   (`Header.tsx`, `Footer.tsx`); `AppLayout` reserves the matching
  *   safe space on the content area so pages don't have to know the bar
  *   heights.
  *

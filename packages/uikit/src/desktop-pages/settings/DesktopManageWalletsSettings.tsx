@@ -770,12 +770,10 @@ const AccountRow: FC<{
         case 'ton-multisig':
             return <AccountMultisigRow />;
         case 'multichain':
-            // Phase 4 (Track P): dedicated row component for multichain
-            // accounts with per-chain wallet picker. The mnemonic row
-            // reads `account.tonWallets` which AccountMultichain doesn't
-            // expose, so the multichain branch renders nothing for now —
-            // creation flow (Track M) is also gated behind the
-            // `multichainEnabled` flag, so no production users hit this.
+            // No dedicated row component yet; the mnemonic row reads
+            // `account.tonWallets`, which `AccountMultichain` doesn't
+            // expose. Multichain account creation is gated behind
+            // `multichainEnabled`, so no production users hit this.
             return null;
         default:
             assertUnreachable(account);

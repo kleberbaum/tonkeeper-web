@@ -8,14 +8,13 @@ import { ChainId } from './types';
  * account' / change / index). Solana uses the ed25519-on-Sol layout
  * (account-only, all-hardened, no change/index).
  *
- * **Scope warning:** the *path* shape is shared by every chain, but the
- * *derivation function* is curve-specific. Only TON's `m/44'/607'/0'` path
- * is wired through `deriveED25519Path` (ed25519) in Phase 1. EVM and BTC
- * need secp256k1, Solana needs ed25519-with-SLIP-0010, and TRON's legacy
- * code already uses its own ethers.js HD walk (see
- * `service/walletService.ts:tonMnemonicToTronMnemonic`, intentionally
- * untouched in Phase 1). When those land, they will *consume* this map
- * but go through their own derivation helpers.
+ * The *path* shape is shared by every chain, but the *derivation function*
+ * is curve-specific. TON walks the path with `deriveED25519Path`
+ * (ed25519); EVM and BTC need secp256k1; Solana needs
+ * ed25519-with-SLIP-0010; and TRON's legacy code uses its own ethers.js
+ * HD walk (`service/walletService.ts:tonMnemonicToTronMnemonic`).
+ * Consumers of this map go through their own per-chain derivation
+ * helpers.
  */
 export const DEFAULT_BIP44_PATH: Record<ChainId, string> = {
     ton: "m/44'/607'/0'",
@@ -26,18 +25,16 @@ export const DEFAULT_BIP44_PATH: Record<ChainId, string> = {
 };
 
 /**
- * Resolve the derivation path for `chain`. `index` is reserved for the
- * multi-account walks that EVM / BTC / SOL will need in Phase 2+; in Phase
- * 1 only `index === 0` is supported, and TON returns its fixed account
- * path regardless. Non-zero indices throw early so callers wiring
- * multi-account code paths get a clear failure instead of a silently-wrong
- * derivation.
+ * Resolve the derivation path for `chain`. Only `index === 0` is
+ * supported today; TON returns its fixed account path regardless.
+ * Non-zero indices throw early so callers wiring multi-account code
+ * paths get a clear failure instead of a silently-wrong derivation.
  */
 export const pathFor = (chain: ChainId, index = 0): string => {
     if (index !== 0) {
         throw new Error(
-            `pathFor(${chain}, ${index}): non-zero account indices land in Phase 2+. ` +
-                'Phase 1 only derives the default account.'
+            `pathFor(${chain}, ${index}): non-zero account indices are not supported. ` +
+                'Only the default account (index 0) is derived.'
         );
     }
     return DEFAULT_BIP44_PATH[chain];

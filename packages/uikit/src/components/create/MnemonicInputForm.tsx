@@ -14,16 +14,15 @@ import { useInputFocusScroll } from '../../hooks/keyboard/useInputFocusScroll';
 import { WordInput } from './WordInput';
 
 /**
- * The 12/24-word recovery-phrase entry form (Figma "Enter Recovery
- * Phrase", `579:50964` / `579:51000`). Renders a grid of `WordInput`s
- * with a 24/12 length toggle, a "Paste" affordance for empty forms,
- * and a "Continue" submit. Validation runs on submit — the form only
- * resolves when every word is in the BIP39 wordlist and the assembled
- * phrase passes `validateMnemonicTonOrMAM`.
+ * The 12/24-word recovery-phrase entry form. Renders a grid of
+ * `WordInput`s with a 24/12 length toggle, a "Paste" affordance for
+ * empty forms, and a "Continue" submit. Validation runs on submit —
+ * the form only resolves when every word is in the BIP39 wordlist and
+ * the assembled phrase passes `validateMnemonicTonOrMAM`.
  *
  * Used by every flow that asks the user for a seed — mainnet
- * `ImportExistingWallet` and `ImportTestnetWallet` today, plus the
- * BIP39 → multichain import behind `multichainEnabled`.
+ * `ImportExistingWallet` and `ImportTestnetWallet`, plus the BIP39 →
+ * multichain import behind `multichainEnabled`.
  */
 
 const getEmptyWordIndex = (words: string[]) => words.findIndex(word => word === '');
@@ -38,10 +37,10 @@ const focusInput = (current: HTMLDivElement | null, index: number) => {
 };
 
 /**
- * Pill segmented switch — Figma "Enter Recovery Phrase" 24/12 toggle.
- * Two tabs in a rounded container; the active tab uses the tertiary
- * button fill, the rest sit on the secondary fill. Inline to the screen
- * because no other screen uses this exact treatment yet.
+ * Pill segmented switch — 24/12 toggle. Two tabs in a rounded container;
+ * the active tab uses the tertiary button fill, the rest sit on the
+ * secondary fill. Inline to the screen because no other screen uses this
+ * exact treatment yet.
  */
 const WordsLengthToggle: FC<{
     value: 12 | 24;

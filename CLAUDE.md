@@ -43,6 +43,22 @@ The app is being rebuilt almost end-to-end against new Figma mockups. Treat the 
     live alongside it but stay un-re-exported from `primitives/index.ts`. No barrel files that
     bundle unrelated primitives.
 
+## Comments
+
+Comments describe behavior that exists, not the change that produced it. A reader six months from
+now sees only the current code, and the comment must make sense to them.
+
+-   **No process or change metadata.** No "added in", "moved from", "was previously", "renamed
+    from", "TODO: revisit next sprint", phase / track / milestone references, internal plan names,
+    Figma node IDs, ticket numbers, or PR links. This information belongs in commit messages and PR
+    descriptions, not in the source tree.
+-   **No "WHAT" comments.** Don't restate what well-named code already says. Names and types are the
+    primary documentation; comments are for what names cannot express.
+-   **WHY only, and only when non-obvious.** Keep a comment when it captures a hidden invariant, a
+    subtle constraint, an external requirement, or a workaround for a specific bug. If the code
+    reads cleanly without it, drop it.
+-   **Default to no comment.** Prefer renaming or restructuring code over annotating it.
+
 ## Common commands
 
 ```sh
@@ -149,8 +165,8 @@ Each account has one or more `TonWalletStandard` entries (wallet versions V3R1�
 `activeAccountId` and per-account `activeTonWalletId` are stored under `AppKey.ACTIVE_ACCOUNT_ID`
 and `AppKey.ACCOUNT_CONFIG`.
 
-`AccountMultichain` is the Phase 2 BIP39 multichain account (TON + EVM + BTC + TRON wallets behind
-one seed). It is gated behind the `MULTICHAIN_ENABLED` flag — see below.
+`AccountMultichain` is the BIP39 multichain account (TON + EVM + BTC + TRON wallets behind one
+seed). It is gated behind the `MULTICHAIN_ENABLED` flag — see below.
 
 ## Styling
 

@@ -6,11 +6,9 @@ import { FieldWord } from '../../primitives/FieldWord';
 import { handleSubmit } from '../../libs/form';
 
 /**
- * Create-flow backup verification (Figma `5228:177352` Empty /
- * `5228:177364` Filled). Picks three random word positions — one from
- * each third of the 24-word phrase — and asks the user to retype them.
+ * Create-flow backup verification. Picks three random word positions —
+ * one from each third of the phrase — and asks the user to retype them.
  * The action button enables once all three match.
- *
  */
 
 const getRandomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min)) + min;

@@ -45,14 +45,12 @@ type Step =
     | 'done';
 
 /**
- * Onboarding "Create new wallet" — multichain redesign (Figma
- * `5228:177313`, `5228:177318`, `5228:177352`, `5228:177364`,
- * `5228:177308`, `5228:177114`).
+ * Onboarding "Create new wallet". Linear wizard.
  *
- * Linear wizard. `multichainEnabled` only decides which mnemonic
- * shape gets generated and which create-account hook runs at the
- * verification step; the UI screens are identical either way. See
- * CLAUDE.md → "Scope of the flag" for the contract.
+ * `multichainEnabled` only decides which mnemonic shape gets generated
+ * and which create-account hook runs at the verification step; the UI
+ * screens are identical either way. See CLAUDE.md → "Scope of the flag"
+ * for the contract.
  *
  *   password? → intro → showPhrase → checkPhrase
  *     → customize → (legacy only) selectNetworks

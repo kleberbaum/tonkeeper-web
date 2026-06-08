@@ -4,9 +4,9 @@ import IcArrowUp28 from '../../icons/components/IcArrowUp28';
 import IcArrowDown28 from '../../icons/components/IcArrowDown28';
 import IcMinus28 from '../../icons/components/IcMinus28';
 
-// Home-screen action glyphs (Figma "Icon Button"), rendered at 28px inside the
-// 44px action circle. Sourced from the generated design-system icon set; colour
-// is inherited from the surrounding button via `currentColor`.
+// Home-screen action glyphs rendered at 28px inside the 44px action circle.
+// Sourced from the generated design-system icon set; colour is inherited from
+// the surrounding button via `currentColor`.
 export const BuyIcon = () => <IcPlus28 className="h-7 w-7" />;
 
 export const SendIcon = () => <IcArrowUp28 className="h-7 w-7" />;

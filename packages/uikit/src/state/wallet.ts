@@ -153,12 +153,12 @@ export const useActiveStandardTonWallet = () => {
 
 /**
  * Returns the active wallet for the given chain on the current account.
- * Multichain accounts (Phase 2 Track I) dispatch through
- * `getWalletByChain`; legacy account types return their TON wallet for
- * `chain === 'ton'` and `undefined` for anything else.
+ * Multichain accounts dispatch through `getWalletByChain`; legacy
+ * account types return their TON wallet for `chain === 'ton'` and
+ * `undefined` for anything else.
  *
- * Phase 2 starts migrating production callers chain-by-chain. See
- * `packages/core/src/chains/wallet-selector.ts` for the pure selector.
+ * See `packages/core/src/chains/wallet-selector.ts` for the pure
+ * selector.
  */
 export const useActiveWalletForChain = <C extends ChainId>(chain: C) => {
     const account = useActiveAccount();
@@ -715,8 +715,8 @@ export const useCreateAccountMnemonic = () => {
 };
 
 /**
- * Phase 2 multichain. Wraps `createAccountMultichainByMnemonic` with the
- * same keychain / password / battery-auth / meta-encryption-key plumbing
+ * Wraps `createAccountMultichainByMnemonic` with the same keychain /
+ * password / battery-auth / meta-encryption-key plumbing
  * `useCreateAccountMnemonic` uses, so a BIP39 import lands an
  * `AccountMultichain` in storage with TON + per-chain wallets ready to
  * render.

@@ -7,9 +7,9 @@ import { DEFAULT_BIP44_PATH, pathFor } from '../derivation';
 
 /**
  * Canonical BIP-39 test vector (abandon × 11 + about). The expected public
- * key hex below is the one pinned by the Track G snapshot harness in
- * `__tests__/snapshots/sign/mnemonic-bip39__*__MAINNET.json` — keeping it
- * in lock-step here means a regression in the TON derivation path (e.g.
+ * key hex below mirrors the snapshot harness fixtures
+ * (`__tests__/snapshots/sign/mnemonic-bip39__*__MAINNET.json`); keeping it
+ * in lock-step means a regression in the TON derivation path (e.g.
  * accidentally dropping the `'/0'` suffix or routing through the wrong
  * curve) breaks this fast unit test before the slower snapshot suite
  * notices.
@@ -48,9 +48,9 @@ describe('chains/derivation', () => {
         expect(pathFor(chain, 0)).toBe(DEFAULT_BIP44_PATH[chain]);
     });
 
-    it('throws Phase 2+ for non-zero account indices', () => {
+    it('throws for non-zero account indices', () => {
         const chain: ChainId = 'ton';
-        expect(() => pathFor(chain, 1)).toThrow(/Phase 2\+/);
+        expect(() => pathFor(chain, 1)).toThrow(/non-zero account indices/);
     });
 
     it('TON BIP39 derivation produces the snapshot-pinned public key', async () => {

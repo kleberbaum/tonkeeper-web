@@ -13,15 +13,16 @@ import { BuildTxArgs, ChainAdapter, ChainId, ChainSigner, NotImplementedError } 
  * the chain-kit constant at call time, so `validateAddress` delegates
  * to `ChainkitAddress.Companion.from(addr, chainOf(this.chain))`.
  *
- * Phase 1 wires the read-side (`validateAddress`, `formatAmount`,
- * `parseAmount`). Write-side operations throw `NotImplementedError`:
+ * Read-side operations (`validateAddress`, `formatAmount`, `parseAmount`,
+ * `deriveAddress`, `derivePublicKey`) are wired. Write-side operations
+ * (`estimateFee`, `buildTransaction`, `signTransaction`, `broadcast`)
+ * throw `NotImplementedError`:
  *
  * - TON's version-aware pubkey → address derivation goes through
- *   `walletContract()` in `service/wallet/contractService.ts` (Track C).
- *   The chain-agnostic shape here is too narrow for that path.
+ *   `walletContract()` in `service/wallet/contractService.ts`. The
+ *   chain-agnostic shape here is too narrow for that path.
  * - Sign / build / broadcast paths live in their existing service
- *   modules; Phase 2/3 wires them through the adapter once the per-chain
- *   tx ergonomics are clear.
+ *   modules.
  *
  * `ensureReady()` must be awaited at app startup (and in tests'
  * `beforeAll`) before any sync method is called. `validateAddress` is
@@ -42,7 +43,7 @@ const chainOf = (id: ChainId): unknown => {
             throw new NotImplementedError(
                 'sol',
                 'validateAddress',
-                'Phase ? (chain-kit has no Solana module)'
+                'chain-kit has no Solana module'
             );
     }
 };
@@ -132,23 +133,25 @@ class ChainkitAdapter implements ChainAdapter {
     }
 
     async estimateFee(): Promise<never> {
-        throw new NotImplementedError(this.chain, 'estimateFee', 'Phase 2+');
+        throw new NotImplementedError(this.chain, 'estimateFee', 'not wired yet');
     }
 
     async buildTransaction(_args: BuildTxArgs): Promise<unknown> {
-        throw new NotImplementedError(this.chain, 'buildTransaction', 'Phase 2+');
+        throw new NotImplementedError(this.chain, 'buildTransaction', 'not wired yet');
     }
 
     async signTransaction(_args: { message: unknown; signer: ChainSigner }): Promise<unknown> {
         throw new NotImplementedError(
             this.chain,
             'signTransaction',
-            this.chain === 'ton' ? 'Phase 1 / Track B' : 'Phase 2+'
+            this.chain === 'ton'
+                ? 'TON signing lives in the signer factory, not on the adapter'
+                : 'not wired yet'
         );
     }
 
     async broadcast(): Promise<{ hash: string }> {
-        throw new NotImplementedError(this.chain, 'broadcast', 'Phase 2+');
+        throw new NotImplementedError(this.chain, 'broadcast', 'not wired yet');
     }
 }
 

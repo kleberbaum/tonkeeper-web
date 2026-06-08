@@ -9,11 +9,10 @@ import { getAccountSecret, getMAMWalletMnemonic } from '../../secrets';
 import { TronSigner } from '../../types';
 
 /**
- * Legacy TRON signer. Phase 1 keeps the original dispatch shape — the
- * full multichain factory replaces TRON entirely in Phase 3. This module
- * lives next to the new strategy structure so the eventual rewrite has
- * an obvious target, but it is still invoked via the original call
- * sites (uikit re-exports `getTronSigner`).
+ * Legacy TRON signer. Invoked via the original call sites (uikit
+ * re-exports `getTronSigner`). Lives next to the multichain strategy
+ * structure to make the eventual unified rewrite obvious, but keeps the
+ * original dispatch shape for now.
  */
 export const getTronSigner = (sdk: IAppSdk, tronApi: TronApi, account: Account): TronSigner => {
     try {

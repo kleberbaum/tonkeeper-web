@@ -8,8 +8,8 @@ import cover1x from '../../illustrations/png/cover.webp';
 import cover2x from '../../illustrations/png/cover@2x.webp';
 
 /**
- * Onboarding start screen (Figma "Start", `579:49884`). Branded cover at
- * the top, two action buttons (Create / Import), and a Terms of Use link.
+ * Onboarding start screen. Branded cover at the top, two action buttons
+ * (Create / Import), and a Terms of Use link.
  *
  * Pure content — sizing, centering, viewport-bound height, and the
  * "strip the app chrome" decision all belong to `AppLayout` (passed

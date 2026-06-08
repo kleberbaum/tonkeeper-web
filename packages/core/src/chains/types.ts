@@ -4,9 +4,9 @@
  * `Int8Array` vs `Uint8Array`) behind a clean TS surface.
  *
  * Chain-specific *transaction* code (TON wallet versions, MAM, multisig;
- * EVM EIP-712; BTC PSBT; etc.) lives in the existing service modules
- * and is reached via Track B (signer factory) and Track C (wallet
- * contract factory), not through this facade.
+ * EVM EIP-712; BTC PSBT; etc.) lives in the existing service modules —
+ * the signer factory and wallet contract factory — not through this
+ * facade.
  */
 
 export type ChainId = 'ton' | 'evm' | 'btc' | 'tron' | 'sol';
@@ -14,11 +14,10 @@ export type ChainId = 'ton' | 'evm' | 'btc' | 'tron' | 'sol';
 export const CHAIN_IDS: readonly ChainId[] = ['ton', 'evm', 'btc', 'tron', 'sol'] as const;
 
 /**
- * `ChainSigner` is intentionally a placeholder in Phase 1 — Track B owns the
- * real discriminated union (`{ type: 'cell' | 'eth-typed' | ... }`). The
- * adapter's `signTransaction` accepts a signer typed loosely here so the
- * interface compiles before Track B lands. Once Track B is in, this alias
- * is replaced with the real union without re-touching adapter code.
+ * Placeholder for the per-chain signer discriminated union (`{ type:
+ * 'cell' | 'eth-typed' | ... }`) that the signer factory will own. Typed
+ * loosely here so the adapter interface compiles independently of the
+ * factory rollout.
  */
 export type ChainSigner = unknown;
 
@@ -103,10 +102,10 @@ export interface ChainAdapter<TMessage = unknown, TSignature = unknown> {
 }
 
 export class NotImplementedError extends Error {
-    constructor(chain: ChainId, method: keyof ChainAdapter, phase: string) {
+    constructor(chain: ChainId, method: keyof ChainAdapter, reason: string) {
         super(
             `ChainAdapter for "${chain}" has no ${String(method)}() implementation — ` +
-                `wired in ${phase}. See packages/core/src/chains/adapter.ts.`
+                `${reason}. See packages/core/src/chains/adapter.ts.`
         );
         this.name = 'NotImplementedError';
     }

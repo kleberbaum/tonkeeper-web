@@ -15,10 +15,10 @@ import { Button } from '../../primitives/Button';
 const ProNotificationsIcon = React.lazy(() => import('./ProNotificationsIcon'));
 
 /**
- * Create-flow "Enable push notifications" step (Figma `5228:177308`).
- * Shows a centered hero (lottie icon on mobile, branded SVG on full-
- * width) with a call to action; the user can skip via `LaterButton` on
- * mobile or via the modal close action on desktop.
+ * Create-flow "Enable push notifications" step. Centered hero (lottie
+ * icon on mobile, branded SVG on full-width) with a call to action; the
+ * user can skip via `LaterButton` on mobile or via the modal close
+ * action on desktop.
  *
  * The CTA renders through `ModalFooterPortal` so it docks to
  * the modal sheet's bottom safe-area instead of floating with the

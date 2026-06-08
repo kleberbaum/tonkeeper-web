@@ -17,12 +17,8 @@ interface GetSignerOptions {
 }
 
 /**
- * Core-side entry point that replaces the inline switch previously
- * in `uikit/state/mnemonic.ts`. Dispatch is by `(account.type, chain)`
- * via the strategy registry — Phase 1 only populates chain `'ton'`.
- *
- * Signature mirrors the original `getSigner()` so the uikit wrapper
- * stays a one-line delegation.
+ * Core-side signer factory. Dispatches by `(account.type, chain)` via
+ * the strategy registry; today only chain `'ton'` is wired.
  */
 export const getSigner = async (
     sdk: IAppSdk,

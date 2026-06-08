@@ -21,7 +21,7 @@ import {
 } from './WalletIcons';
 
 /**
- * Picker for the "Add wallet" / "Import wallet" sheet (Figma 579:50871).
+ * Picker for the "Add wallet" / "Import wallet" sheet.
  *
  * Two `mode`s share one component:
  *   - `'all'`  — everything the user can add (create / import / hardware /
@@ -31,9 +31,6 @@ import {
  *                  pairings, watch-only, testnet). Used by the onboarding
  *                  start screen, where the multichain create flow lives
  *                  behind a separate primary action.
- *
- * The Figma redesign uses one card per method with title + description +
- * chevron; cards are grouped by purpose with an "Other options" divider.
  *
  * ## Multichain mode
  *
@@ -140,9 +137,9 @@ export const AddWalletPicker: FC<{
     const disableNonImport = multichainEnabled;
 
     // Cells the user sees first — actively creating or importing a wallet.
-    // The Figma's "Import wallet" sheet shows only the import-shaped entries
-    // (existing seed + hardware); the in-app "Add wallet" sheet additionally
-    // shows the create-* / multisig options at the top of this section.
+    // The "Import wallet" mode shows only the import-shaped entries (existing
+    // seed + hardware); "Add wallet" mode additionally shows the create-* /
+    // multisig options at the top of this section.
     const primarySection: ReactNode[] = [];
 
     if (mode === 'all') {
@@ -194,9 +191,9 @@ export const AddWalletPicker: FC<{
         );
     }
 
-    // Hardware-wallet pairings. The Figma sheet treats these as part of the
-    // primary list (no "Hardware Wallets" header); only the `'all'` mode
-    // surfaces the header for parity with the previous in-app design.
+    // Hardware-wallet pairings. The import sheet inlines these into the
+    // primary list with no header; the `'all'` mode surfaces a "Hardware
+    // Wallets" header.
     const hardwareSection: ReactNode[] = [];
     if (!hideSigner && !signerDisabled) {
         hardwareSection.push(

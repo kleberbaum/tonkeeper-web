@@ -5,14 +5,13 @@ import { ChainSigner, SignerFactory, SignerFactoryArgs } from './types';
 /**
  * Registry of `(account.type, chain)` → `SignerFactory` strategies.
  *
- * Phase 1 only populates the TON column; non-TON chains fall through to
- * `NotImplementedError` so callers can wire chain-aware code paths and
- * get a clean error at runtime instead of an opaque undefined.
- *
  * Strategies are registered at module load time by their containing
  * files importing this module and calling `register(...)`. The
  * aggregator at `./factory.ts` imports the strategy modules for their
  * side effects, then exposes `resolve(...)`.
+ *
+ * Only the TON column is populated; non-TON chains throw a clean
+ * runtime error instead of returning an opaque undefined.
  */
 
 type AccountType = Account['type'];
@@ -43,7 +42,7 @@ export const resolve = async (
     if (!factory) {
         throw new Error(
             `Signer strategy not registered for account type "${accountType}" on chain "${chain}". ` +
-                'TON strategies land in Phase 1; other chains in Phase 2+.'
+                'Only TON strategies are wired today.'
         );
     }
     return factory(args);

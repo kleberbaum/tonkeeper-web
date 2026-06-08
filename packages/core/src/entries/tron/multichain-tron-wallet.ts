@@ -7,14 +7,14 @@
  * in `./tron-wallet.ts`. The legacy type is a minimal bolt-on attached
  * to `AccountTonMnemonic` / `AccountMAM` via `DerivationItem.tronWallet`
  * and produced by `tronWalletByTonMnemonic`
- * (`packages/core/src/service/walletService.ts`). Splitting keeps Phase 2
- * invariant #1 strict — the legacy type is byte-and-bit unchanged —
- * while letting multichain TRON look like every other chain entry.
+ * (`packages/core/src/service/walletService.ts`). Splitting keeps the
+ * legacy type byte-and-bit unchanged while letting multichain TRON look
+ * like every other chain entry.
  *
- * Phase 2 Track K3 fills `rawAddress` / `publicKey` from a BIP39 seed
- * at canonical `DEFAULT_BIP44_PATH.tron` (`m/44'/195'/0'/0/0`). The
- * legacy bolt-on still uses non-canonical `m/44'/195'/0'/0` (no terminal
- * `/0`) — the two paths produce different addresses and that's expected.
+ * Multichain TRON derives at canonical `DEFAULT_BIP44_PATH.tron`
+ * (`m/44'/195'/0'/0/0`). The legacy bolt-on still uses non-canonical
+ * `m/44'/195'/0'/0` (no terminal `/0`) — the two paths produce different
+ * addresses and that's expected.
  *
  * `rawAddress` is the base58 TRON address (e.g. `TXY...`). `publicKey`
  * is hex-encoded secp256k1 compressed (33 bytes / 66 hex chars).

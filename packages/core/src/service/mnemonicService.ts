@@ -178,9 +178,9 @@ export async function mnemonicToEd25519Seed(mnemonic: string[], mnemonicType?: M
 
 /**
  * Generate a fresh BIP39 mnemonic. Surface lives in core so uikit doesn't
- * need to depend on `bip39` directly (legacy create flow only needs
- * `mnemonicNew` from `@ton/crypto`; the multichain Track M create flow
- * needs BIP39 from this helper).
+ * need to depend on `bip39` directly — the legacy TON create flow only
+ * needs `mnemonicNew` from `@ton/crypto`; the multichain create flow
+ * needs BIP39 from this helper.
  */
 export const generateBip39Mnemonic = (wordsCount: 12 | 24): string[] => {
     const bits = wordsCount === 12 ? 128 : 256;

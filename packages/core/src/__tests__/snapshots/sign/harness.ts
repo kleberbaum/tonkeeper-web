@@ -1,17 +1,13 @@
 /**
- * Signer snapshot harness — Phase 1 / Track G.
+ * Signer snapshot harness.
  *
- * For each (fixture × WalletVersion × Network), this module reproduces the
- * dispatch in `getSigner()` (uikit/state/mnemonic.ts) using only the
+ * For each (fixture × WalletVersion × Network), this module reproduces
+ * the dispatch in `getSigner()` (uikit/state/mnemonic.ts) using only the
  * underlying primitives from `@tonkeeper/core`. The output is a signed
  * transfer BOC; ed25519 is deterministic, so the BOC is reproducible
- * byte-for-byte.
- *
- * Why core-only (no uikit): the Phase 1 refactor (B / C) reorganizes the
- * dispatch but keeps `mnemonicToKeypair`, `walletContract`, and
- * `signWithSecret` as the underlying primitives. As long as those produce
- * the same outputs, the harness can detect any divergence introduced by
- * the factory split.
+ * byte-for-byte. Lives in core (no uikit) so the harness can detect any
+ * divergence introduced by changes to `mnemonicToKeypair`,
+ * `walletContract`, or `signWithSecret`.
  */
 
 import { TonKeychainRoot } from '@ton-keychain/core';
@@ -166,8 +162,8 @@ export interface ComboSnapshot {
 }
 
 /**
- * @internal Used by harness consumers — kept exported so a future Track B
- * refactored factory can be wired in here and produce the same output.
+ * @internal Exported so a refactored signer factory can be wired in
+ * here and produce the same output.
  */
 export const buildSnapshot = async (
     kind: FixtureKind,

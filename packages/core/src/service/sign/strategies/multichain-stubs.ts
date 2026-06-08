@@ -4,20 +4,18 @@ import { SignerFactory } from '../types';
 
 /**
  * Non-TON signer stubs for `AccountMultichain`. Each registered pair
- * throws on invocation with a precise phase-pointer message — more
- * useful than the registry's generic fallback (`"… other chains in
- * Phase 2+"`), since the consumer now knows the work is queued for
- * Phase 4 specifically.
+ * throws on invocation, naming the chain so the consumer sees a clear
+ * error instead of the registry's generic fallback.
  *
  * TON is registered separately by `strategies/ton/index.ts` against
  * `multichainTonSigner`.
  */
 const NON_TON_CHAINS: ReadonlyArray<Exclude<ChainId, 'ton'>> = ['evm', 'btc', 'tron', 'sol'];
 
-const phase4Stub =
+const notWiredStub =
     (chain: ChainId): SignerFactory =>
     async () => {
-        throw new Error(`Multichain ${chain} signing lands in Phase 4`);
+        throw new Error(`Multichain ${chain} signing is not implemented`);
     };
 
 let registered = false;
@@ -25,6 +23,6 @@ export const registerMultichainStubs = (): void => {
     if (registered) return;
     registered = true;
     for (const chain of NON_TON_CHAINS) {
-        register('multichain', chain, phase4Stub(chain));
+        register('multichain', chain, notWiredStub(chain));
     }
 };

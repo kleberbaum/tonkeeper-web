@@ -706,17 +706,16 @@ export class AccountTonMultisig extends Clonable implements IAccount {
 }
 
 /**
- * Phase 2 multichain account. Holds a single BIP39 seed (encrypted under
- * `auth`, same shape `AccountTonMnemonic` uses) and a flat list of
- * per-chain wallets derived from that seed.
+ * Multichain account. Holds a single BIP39 seed (encrypted under `auth`,
+ * same shape `AccountTonMnemonic` uses) and a flat list of per-chain
+ * wallets derived from that seed.
  *
- * v1 invariant: every `AccountMultichain` must include `'ton'` in
+ * Invariant: every `AccountMultichain` must include `'ton'` in
  * `enabledChains` and carry at least one `TonWalletStandard` in
  * `wallets`. Enforced in the constructor. This keeps `activeTonWallet`
  * a total function — call sites that read `account.activeTonWallet`
  * never see `undefined` from a type that nominally returns
- * `TonWalletStandard`. Phase 5 may relax this if a TON-less multichain
- * account becomes a real product requirement.
+ * `TonWalletStandard`.
  */
 export class AccountMultichain extends Clonable implements IAccountTonWalletStandard {
     public readonly type = 'multichain';
@@ -880,8 +879,8 @@ export function isAccountSupportTonConnect(account: Account): boolean {
         case 'sk':
         case 'ton-multisig':
             return true;
-        // Phase 3+: TonConnect needs the multichain TON signing strategy
-        // (Track O3) wired through. Disabled here until then.
+        // TonConnect on multichain accounts is not implemented yet — the
+        // multichain TON signing strategy isn't wired through.
         case 'multichain':
         case 'watch-only':
             return false;
@@ -902,8 +901,8 @@ export function isAccountCanManageMultisigs(account: Account): boolean {
         case 'ton-multisig':
         case 'keystone':
         case 'testnet':
-        // Phase 3+: multisig host on a multichain account is unscoped for
-        // v1; revisit when multisig flow migrates off legacy mnemonic.
+        // Multisig hosting on a multichain account is not supported —
+        // the multisig flow is tied to legacy mnemonic accounts.
         case 'multichain':
             return false;
         default:
@@ -925,10 +924,10 @@ export function isMnemonicAndPassword(
         case 'watch-only':
         case 'ton-multisig':
         case 'keystone':
-        // Phase 3+: multichain seeds also unlock by password/keychain,
-        // but the call sites of this predicate gate legacy TON-only
-        // mnemonic editing flows. Excluded for now so they don't try
-        // to mutate `tonWallets` directly.
+        // Multichain seeds also unlock by password/keychain, but the
+        // call sites of this predicate gate legacy TON-only mnemonic
+        // editing flows that mutate `tonWallets` directly. Excluded so
+        // those flows don't trip over the multichain shape.
         case 'multichain':
             return false;
         default:
@@ -976,8 +975,7 @@ export function isAccountTronCompatible(
         case 'sk':
         // The legacy TRON channel (DerivationItem.tronWallet) is tied to
         // mnemonic/MAM accounts. Multichain accounts carry TRON via
-        // MultichainTronWallet in `wallets` — a different channel handled
-        // by Phase 3 TRON code, not this predicate.
+        // `MultichainTronWallet` in `wallets` — a different channel.
         case 'multichain':
             return false;
         default:

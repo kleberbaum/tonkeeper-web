@@ -54,3 +54,7 @@ Thumbs.db
 
 
 package-lock.json
+
+# Local-only reference checkouts of the native apps; scanned when
+# multichain features need a behaviour reference. Never committed.
+CLAUDE_LOCAL.md

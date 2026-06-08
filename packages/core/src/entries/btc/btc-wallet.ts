@@ -1,12 +1,11 @@
 /**
  * Bitcoin wallet entry held inside an `AccountMultichain`.
  *
- * Phase 2 Track H: introduces the shape; address derivation (Track K)
- * populates fields from a BIP39 seed at `DEFAULT_BIP44_PATH.btc`
- * (`m/84'/0'/0'/0/0` — BIP-84 native segwit, the v1 default).
+ * Derives from a BIP39 seed at `DEFAULT_BIP44_PATH.btc`
+ * (`m/84'/0'/0'/0/0` — BIP-84 native segwit, the default).
  *
- * `rawAddress` is the bech32 string (e.g. `bc1q...`). Future taproot
- * support (BIP-86) would add a sibling wallet entry with a different
+ * `rawAddress` is the bech32 string (e.g. `bc1q...`). Taproot (BIP-86)
+ * support would add a sibling wallet entry with a different
  * `derivationPath`, not a different `rawAddress` shape — bech32m is also
  * representable here.
  *

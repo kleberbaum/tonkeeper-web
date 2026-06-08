@@ -25,8 +25,8 @@ export type TonWalletContract =
 
 /**
  * TON wallet contract strategy. Wraps the original `walletContract()`
- * switch verbatim; the snapshot harness (Track G) verifies state-init and
- * transfer BOCs are byte-identical to the pre-refactor output.
+ * switch; the sign-snapshot harness verifies state-init and transfer
+ * BOCs are byte-identical to the pre-refactor output.
  */
 export const tonWalletContractStrategy: WalletContractStrategy<
     TonWalletContractArgs,

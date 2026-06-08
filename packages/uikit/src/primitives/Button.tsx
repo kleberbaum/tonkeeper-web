@@ -42,9 +42,9 @@ const VARIANT_CLASS: Record<ButtonVariant, string> = {
         'bg-buttonSecondaryBackground text-buttonSecondaryForeground hover:enabled:bg-buttonSecondaryBackgroundHighlighted disabled:bg-buttonSecondaryBackgroundDisabled',
     tertiary:
         'bg-buttonTertiaryBackground text-buttonTertiaryForeground hover:enabled:bg-buttonTertiaryBackgroundHighlighted disabled:bg-buttonTertiaryBackgroundDisabled',
-    // Figma authors the destructive tint as a sibling div at 16% (Active) /
-    // 12% (Highlighted) opacity. `isolate` keeps the ::before below the label
-    // without leaking into the outer stacking context.
+    // Destructive uses a tinted overlay at 16% (Active) / 12% (Highlighted)
+    // opacity. `isolate` keeps the ::before below the label without leaking
+    // into the outer stacking context.
     destructive:
         'isolate bg-transparent text-accentRed ' +
         'before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:bg-accentRed before:opacity-[0.16] before:transition-opacity ' +

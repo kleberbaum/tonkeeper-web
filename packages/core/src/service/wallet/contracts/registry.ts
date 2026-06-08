@@ -3,9 +3,8 @@ import { WalletContractStrategy } from './types';
 
 /**
  * Registry of `chain` → `WalletContractStrategy` mirroring the sign
- * registry (`service/sign/registry.ts`). Phase 1 only registers TON;
- * non-TON chains fall through to a clear runtime error so callers wiring
- * chain-aware code paths get a useful failure instead of an undefined.
+ * registry (`service/sign/registry.ts`). Only TON is registered today;
+ * non-TON chains throw a clear runtime error.
  *
  * Strategies are registered at module load time by the aggregator at
  * `./index.ts`, which imports the concrete strategy modules for their
@@ -31,7 +30,7 @@ export const getStrategy = <TArgs = unknown, TContract = unknown>(
     if (!strategy) {
         throw new Error(
             `Wallet contract strategy not registered for chain "${chain}". ` +
-                'TON lands in Phase 1; other chains in Phase 2+.'
+                'Only TON is wired today.'
         );
     }
     return strategy as WalletContractStrategy<TArgs, TContract>;

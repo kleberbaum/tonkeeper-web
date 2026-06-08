@@ -14,7 +14,7 @@ export interface ButtonProps {
 
     size?: 'small' | 'medium' | 'large';
 
-    /** Preferred way to set the visual variant (Figma-aligned). */
+    /** Preferred way to set the visual variant. */
     variant?: ButtonVariant;
 
     /** Legacy boolean variants. If `variant` is set it wins. */
@@ -45,7 +45,7 @@ const SIZE_BOX = {
 } as const satisfies Record<NonNullable<ButtonProps['size']>, string>;
 
 // Icon-only buttons are square — height equals width at the chosen size, with
-// no horizontal padding so the icon sits centred (Figma `size-[36px]`).
+// no horizontal padding so the icon sits centred.
 const SIZE_BOX_ICON_ONLY = {
     small: 'h-9 w-9 px-0', //    36 × 36
     medium: 'h-12 w-12 px-0', // 48 × 48
@@ -130,8 +130,8 @@ export const ButtonElement = forwardRef<HTMLButtonElement, ButtonElementProps>(
             : isFullWidth
             ? 'rounded-extraSmall' //   8px shell variant
             : size === 'small'
-            ? 'rounded-full' //         pill at h-36 (Figma `rounded-[18px]`)
-            : 'rounded-medium'; //      16px (Figma "Buttons States" large)
+            ? 'rounded-full' //         pill at h-36
+            : 'rounded-medium'; //      16px
 
         const variantClass = VARIANT_CLASS[resolveVariant({ variant, primary, secondary, warn })];
 
