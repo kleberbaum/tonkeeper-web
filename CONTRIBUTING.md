@@ -103,6 +103,8 @@ vMAJOR.MINOR.PATCH          # stable release
 vMAJOR.MINOR.PATCH-rc.N     # release candidate
 ```
 
+Tags must be valid SemVer for desktop auto-update. Do not use leading zeroes in numeric version parts: use `v26.6.0`, not `v26.06.0`.
+
 ### Step-by-step
 
 **1. Pre-release**
