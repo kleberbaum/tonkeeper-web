@@ -1,4 +1,5 @@
 import { beforeMount } from '@playwright/experimental-ct-react/hooks';
+import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import type { DefaultTheme } from 'styled-components';
 import { defaultTheme } from '../src/styles/defaultTheme';
@@ -34,13 +35,18 @@ const themeForMode = (mode: TestMode): DefaultTheme => ({
 
 // Wraps every mounted component in the app's real theme + global styles so
 // screenshots match production rendering. Add new global providers (i18n,
-// query client, router) here as components start to need them.
+// query client) here as components start to need them. `MemoryRouter` is
+// loaded unconditionally because react-router-dom's `useHistory` /
+// `useLocation` throw if mounted outside a router — the multichain
+// portfolio rows call `useNavigate`, which transitively touches both.
 beforeMount<HooksConfig>(async ({ App, hooksConfig }) => {
     const mode = hooksConfig?.mode ?? 'desktop';
     return (
         <ThemeProvider theme={themeForMode(mode)}>
             <GlobalStyle />
-            <App />
+            <MemoryRouter>
+                <App />
+            </MemoryRouter>
         </ThemeProvider>
     );
 });

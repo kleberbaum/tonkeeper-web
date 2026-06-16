@@ -1,7 +1,12 @@
-import { Account } from '@tonkeeper/core/dist/entries/account';
+import { Account, AccountMultichain } from '@tonkeeper/core/dist/entries/account';
+import { HomeMultichain } from '@tonkeeper/uikit/dist/pages/home/multichain/HomeMultichain';
+import { MultichainAssetPage } from '@tonkeeper/uikit/dist/pages/home/multichain/asset/MultichainAssetPage';
 import { InnerBody, useWindowsScroll } from '@tonkeeper/uikit/dist/components/Body';
-import { Footer } from '@tonkeeper/uikit/dist/components/Footer';
-import { Header } from '@tonkeeper/uikit/dist/components/Header';
+// Header/Footer disabled while multichain home stabilises — they emit
+// unrelated styled-components warnings. Re-enable after the legacy
+// chrome is refactored.
+// import { Footer } from '@tonkeeper/uikit/dist/components/Footer';
+// import { Header } from '@tonkeeper/uikit/dist/components/Header';
 import { AppLayout } from '@tonkeeper/uikit/dist/components/layout/AppLayout';
 import { Loading } from '@tonkeeper/uikit/dist/components/Loading';
 import MemoryScroll from '@tonkeeper/uikit/dist/components/MemoryScroll';
@@ -18,11 +23,16 @@ import {
 } from '@tonkeeper/uikit/dist/components/transfer/FavoriteNotification';
 import { useTrackLocation } from '@tonkeeper/uikit/dist/hooks/analytics';
 import { useDebuggingTools } from '@tonkeeper/uikit/dist/hooks/useDebuggingTools';
-import { AppRoute, SignerRoute, SettingsRoute } from '@tonkeeper/uikit/dist/libs/routes';
+import {
+    AppRoute,
+    MultichainRoute,
+    SignerRoute,
+    SettingsRoute
+} from '@tonkeeper/uikit/dist/libs/routes';
 import { Unlock } from '@tonkeeper/uikit/dist/pages/home/Unlock';
 import StartScreen from '@tonkeeper/uikit/dist/pages/import/StartScreen';
 import React, { FC, Suspense, useMemo } from 'react';
-import { Route, Switch, useLocation } from 'react-router-dom';
+import { Route, Switch, useLocation, useParams } from 'react-router-dom';
 import { ThemeProvider, useTheme } from 'styled-components';
 import { useAppWidth } from './libs/hooks';
 import { UrlTonConnectSubscription } from './components/UrlTonConnectSubscription';
@@ -131,11 +141,26 @@ export const MobileContent: FC<{
         );
     }
 
+    // Multichain portfolio renders its own content directly. No legacy
+    // Home selector, no AppLayout, no Suspense — fully independent
+    // until the new chrome lands.
+    if (activeAccount.type === 'multichain') {
+        return (
+            <Switch>
+                <Route path={`${MultichainRoute.asset}/:assetId`}>
+                    <MultichainAssetRoute />
+                </Route>
+                <Route path="*">
+                    <HomeMultichain account={activeAccount as AccountMultichain} />
+                </Route>
+            </Switch>
+        );
+    }
+
     return (
         <AppLayout
             standalone={standalone}
             recovery={location.pathname.includes(SettingsRoute.recovery)}
-            bottomBar={<Footer standalone={standalone} />}
         >
             <Switch>
                 <Route path={AppRoute.activity}>
@@ -173,7 +198,6 @@ export const MobileContent: FC<{
                 </Route>
                 <Route path="*">
                     <>
-                        <Header />
                         <InnerBody>
                             <Suspense fallback={<HomeSkeleton />}>
                                 <Home />
@@ -187,6 +211,11 @@ export const MobileContent: FC<{
             <UrlTonConnectSubscription />
         </AppLayout>
     );
+};
+
+const MultichainAssetRoute: FC = () => {
+    const { assetId } = useParams<{ assetId: string }>();
+    return <MultichainAssetPage assetId={decodeURIComponent(assetId)} />;
 };
 
 const Notifications = () => {

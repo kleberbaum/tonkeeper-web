@@ -90,6 +90,11 @@ export enum BrowserRoute {
     category = '/category'
 }
 
+export enum MultichainRoute {
+    home = '/multichain',
+    asset = '/multichain/asset'
+}
+
 export const any = (route: string): string => {
     return `${route}/*`;
 };

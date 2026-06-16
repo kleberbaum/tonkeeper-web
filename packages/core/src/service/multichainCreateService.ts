@@ -11,6 +11,7 @@ import { DEFAULT_BIP44_PATH } from '../chains/derivation';
 import { APIConfig } from '../entries/apis';
 import { IStorage } from '../Storage';
 import { createStandardTonAccountByMnemonic, getWalletAddress } from './walletService';
+import { computeMultichainWalletId } from './multichainWalletService';
 
 /**
  * Multichain account creation. Bridges the BIP39 mnemonic that lands in
@@ -192,6 +193,7 @@ export const createAccountMultichainByMnemonic = async (
         auth: tonAccount.auth,
         enabledChains,
         activeWalletByChain,
-        wallets
+        wallets,
+        multichainWalletId: computeMultichainWalletId(mnemonic)
     });
 };

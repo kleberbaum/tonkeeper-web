@@ -1,4 +1,7 @@
-import { Account } from '@tonkeeper/core/dist/entries/account';
+import { Account, AccountMultichain } from '@tonkeeper/core/dist/entries/account';
+import { HomeMultichain } from '@tonkeeper/uikit/dist/pages/home/multichain/HomeMultichain';
+import { MultichainAssetPage } from '@tonkeeper/uikit/dist/pages/home/multichain/asset/MultichainAssetPage';
+import { MultichainDesktopShell } from '@tonkeeper/uikit/dist/pages/home/multichain/desktop/MultichainDesktopShell';
 import { useWindowsScroll } from '@tonkeeper/uikit/dist/components/Body';
 import { AppLayout } from '@tonkeeper/uikit/dist/components/layout/AppLayout';
 import MemoryScroll from '@tonkeeper/uikit/dist/components/MemoryScroll';
@@ -27,12 +30,12 @@ import { DesktopTokens } from '@tonkeeper/uikit/dist/desktop-pages/tokens/Deskto
 import { useTrackLocation } from '@tonkeeper/uikit/dist/hooks/analytics';
 import { useRecommendations } from '@tonkeeper/uikit/dist/hooks/browser/useRecommendations';
 import { useDebuggingTools } from '@tonkeeper/uikit/dist/hooks/useDebuggingTools';
-import { AppProRoute, AppRoute } from '@tonkeeper/uikit/dist/libs/routes';
+import { AppProRoute, AppRoute, MultichainRoute } from '@tonkeeper/uikit/dist/libs/routes';
 import { Unlock } from '@tonkeeper/uikit/dist/pages/home/Unlock';
 import StartScreen from '@tonkeeper/uikit/dist/pages/import/StartScreen';
 import { GlobalStyleCss } from '@tonkeeper/uikit/dist/styles/globalStyle';
 import React, { FC, Suspense, useMemo } from 'react';
-import { Route, Switch, useLocation } from 'react-router-dom';
+import { Route, Switch, useLocation, useParams } from 'react-router-dom';
 import styled, { ThemeProvider, createGlobalStyle, useTheme } from 'styled-components';
 import { useAppWidth } from './libs/hooks';
 import { DesktopManageMultisigsPage } from '@tonkeeper/uikit/dist/desktop-pages/manage-multisig-wallets/DesktopManageMultisigs';
@@ -190,6 +193,25 @@ export const DesktopContent: FC<{
         );
     }
 
+    // Multichain portfolio runs in its own desktop shell — sidebar
+    // (balance + active wallet) + centered 520px content column. The
+    // legacy AppLayout / DesktopTokens chrome is not used.
+    if (activeAccount.type === 'multichain') {
+        const account = activeAccount as AccountMultichain;
+        return (
+            <MultichainDesktopShell account={account}>
+                <Switch>
+                    <Route path={`${MultichainRoute.asset}/:assetId`}>
+                        <MultichainAssetRoute compact />
+                    </Route>
+                    <Route path="*">
+                        <HomeMultichain account={account} compact />
+                    </Route>
+                </Switch>
+            </MultichainDesktopShell>
+        );
+    }
+
     return (
         <AppLayout sidebar={<AsideMenu />}>
             <Switch>
@@ -203,6 +225,11 @@ export const DesktopContent: FC<{
             <BackgroundElements />
         </AppLayout>
     );
+};
+
+const MultichainAssetRoute: FC<{ compact?: boolean }> = ({ compact }) => {
+    const { assetId } = useParams<{ assetId: string }>();
+    return <MultichainAssetPage assetId={decodeURIComponent(assetId)} compact={compact} />;
 };
 
 const WalletContent = () => {

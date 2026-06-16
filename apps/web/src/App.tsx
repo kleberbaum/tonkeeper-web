@@ -4,8 +4,9 @@ import { localizationText } from '@tonkeeper/core/dist/entries/language';
 import { getApiConfig, setProApiUrl } from '@tonkeeper/core/dist/entries/network';
 import { WalletVersion } from '@tonkeeper/core/dist/entries/wallet';
 import { CopyNotification } from '@tonkeeper/uikit/dist/components/CopyNotification';
-import { FooterGlobalStyle } from '@tonkeeper/uikit/dist/components/Footer';
-import { HeaderGlobalStyle } from '@tonkeeper/uikit/dist/components/Header';
+// Header/Footer disabled while multichain home stabilises.
+// import { FooterGlobalStyle } from '@tonkeeper/uikit/dist/components/Footer';
+// import { HeaderGlobalStyle } from '@tonkeeper/uikit/dist/components/Header';
 import { DarkThemeContext } from '@tonkeeper/uikit/dist/components/Icon';
 import { GlobalListStyle } from '@tonkeeper/uikit/dist/components/List';
 import { Loading } from '@tonkeeper/uikit/dist/components/Loading';
@@ -121,8 +122,6 @@ const ThemeAndContent = () => {
         >
             <DarkThemeContext.Provider value={!data?.valid}>
                 <GlobalStyle />
-                <HeaderGlobalStyle />
-                <FooterGlobalStyle />
                 <SybHeaderGlobalStyle />
                 <GlobalListStyle />
                 {isShowcase ? (

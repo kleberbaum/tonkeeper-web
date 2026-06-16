@@ -33,9 +33,14 @@ export const useAppWidth = (standalone: boolean) => {
                 doc.style.setProperty('--app-width', `${window.innerWidth}px`);
             } else {
                 const doc = document.documentElement;
-                const app = (document.getElementById('root') as HTMLDivElement).childNodes.item(
-                    0
-                ) as HTMLDivElement;
+                // Root's first child can be missing for a tick while a
+                // Suspense fallback is `null` (multichain portfolio path
+                // does this). Skip the measurement and let the next
+                // resize event pick it up.
+                const app = document
+                    .getElementById('root')
+                    ?.childNodes.item(0) as HTMLDivElement | null;
+                if (!app) return;
 
                 doc.style.setProperty('--app-width', `${app.clientWidth}px`);
             }
@@ -59,11 +64,13 @@ export const useAnalytics = (
     const network = useActiveTonNetwork();
     const sdk = useAppSdk();
 
-    return useQuery<Analytics | undefined>(
+    return useQuery<Analytics | null>(
         [QueryKey.analytics, network, config?.aptabaseEndpoint, config?.aptabaseKey],
         async () => {
             if (!config?.aptabaseEndpoint || !config?.aptabaseKey) {
-                return;
+                // react-query rejects `undefined` as query data with
+                // "Query data cannot be undefined". `null` is allowed.
+                return null;
             }
 
             const tracker = new Aptabase({

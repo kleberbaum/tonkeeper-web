@@ -30,6 +30,14 @@ export enum AppKey {
     // touching this enum when the migration ships.
     MULTICHAIN_MIGRATION_STATE = 'multichain_migration_state',
 
+    // Per-wallet local cache of which assets the user has hidden from
+    // the Manage Crypto screen. Stored as a `{[walletId]: assetId[]}`
+    // map so a single key serves every multichain wallet on the device.
+    // Backend POST /assets is still made for cross-device sync; this
+    // local copy is the source of truth for the home portfolio so the
+    // UI updates instantly and survives network failures.
+    MULTICHAIN_HIDDEN_ASSETS = 'multichain_hidden_assets',
+
     THEME = 'theme',
     UI_PREFERENCES = 'ui_preferences',
     MULTI_SEND_LISTS = 'multi_send_lists',

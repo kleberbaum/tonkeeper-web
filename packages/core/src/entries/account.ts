@@ -744,7 +744,16 @@ export class AccountMultichain extends Clonable implements IAccountTonWalletStan
         public auth: AuthPassword | AuthKeychain,
         public enabledChains: ChainId[],
         public activeWalletByChain: Partial<Record<ChainId, WalletId>>,
-        public wallets: MultichainWallet[]
+        public wallets: MultichainWallet[],
+        /**
+         * Identifier the multichain backend keys on (sha256 hex of the
+         * BIP39 mnemonic words joined by spaces — see
+         * `computeMultichainWalletId`). Optional because accounts on
+         * disk from before this field landed don't have it; without it,
+         * the multichain wallet-assets endpoint cannot be called and
+         * the portfolio falls back to TON+TRON data only.
+         */
+        public multichainWalletId?: string
     ) {
         super();
 
@@ -802,6 +811,7 @@ export class AccountMultichain extends Clonable implements IAccountTonWalletStan
         enabledChains: ChainId[];
         activeWalletByChain: Partial<Record<ChainId, WalletId>>;
         wallets: MultichainWallet[];
+        multichainWalletId?: string;
     }) {
         return new AccountMultichain(
             params.id,
@@ -810,7 +820,8 @@ export class AccountMultichain extends Clonable implements IAccountTonWalletStan
             params.auth,
             params.enabledChains,
             params.activeWalletByChain,
-            params.wallets
+            params.wallets,
+            params.multichainWalletId
         );
     }
 }

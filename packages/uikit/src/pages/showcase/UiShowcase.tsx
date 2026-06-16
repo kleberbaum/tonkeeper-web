@@ -3,6 +3,8 @@ import { FC, ReactNode, useState } from 'react';
 import {
     AddRemoveButton,
     Button,
+    ChainBadgeOverlay,
+    ChainChip,
     Checkbox,
     FieldWord,
     IconButton,
@@ -18,6 +20,13 @@ import {
 import IcSnowflake16 from '../../icons/components/IcSnowflake16';
 import IcPlus28 from '../../icons/components/IcPlus28';
 import IcArrowUp28 from '../../icons/components/IcArrowUp28';
+import IcChainTon20 from '../../icons/components/IcChainTon20';
+import IcChainEth20 from '../../icons/components/IcChainEth20';
+import IcChainBtc20 from '../../icons/components/IcChainBtc20';
+import IcChainBase20 from '../../icons/components/IcChainBase20';
+import IcChainArb20 from '../../icons/components/IcChainArb20';
+import IcChainBsc20 from '../../icons/components/IcChainBsc20';
+import IcChainTron20 from '../../icons/components/IcChainTron20';
 
 /**
  * Temporary showcase page for the `primitives/` UI kit. DEV-only — wired into
@@ -309,6 +318,73 @@ const FieldWordShowcase = () => {
     );
 };
 
+const ChainChipShowcase = () => (
+    <Section title="ChainChip">
+        <Tile label="Ethereum">
+            <ChainChip label="Ethereum" />
+        </Tile>
+        <Tile label="Base">
+            <ChainChip label="Base" />
+        </Tile>
+        <Tile label="Tron">
+            <ChainChip label="Tron" />
+        </Tile>
+        <Tile label="BSC">
+            <ChainChip label="BSC" />
+        </Tile>
+        <Tile label="Arbitrum">
+            <ChainChip label="Arbitrum" />
+        </Tile>
+    </Section>
+);
+
+const SampleTokenIcon = () => <div className="h-11 w-11 rounded-full bg-backgroundContentTint" />;
+
+const ChainBadgeOverlayShowcase = () => (
+    <Section title="ChainBadgeOverlay">
+        <Tile label="Native (no badge)">
+            <ChainBadgeOverlay>
+                <SampleTokenIcon />
+            </ChainBadgeOverlay>
+        </Tile>
+        <Tile label="TON">
+            <ChainBadgeOverlay icon={<IcChainTon20 />}>
+                <SampleTokenIcon />
+            </ChainBadgeOverlay>
+        </Tile>
+        <Tile label="Ethereum">
+            <ChainBadgeOverlay icon={<IcChainEth20 />}>
+                <SampleTokenIcon />
+            </ChainBadgeOverlay>
+        </Tile>
+        <Tile label="Bitcoin">
+            <ChainBadgeOverlay icon={<IcChainBtc20 />}>
+                <SampleTokenIcon />
+            </ChainBadgeOverlay>
+        </Tile>
+        <Tile label="Base">
+            <ChainBadgeOverlay icon={<IcChainBase20 />}>
+                <SampleTokenIcon />
+            </ChainBadgeOverlay>
+        </Tile>
+        <Tile label="Arbitrum">
+            <ChainBadgeOverlay icon={<IcChainArb20 />}>
+                <SampleTokenIcon />
+            </ChainBadgeOverlay>
+        </Tile>
+        <Tile label="BSC">
+            <ChainBadgeOverlay icon={<IcChainBsc20 />}>
+                <SampleTokenIcon />
+            </ChainBadgeOverlay>
+        </Tile>
+        <Tile label="Tron">
+            <ChainBadgeOverlay icon={<IcChainTron20 />}>
+                <SampleTokenIcon />
+            </ChainBadgeOverlay>
+        </Tile>
+    </Section>
+);
+
 export const UiShowcase: FC = () => (
     <div className="min-h-screen w-full overflow-auto bg-backgroundPage px-10 py-8 text-textPrimary">
         <h1 className="mb-2 text-h2">UI Kit Showcase</h1>
@@ -327,6 +403,8 @@ export const UiShowcase: FC = () => (
         <InputShowcase />
         <SearchFieldShowcase />
         <FieldWordShowcase />
+        <ChainChipShowcase />
+        <ChainBadgeOverlayShowcase />
     </div>
 );
 

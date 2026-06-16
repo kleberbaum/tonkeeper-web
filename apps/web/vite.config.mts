@@ -12,7 +12,10 @@ export default defineConfig({
                 global: true,
                 process: true
             },
-            include: ['stream', 'buffer', 'crypto']
+            // `util` added so deps that call `util.debuglog` / `util.inspect`
+            // (e.g. via chainkit's Kotlin/JS or its transitive deps) don't
+            // hit Vite's "Module 'util' externalized" warnings at runtime.
+            include: ['stream', 'buffer', 'crypto', 'util']
         }),
         react(),
         injectCSP(metaTagCspConfig)

@@ -446,10 +446,13 @@ export const ImportExistingWallet: FC<{ afterCompleted: () => void }> = ({ after
     useSetModalOnCloseInterceptor(onCloseInterceptor);
 
     useEffect(() => {
+        // Multichain accounts skip the SelectWalletNetworks step, so gate
+        // the auth fire on the same step OR on the account being multichain.
+        const networksReady = selectNetworksPassed || createdAccount?.type === 'multichain';
         if (
             mnemonic &&
             createdAccount &&
-            selectNetworksPassed &&
+            networksReady &&
             (selectedMnemonicType === 'tonMnemonic' || selectedMnemonicType === 'bip39')
         ) {
             void tryAutoAuth({
@@ -539,7 +542,10 @@ export const ImportExistingWallet: FC<{ afterCompleted: () => void }> = ({ after
         );
     }
 
-    if (!selectNetworksPassed) {
+    // Multichain accounts ship every supported chain on by default — the
+    // chain-selection screen is for legacy TON-mnemonic accounts that
+    // opt into TRON as a sidechain. Skip it for multichain.
+    if (!selectNetworksPassed && createdAccount.type !== 'multichain') {
         return <SelectWalletNetworks onContinue={() => setSelectNetworksPassed(true)} />;
     }
 

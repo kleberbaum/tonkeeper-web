@@ -240,6 +240,7 @@ export const UnlockNotification: FC<{ sdk: IAppSdk; usePadding?: boolean }> = ({
             hideButton
             handleClose={onCancel}
             title={isPasswordSet ? t('enter_password') : undefined}
+            topMost
         >
             {Content}
         </Notification>

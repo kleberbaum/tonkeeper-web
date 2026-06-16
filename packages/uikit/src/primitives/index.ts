@@ -13,6 +13,12 @@ export type { ToastProps, ToastSize } from './Toast';
 export { IconButton } from './IconButton';
 export type { IconButtonProps } from './IconButton';
 
+export { ChainChip } from './ChainChip';
+export type { ChainChipProps } from './ChainChip';
+
+export { ChainBadgeOverlay } from './ChainBadgeOverlay';
+export type { ChainBadgeOverlayProps } from './ChainBadgeOverlay';
+
 export { AddRemoveButton } from './AddRemoveButton';
 export type { AddRemoveButtonProps } from './AddRemoveButton';
 

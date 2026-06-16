@@ -149,7 +149,7 @@ const OverlayWrapper = React.forwardRef<HTMLDivElement, PropsWithChildren<{ ente
     }
 );
 
-const Splash = styled.div`
+const Splash = styled.div<{ $topMost?: boolean }>`
     position: fixed;
     inset: 0;
     background-color: ${p => p.theme.backgroundOverlayStrong};
@@ -160,7 +160,7 @@ const Splash = styled.div`
     transition: all 0.3s ease-in-out;
     overflow: hidden;
     -webkit-overflow-scrolling: touch;
-    z-index: 10;
+    z-index: ${p => (p.$topMost ? 100 : 10)};
     padding: 0;
     opacity: 0;
     pointer-events: none;
@@ -518,6 +518,12 @@ export const Notification: FC<{
     afterClose?: () => void;
     tag?: string;
     onTopOfBrowser?: boolean;
+    /**
+     * Stack this notification above any other open notification. Used by
+     * UnlockNotification so its password prompt appears on top of the
+     * import-wallet dialog that triggered it via `getPasswordByNotification`.
+     */
+    topMost?: boolean;
 }> = props => {
     const targetEnv = useAppTargetEnv();
 
@@ -729,6 +735,7 @@ export const NotificationDesktopAndWeb: FC<{
     className?: string;
     afterClose?: () => void;
     tag?: string;
+    topMost?: boolean;
 }> = ({
     children,
     isOpen,
@@ -739,7 +746,8 @@ export const NotificationDesktopAndWeb: FC<{
     footer,
     className,
     afterClose,
-    tag
+    tag,
+    topMost
 }) => {
     const animationTime = 200;
     const [onCloseInterceptor, setOnCloseInterceptor] = useState<OnCloseInterceptor>();
@@ -874,7 +882,7 @@ export const NotificationDesktopAndWeb: FC<{
                     }}
                     onExit={() => setEntered(false)}
                 >
-                    <Splash ref={nodeRef} className="scrollable">
+                    <Splash ref={nodeRef} className="scrollable" $topMost={topMost}>
                         <NotificationOverlay handleClose={onClose} entered={entered}>
                             <NotificationWrapper entered={entered} className={className}>
                                 <Wrapper $moveToTop={!!isKeyboardOpen}>

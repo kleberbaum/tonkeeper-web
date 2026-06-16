@@ -280,10 +280,12 @@ export const getAppConnections = async (
         isAccountSupportTonConnect
     );
     if (!accounts.length) {
-        throw new TonConnectError(
-            'Missing active wallet',
-            CONNECT_EVENT_ERROR_CODES.UNKNOWN_APP_ERROR
-        );
+        // No TonConnect-compatible accounts (e.g. only multichain or
+        // watch-only accounts) — return empty rather than throwing.
+        // Throwing surfaces as a console error and trips react-query's
+        // "Query data cannot be undefined" guard at every consumer that
+        // calls this from a `useQuery`.
+        return [];
     }
 
     return Promise.all(

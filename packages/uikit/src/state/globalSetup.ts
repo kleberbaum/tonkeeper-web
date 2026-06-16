@@ -4,13 +4,15 @@ import { useAtomValue } from '../libs/useAtom';
 import { useAppSdk } from '../hooks/appSdk';
 import { atom } from '@tonkeeper/core/dist/entries/atom';
 import { KeychainSecurity } from '@tonkeeper/core/dist/AppSdk';
-import { useSyncPubkeysOnAppOpen } from './pubkeysBulkSync';
 
 const emptyAtom = atom<KeychainSecurity>({});
 
 export const useGlobalSetup = () => {
     useCheckMultisigsSigners();
-    useSyncPubkeysOnAppOpen();
+    // pubkeys/_bulk sync intentionally not called — see pubkeysBulkSync.ts.
+    // Android dropped it; web doesn't consume the response either (declared
+    // "analytics only" but result never read). The generated client decoder
+    // crashes on empty Wallets payloads, so removing the call removes the noise.
     const { isLoading: isBatteryServiceConfigLoading } = useBatteryServiceConfigQuery();
 
     const sdk = useAppSdk();

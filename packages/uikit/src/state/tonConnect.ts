@@ -31,7 +31,11 @@ import {
     WalletVersion
 } from '@tonkeeper/core/dist/entries/wallet';
 import { IStorage } from '@tonkeeper/core/dist/Storage';
-import { Account, getNetworkByAccount } from '@tonkeeper/core/dist/entries/account';
+import {
+    Account,
+    getNetworkByAccount,
+    isAccountSupportTonConnect
+} from '@tonkeeper/core/dist/entries/account';
 import { useAccountsState, useAccountsStateQuery, useActiveWallet } from './wallet';
 import { TxConfirmationCustomError } from '@tonkeeper/core/dist/errors/TxConfirmationCustomError';
 import { getServerTime } from '@tonkeeper/core/dist/service/ton-blockchain/utils';
@@ -49,6 +53,12 @@ export const useAppTonConnectConnections = <T extends AccountConnection['type']>
     const { data } = useAccountsStateQuery();
 
     const wallets = data?.flatMap(a => a.allTonWallets);
+
+    // Skip the query entirely when no account supports TonConnect (e.g.
+    // multichain-only or watch-only setups). The multichain account's TON
+    // signing strategy isn't wired through TonConnect yet — see
+    // `isAccountSupportTonConnect` in `core/src/entries/account.ts`.
+    const hasTonConnectCapableAccount = data?.some(isAccountSupportTonConnect) ?? false;
 
     return useQuery<
         {
@@ -73,7 +83,7 @@ export const useAppTonConnectConnections = <T extends AccountConnection['type']>
                 }[]
             >;
         },
-        { enabled: wallets !== undefined }
+        { enabled: wallets !== undefined && hasTonConnectCapableAccount }
     );
 };
 

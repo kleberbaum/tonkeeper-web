@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/experimental-ct-react';
 import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 /**
  * Playwright Component Testing config for @tonkeeper/uikit.
@@ -44,6 +45,17 @@ export default defineConfig({
         ctPort: 3100,
         trace: 'on-first-retry',
         ctViteConfig: {
+            // Polyfill Node globals (Buffer/process) for browser bundling. Several
+            // shared modules — `@ton/core`'s BitString, AmountFormatter via
+            // `hooks/balance` — touch `Buffer` at module-init time; without this
+            // any test that mounts a component reaching those imports throws
+            // "Buffer is not defined" before the first render.
+            plugins: [
+                nodePolyfills({
+                    globals: { Buffer: true, global: true, process: true },
+                    include: ['stream', 'buffer', 'crypto', 'util']
+                })
+            ],
             css: {
                 postcss: {
                     plugins: [tailwindcss({ config: './tailwind.config.ts' }), autoprefixer()]
