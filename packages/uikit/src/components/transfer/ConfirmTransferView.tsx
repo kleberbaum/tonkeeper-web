@@ -152,7 +152,10 @@ export const ConfirmTransferView: FC<
     }, [rest.recipient, assetAmount, isMax]);
 
     useEffect(() => {
-        if (selectedSenderType !== 'battery' || !(estimation.error instanceof NotEnoughBatteryBalanceError)) {
+        if (
+            selectedSenderType !== 'battery' ||
+            !(estimation.error instanceof NotEnoughBatteryBalanceError)
+        ) {
             return;
         }
 

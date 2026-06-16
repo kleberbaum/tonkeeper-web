@@ -1,6 +1,5 @@
 import BigNumber from 'bignumber.js';
 import { BRAND_CONFIG } from '@tonkeeper/core/dist/config/brand';
-import { TON_ASSET } from '@tonkeeper/core/dist/entries/crypto/asset/constants';
 import { FC, useMemo } from 'react';
 import { shiftedDecimals } from '@tonkeeper/core/dist/utils/balance';
 import { PoolInfo } from '@tonkeeper/core/dist/tonApiV2';
@@ -56,7 +55,8 @@ export const StakingButton: FC<StakingButtonProps> = ({
     if (minStakeTON && amountBN.lt(minStakeTON)) {
         return (
             <Button size="large" fullWidth secondary disabled>
-                {t('staking_min_deposit_label')}: {minStakeTON.toFixed(0)} {BRAND_CONFIG.coinSymbolWithEx}
+                {t('staking_min_deposit_label')}: {minStakeTON.toFixed(0)}{' '}
+                {BRAND_CONFIG.coinSymbolWithEx}
             </Button>
         );
     }

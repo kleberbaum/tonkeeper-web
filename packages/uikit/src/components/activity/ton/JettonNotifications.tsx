@@ -1,6 +1,5 @@
 import { Address } from '@ton/core';
 import { BRAND_CONFIG } from '@tonkeeper/core/dist/config/brand';
-import { CryptoCurrency } from '@tonkeeper/core/dist/entries/crypto';
 import {
     AccountEvent,
     ActionStatusEnum,

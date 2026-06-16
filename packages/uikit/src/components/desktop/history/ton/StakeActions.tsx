@@ -11,7 +11,6 @@ import {
     HistoryCellComment
 } from './HistoryCell';
 import { CoinsIcon, DoneIcon, ExitIcon } from '../../../Icon';
-import { CryptoCurrency } from '@tonkeeper/core/dist/entries/crypto';
 import styled from 'styled-components';
 import { HistoryGridCell } from './HistoryGrid';
 

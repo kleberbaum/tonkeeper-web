@@ -160,7 +160,8 @@ const WithdrawRequestStakeActionContent: FC<{
                     withdrawStakeRequest.amount && (
                         <>
                             <Amount>
-                                +&thinsp;{format(withdrawStakeRequest.amount)} {BRAND_CONFIG.coinSymbolWithEx}
+                                +&thinsp;{format(withdrawStakeRequest.amount)}{' '}
+                                {BRAND_CONFIG.coinSymbolWithEx}
                             </Amount>
                             <Amount>≈&thinsp;{fiatAmount}</Amount>
                         </>

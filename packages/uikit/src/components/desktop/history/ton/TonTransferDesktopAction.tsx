@@ -1,4 +1,3 @@
-import { CryptoCurrency } from '@tonkeeper/core/dist/entries/crypto';
 import { BRAND_CONFIG } from '@tonkeeper/core/dist/config/brand';
 import { Action } from '@tonkeeper/core/dist/tonApiV2';
 import { FC } from 'react';

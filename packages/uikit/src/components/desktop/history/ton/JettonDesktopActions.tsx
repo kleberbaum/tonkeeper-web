@@ -13,7 +13,6 @@ import {
     HistoryCellComment
 } from './HistoryCell';
 import { eqAddresses } from '@tonkeeper/core/dist/utils/address';
-import { CryptoCurrency } from '@tonkeeper/core/dist/entries/crypto';
 import styled from 'styled-components';
 import { ChevronRightIcon, FireIcon, SparkIcon, SwapIcon } from '../../../Icon';
 import { useTranslation } from '../../../../hooks/translation';

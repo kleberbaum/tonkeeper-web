@@ -16,7 +16,6 @@ import {
     ExtensionUnsubscribedIcon
 } from '../HistoryIcons';
 import { useTranslation } from '../../../../hooks/translation';
-import { CryptoCurrency } from '@tonkeeper/core/dist/entries/crypto';
 
 export enum ExtensionActionTitles {
     SUBSCRIBED = 'subscription_created',

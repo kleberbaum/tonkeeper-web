@@ -1,6 +1,5 @@
 import BigNumber from 'bignumber.js';
 import { BRAND_CONFIG } from '@tonkeeper/core/dist/config/brand';
-import { TON_ASSET } from '@tonkeeper/core/dist/entries/crypto/asset/constants';
 import { FC, MouseEvent, useMemo } from 'react';
 import { styled } from 'styled-components';
 import { CryptoCurrency } from '@tonkeeper/core/dist/entries/crypto';

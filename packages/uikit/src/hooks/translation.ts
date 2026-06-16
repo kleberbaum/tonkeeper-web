@@ -45,7 +45,8 @@ export const tReplace = (product: string, replaces?: Record<string, string | num
         // Global flag so placeholders that appear more than once in a string are all replaced
         // (e.g. "%{coinSymbolWithEx} … amount of %{coinSymbolWithEx}"). Braces escaped; replacement
         // passed as a function so a literal `$` in the value isn't treated as a backreference.
-        (acc, [key, val]) => acc.replace(new RegExp('%\\{' + key + '\\}', 'g'), () => val.toString()),
+        (acc, [key, val]) =>
+            acc.replace(new RegExp('%\\{' + key + '\\}', 'g'), () => val.toString()),
         product
     );
 };

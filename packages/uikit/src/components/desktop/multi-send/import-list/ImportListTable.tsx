@@ -1,6 +1,5 @@
 import { css, styled } from 'styled-components';
 import { BRAND_CONFIG } from '@tonkeeper/core/dist/config/brand';
-import { TON_ASSET } from '@tonkeeper/core/dist/entries/crypto/asset/constants';
 import { Body2, Body3 } from '../../../Text';
 import { getDecimalSeparator } from '@tonkeeper/core/dist/utils/formatting';
 import { useTranslation } from '../../../../hooks/translation';
