@@ -227,7 +227,7 @@ export const StakingPositionAsset = forwardRef<
             backgroundHighlighted={isFullWidth}
         >
             <ListItemPayload>
-                <StakingPoolIcon pool={stakingPosition.pool} size={isFullWidth ? 44 : 40} />
+                {/* <StakingPoolIcon pool={stakingPosition.pool} size={isFullWidth ? 44 : 40} /> */}
                 <TokenLayout
                     name={t('staking_staked')}
                     balance={balanceStr}
