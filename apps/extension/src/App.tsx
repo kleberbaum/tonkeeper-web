@@ -295,7 +295,7 @@ const InitialRedirect: FC<PropsWithChildren> = ({ children }) => {
         if (window.location.hash) {
             navigate(window.location.hash.substring(1));
         }
-    }, []);
+    }, [navigate]);
 
     return <>{children}</>;
 };
