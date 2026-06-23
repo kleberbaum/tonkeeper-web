@@ -36,6 +36,11 @@ on:
                 default: ''
 env:
     node-version: 20.11.1
+    NODE_AUTH_TOKEN: ${{ github.token }}
+
+permissions:
+    contents: read
+    packages: read
 
 jobs:
     web-build:

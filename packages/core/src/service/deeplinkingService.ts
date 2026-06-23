@@ -61,9 +61,14 @@ export const findSwapAssetByDeeplinkToken = (assets: TonAsset[], token: string) 
 
     return assets.find(asset => {
         const normalizedSymbol = normalizeSwapDeeplinkToken(asset.symbol);
+        const normalizedStringAddress =
+            typeof asset.address === 'string'
+                ? normalizeSwapDeeplinkToken(asset.address)
+                : undefined;
 
         return (
             normalizedSymbol === normalizedToken ||
+            normalizedStringAddress === normalizedToken ||
             (tokenAddress !== undefined &&
                 Address.isAddress(asset.address) &&
                 tokenAddress.equals(asset.address))
