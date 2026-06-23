@@ -1,4 +1,5 @@
 import { css, styled } from 'styled-components';
+import { BRAND_CONFIG } from '@tonkeeper/core/dist/config/brand';
 import { Body2, Body3 } from '../../../Text';
 import { getDecimalSeparator } from '@tonkeeper/core/dist/utils/formatting';
 import { useTranslation } from '../../../../hooks/translation';
@@ -101,7 +102,7 @@ export const ImportListTable = () => {
                 <Body2>1000{getDecimalSeparator()}01</Body2>
             </TD>
             <TD>
-                <Body2>TON</Body2>
+                <Body2>{BRAND_CONFIG.coinSymbolWithEx}</Body2>
             </TD>
             <TD>
                 <Body2>Salary</Body2>
