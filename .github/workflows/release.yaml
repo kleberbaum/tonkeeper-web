@@ -35,8 +35,10 @@ jobs:
                       command: publish:intel
                     - os: ubuntu-latest
                       command: publish:arm
-                    - os: windows-latest
-                      command: publish:intel
+                    # Windows is signed manually with the Sectigo USB token.
+                    # Do not build it on GitHub-hosted runners because they cannot access the token.
+                    # - os: windows-latest
+                    #   command: publish:intel
                     - os: macos-15-intel
                       command: publish:intel
                     - os: macos-latest
