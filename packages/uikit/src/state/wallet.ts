@@ -818,7 +818,9 @@ export const useCreateAccountMAM = () => {
                 try {
                     await authBattery({
                         signer: tonProofSignerByTonMnemonic(
-                            (await rootAccount.getTonAccount(d.index)).mnemonics,
+                            (
+                                await rootAccount.getTonAccount(d.index)
+                            ).mnemonics,
                             'ton'
                         ),
                         wallet: d.tonWallets[0]

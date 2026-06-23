@@ -10,10 +10,7 @@ import { assertUnreachable } from '@tonkeeper/core/dist/utils/types';
 import { KeychainGetError } from '@tonkeeper/core/dist/errors/KeychainError';
 
 export class KeychainCapacitor extends BaseKeychainService implements IKeychainService {
-    constructor(
-        private biometryService: BiometryService,
-        storage: IStorage
-    ) {
+    constructor(private biometryService: BiometryService, storage: IStorage) {
         super(storage);
     }
 

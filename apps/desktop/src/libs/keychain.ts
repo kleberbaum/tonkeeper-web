@@ -7,10 +7,7 @@ import { BaseKeychainService } from '@tonkeeper/core/dist/base-keychain-service'
 import { KeychainGetError } from '@tonkeeper/core/dist/errors/KeychainError';
 
 export class KeychainDesktop extends BaseKeychainService implements IKeychainService {
-    constructor(
-        private biometryService: BiometryService,
-        storage: IStorage
-    ) {
+    constructor(private biometryService: BiometryService, storage: IStorage) {
         super(storage);
     }
 
