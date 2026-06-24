@@ -1,0 +1,1 @@
+import{a as o,r as n}from"./index-i4fqPXcm.js";const f=(u,a)=>{const s=o(),[e,t]=n.useState(u);return n.useEffect(()=>{e&&s.uiEvents.emit("scan",{method:"scan",id:e,params:void 0})},[e]),n.useEffect(()=>{const r=c=>{c.id===e&&a(c.params)};return s.uiEvents.on("response",r),()=>{s.uiEvents.off("response",r)}},[s,e,a]),n.useCallback(()=>{t(Date.now())},[t])};export{f as u};
