@@ -12,6 +12,13 @@ on:
                 type: boolean
                 default: true
 
+env:
+    NODE_AUTH_TOKEN: ${{ github.token }}
+
+permissions:
+    contents: read
+    packages: read
+
 jobs:
     component-tests:
         name: component-tests
@@ -82,6 +89,7 @@ jobs:
         timeout-minutes: 20
         permissions:
             contents: write
+            packages: read
         steps:
             - name: Checkout to git repository
               uses: actions/checkout@v4
