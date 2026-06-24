@@ -122,10 +122,10 @@ jobs:
               run: |
                   git config user.name "github-actions[bot]"
                   git config user.email "github-actions[bot]@users.noreply.github.com"
-                  if git diff --quiet -- packages/uikit/__screenshots__; then
+                  if [ -z "$(git status --porcelain -- ':(glob)packages/uikit/**/__screenshots__/**')" ]; then
                       echo "No baseline changes."
                   else
-                      git add packages/uikit/__screenshots__
+                      git add -- ':(glob)packages/uikit/**/__screenshots__/**'
                       git commit -m "test(uikit): update component screenshot baselines"
                       git push
                   fi

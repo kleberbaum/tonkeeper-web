@@ -5,6 +5,7 @@
 // Mapping (intentionally simple — a real dependency graph is overkill here):
 //   - a changed `*.ct.tsx`            -> run it directly
 //   - a changed `Foo.tsx` / `Foo.ts`  -> run colocated `Foo.ct.tsx` if it exists
+//   - CT harness/config/shared styles -> run the whole component suite
 //
 // Compares against a base ref (default `origin/main`, override with BASE_REF)
 // using a three-dot diff, plus any uncommitted working-tree changes so the
@@ -24,6 +25,8 @@ import { fileURLToPath } from 'node:url';
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const uikitDir = join(repoRoot, 'packages', 'uikit');
 const UIKIT_PREFIX = 'packages/uikit/src/';
+const ALL_TESTS_PREFIXES = ['packages/uikit/playwright/', 'packages/uikit/src/styles/'];
+const ALL_TESTS_FILES = new Set(['packages/uikit/playwright-ct.config.ts']);
 
 const argv = process.argv.slice(2);
 const runAll = argv.includes('--all');
@@ -66,6 +69,10 @@ function toTestFiles(files) {
     return [...tests].map(f => f.slice('packages/uikit/'.length));
 }
 
+function affectsAllTests(file) {
+    return ALL_TESTS_FILES.has(file) || ALL_TESTS_PREFIXES.some(prefix => file.startsWith(prefix));
+}
+
 function runPlaywright(args) {
     console.log(`[test-changed] playwright test ${args.join(' ')}`.trim());
     execFileSync('npx', ['playwright', 'test', '-c', 'playwright-ct.config.ts', ...args], {
@@ -80,7 +87,14 @@ try {
         process.exit(0);
     }
 
-    const testFiles = toTestFiles(changedFiles());
+    const files = changedFiles();
+    if (files.some(affectsAllTests)) {
+        console.log('[test-changed] shared component-test infrastructure changed; running all.');
+        runPlaywright(passThrough);
+        process.exit(0);
+    }
+
+    const testFiles = toTestFiles(files);
     if (testFiles.length === 0) {
         console.log('[test-changed] no component tests affected by the change set — skipping.');
         process.exit(0);
