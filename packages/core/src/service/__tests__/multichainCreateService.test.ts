@@ -1,5 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
 // walletService + mnemonicService import `@ton-keychain/{core,trx}` at module
 // load; those ship ESM that breaks under vitest's Node loader. The BIP39
@@ -12,7 +12,8 @@ vi.mock('@ton-keychain/trx', () => ({
     TronAddressUtils: { hexToBase58: (hex: string) => `T${hex.replace(/^0x/, '')}` }
 }));
 
-import { ensureReady } from '../../chains';
+import * as chains from '../../chains';
+import { ChainAdapter } from '../../chains';
 import { APIConfig } from '../../entries/apis';
 import { WalletVersion } from '../../entries/wallet';
 import {
@@ -25,7 +26,8 @@ import {
 import { IStorage } from '../../Storage';
 import { createAccountMultichainByMnemonic, previewTonAddress } from '../multichainCreateService';
 
-beforeAll(() => ensureReady());
+beforeAll(() => chains.ensureReady());
+afterEach(() => vi.restoreAllMocks());
 
 /** Round-trips values through JSON, mirroring the platform storages. The
  * create flow only reads it for `getNewAccountNameAndEmoji` (empty → default
@@ -137,6 +139,31 @@ describe('createAccountMultichainByMnemonic', () => {
         expect(account.enabledChains).not.toContain('sol');
         expect(account.wallets.filter(isSolWallet)).toHaveLength(0);
         expect(account.activeWalletByChain.sol).toBeUndefined();
+    });
+
+    it('rethrows non-SOL chain-kit derivation failures instead of dropping the chain', async () => {
+        const failure = new Error('chain-kit wasm failed');
+        const adapter: ChainAdapter = {
+            chain: 'evm',
+            validateAddress: () => true,
+            formatAmount: () => '0',
+            parseAmount: () => 0n,
+            deriveAddress: vi.fn().mockRejectedValue(failure),
+            derivePublicKey: vi.fn().mockResolvedValue(''),
+            estimateFee: vi.fn().mockResolvedValue({ amount: 0n }),
+            buildTransaction: vi.fn().mockResolvedValue({}),
+            signTransaction: vi.fn().mockResolvedValue({}),
+            broadcast: vi.fn().mockResolvedValue({ hash: '0x0' })
+        };
+        vi.spyOn(chains, 'getAdapter').mockReturnValue(adapter);
+
+        await expect(
+            createAccountMultichainByMnemonic(context, new JsonStorage(), CANONICAL_BIP39, {
+                enabledChains: ['ton', 'evm'],
+                auth,
+                defaultTonVersion: WalletVersion.V5R1
+            })
+        ).rejects.toThrow('chain-kit wasm failed');
     });
 
     it('passes the auth bundle through to the account untouched', async () => {

@@ -94,6 +94,10 @@ export abstract class BaseKeychainService {
         await this.updateState(null);
     }
 
+    protected async resetPrefixIndex() {
+        await this.storage.delete(AppKey.KEYCHAIN_PREFIX_INDEX);
+    }
+
     private async securityCheckPassword() {
         const state = await this.loadState();
         if (!state.passwordHash) {

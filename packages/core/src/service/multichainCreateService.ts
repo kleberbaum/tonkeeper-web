@@ -6,7 +6,7 @@ import { EvmWallet } from '../entries/evm/evm-wallet';
 import { BtcWallet } from '../entries/btc/btc-wallet';
 import { MultichainTronWallet } from '../entries/tron/multichain-tron-wallet';
 import { SolWallet } from '../entries/sol/sol-wallet';
-import { ChainId, getAdapter } from '../chains';
+import { ChainId, getAdapter, NotImplementedError } from '../chains';
 import { DEFAULT_BIP44_PATH } from '../chains/derivation';
 import { APIConfig } from '../entries/apis';
 import { IStorage } from '../Storage';
@@ -29,9 +29,9 @@ import { createStandardTonAccountByMnemonic, getWalletAddress } from './walletSe
  * through the chain-kit adapter introduced in Phase 1 / extended in
  * Track K — `getAdapter(chain).deriveAddress` + `.derivePublicKey`.
  *
- * `'sol'` is opportunistically skipped if chain-kit has no Solana
- * module: the adapter throws, the catch leaves SOL out of the result.
- * Track K5 fallback — flagged in the M plan.
+ * `'sol'` is opportunistically skipped only while chain-kit has no
+ * Solana module. Other chain-kit errors must fail account creation so a
+ * selected chain is never silently dropped.
  */
 
 interface MultichainCreateContext {
@@ -65,9 +65,8 @@ type NonTonMultichainWallet = EvmWallet | BtcWallet | MultichainTronWallet | Sol
  * Build the per-chain wallet objects (with `rawAddress` / `publicKey` /
  * `derivationPath`) for `chains`, *excluding* TON. TON is handled by the
  * caller because its shape is `TonWalletStandard` and its derivation is
- * version-aware. Failed chains (e.g. SOL when chain-kit has no module)
- * are silently dropped — same opportunistic-skip rule as
- * `previewMultichainAddress`.
+ * version-aware. SOL is temporarily skipped when chain-kit reports that
+ * the module is not implemented; all other derivation failures propagate.
  */
 const deriveNonTonMultichainWallets = async (
     chains: ChainId[],
@@ -111,8 +110,12 @@ const deriveNonTonMultichainWallets = async (
                     break;
                 }
             }
-        } catch {
-            // Chain-kit gap (e.g. SOL) — leave this chain out of the result.
+        } catch (e) {
+            if (chain === 'sol' && e instanceof NotImplementedError) {
+                // Chain-kit gap: leave SOL out of the result until the module lands.
+                continue;
+            }
+            throw e;
         }
     }
     return wallets;

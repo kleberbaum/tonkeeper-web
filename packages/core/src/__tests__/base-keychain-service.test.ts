@@ -32,6 +32,10 @@ class TestKeychain extends BaseKeychainService {
     protected override async deleteRawData(key: string) {
         this.raw.delete(key);
     }
+
+    clearPrefixIndexForTest = async () => {
+        await this.resetPrefixIndex();
+    };
 }
 
 const composedKey = (prefix: string, key: string) => `chain::${prefix}::${key}`;
@@ -134,5 +138,14 @@ describe('BaseKeychainService — prefixed namespace', () => {
         await keychain.setValue('btc', 'cached', 'btc-value');
         await expect(keychain.deletePrefix('evm')).resolves.toBeUndefined();
         expect(await keychain.getValue('btc', 'cached')).toBe('btc-value');
+    });
+
+    it('resetPrefixIndex clears prefixed bookkeeping after secure-store clear', async () => {
+        await keychain.setValue('evm', 'cached', 'evm-value');
+        await keychain.setValue('btc', 'cached', 'btc-value');
+
+        await keychain.clearPrefixIndexForTest();
+
+        expect(await storage.get(AppKey.KEYCHAIN_PREFIX_INDEX)).toBeNull();
     });
 });

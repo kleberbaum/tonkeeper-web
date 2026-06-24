@@ -789,7 +789,10 @@ export class AccountMultichain extends Clonable implements IAccountTonWalletStan
     getWalletByChain(chain: ChainId): MultichainWallet | undefined {
         const id = this.activeWalletByChain[chain];
         if (id === undefined) return undefined;
-        return this.wallets.find(w => w.id === id);
+        const wallet = this.wallets.find(w => w.id === id);
+        if (!wallet) return undefined;
+        if (chain === 'ton') return isStandardTonWallet(wallet) ? wallet : undefined;
+        return 'chain' in wallet && wallet.chain === chain ? wallet : undefined;
     }
 
     static create(params: {

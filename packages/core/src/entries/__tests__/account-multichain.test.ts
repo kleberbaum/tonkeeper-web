@@ -229,6 +229,16 @@ describe('AccountMultichain.getWalletByChain', () => {
         });
         expect(broken.getWalletByChain('evm')).toBeUndefined();
     });
+
+    it('returns undefined when the active id points to a different chain wallet', () => {
+        const broken = makeAccount(['ton', 'evm', 'btc'], {
+            wallets: [tonWallet, evmWallet, btcWallet],
+            activeWalletByChain: { ton: tonWallet.id, evm: btcWallet.id, btc: evmWallet.id }
+        });
+
+        expect(broken.getWalletByChain('evm')).toBeUndefined();
+        expect(broken.getWalletByChain('btc')).toBeUndefined();
+    });
 });
 
 describe('AccountMultichain — Account union predicates', () => {

@@ -56,6 +56,7 @@ export class KeychainDesktop extends BaseKeychainService implements IKeychainSer
             console.error('[KEYCHAIN] (ERROR) CLEAR all data');
             throw e;
         }
+        await this.resetPrefixIndex();
         await this.resetSecuritySettings();
     };
 
