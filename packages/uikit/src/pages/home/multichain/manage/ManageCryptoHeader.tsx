@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '../../../../hooks/translation';
 
 const Close16 = () => (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">

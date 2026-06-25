@@ -1,5 +1,5 @@
 import { FC, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '../../../hooks/translation';
 
 import { AccountMultichain } from '@tonkeeper/core/dist/entries/account';
 
@@ -7,6 +7,7 @@ import { useAppContext } from '../../../hooks/appContext';
 import { formatFiatCurrency } from '../../../hooks/balance';
 import { useMultichainWalletAssets } from '../../../state/multichain/useMultichainWalletAssets';
 import { CryptoCatalogModal } from './catalog/CryptoCatalogModal';
+import { HomeMultichainActions } from './HomeMultichainActions';
 import { HomeMultichainAssetRow } from './HomeMultichainAssetRow';
 import { ManageCryptoModal } from './manage/ManageCryptoModal';
 import { MoreAssetsButton } from './MoreAssetsButton';
@@ -84,6 +85,8 @@ export const HomeMultichain: FC<{ account: AccountMultichain; compact?: boolean 
                     <div className="text-h1">{total ? formatFiatCurrency(fiat, total) : '—'}</div>
                 </header>
             )}
+
+            <HomeMultichainActions />
 
             <section className="flex flex-col">
                 <div className="flex items-center justify-between py-3">

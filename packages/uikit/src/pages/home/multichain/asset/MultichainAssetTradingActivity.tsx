@@ -1,5 +1,5 @@
 import { FC, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '../../../../hooks/translation';
 import BigNumber from 'bignumber.js';
 
 import { AssetDetailsTradingActivity } from '@tonkeeper/core/dist/service/tradingService';

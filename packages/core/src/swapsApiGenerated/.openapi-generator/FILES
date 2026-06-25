@@ -1,4 +1,9 @@
 .openapi-generator-ignore
+apis/CrosschainApi.ts
+apis/ExchangeApi.ts
+apis/OfframpApi.ts
+apis/OnrampApi.ts
+apis/P2pApi.ts
 apis/SwapApi.ts
 apis/index.ts
 index.ts

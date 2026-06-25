@@ -166,8 +166,8 @@ const CoinHeader: FC<{ token: string }> = ({ token }) => {
     const network = useActiveTonNetwork();
 
     const isReadOnly = useIsActiveWalletWatchOnly();
-    const { data: buy } = useTonendpointBuyMethods();
     const canBuy = token === CryptoCurrency.TON && network !== Network.TESTNET;
+    const { data: buy } = useTonendpointBuyMethods(isOpen && canBuy);
     const currentAssetAddress = tonAssetAddressFromString(token);
     const swapAsset = useSwapAssetSearch(
         isReadOnly || network === Network.TESTNET

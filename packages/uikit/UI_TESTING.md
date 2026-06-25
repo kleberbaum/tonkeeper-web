@@ -19,7 +19,7 @@ packages/uikit/
   playwright/
     index.html                   # mount page
     index.tsx                    # beforeMount: wraps every component in ThemeProvider + GlobalStyle
-    test.ts                      # extended `test`/`expect`, TEST_MODES, screenshotEachMode()
+    test.tsx                     # extended `test`/`expect`, TEST_MODES, screenshotEachMode()
   src/components/fields/
     Button.tsx                   # the component
     Button.ct.tsx                # its test — lives next to the component
@@ -142,8 +142,13 @@ ways:
 
     ```sh
     # from packages/uikit
-    yarn test:ct:update:docker     # regenerate baselines in the pinned Linux container
-    yarn test:ct:docker            # just run the suite (incl. screenshots) in the container
+    yarn test:ct:update:docker     # regenerate all baselines in the pinned Linux container
+    yarn test:ct:docker            # run the whole suite (incl. screenshots) in the container
+
+    # Scope to a file, a folder, or several of either — paths/flags pass straight through:
+    yarn test:ct:docker src/components/fields/Button.ct.tsx
+    yarn test:ct:docker src/components/onramp
+    yarn test:ct:update:docker src/components/onramp src/components/fields/Button.ct.tsx
     ```
 
     It uses your machine's native arch (no `--platform linux/amd64` — emulated esbuild can crash on

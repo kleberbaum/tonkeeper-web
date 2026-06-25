@@ -88,8 +88,15 @@ export type ModalProps = {
     topBarTitle?: ReactNode;
     /** Hide the top-right close (X) button. */
     hideCloseButton?: boolean;
-    /** On mobile, render full-screen instead of as a bottom sheet. */
-    mobileFullScreen?: boolean;
+    /**
+     * Mobile-only height variant:
+     *  - `'auto'` (default) — bottom sheet sized to content, capped at 90vh
+     *  - `'half'`          — bottom sheet floor 50vh, cap 80vh
+     *  - `'full'`          — full-screen, no rounded corners
+     * On desktop this prop is ignored — desktop always centers a card with
+     * `max-h-[calc(var(--app-height)-32px)]`.
+     */
+    mobileHeight?: 'auto' | 'half' | 'full';
     /**
      * Stretch the modal body to fill the viewport (minus the 16px
      * top/bottom safe-area). Desktop-only — mobile is full-screen when
@@ -121,7 +128,7 @@ export const Modal: FC<ModalProps> = ({
     subheading,
     topBarTitle,
     hideCloseButton,
-    mobileFullScreen,
+    mobileHeight = 'auto',
     tall,
     afterClose,
     tag,
@@ -227,6 +234,7 @@ export const Modal: FC<ModalProps> = ({
     if (!mounted) return null;
 
     const useMobileSheet = !isFullWidth;
+    const isMobileFull = useMobileSheet && mobileHeight === 'full';
 
     return (
         <ReactPortal wrapperId="react-portal-modal-container">
@@ -238,7 +246,7 @@ export const Modal: FC<ModalProps> = ({
                         'fixed inset-0 z-50 flex transition-opacity duration-200',
                         isFullWidth
                             ? 'items-center justify-center bg-backgroundOverlayStrong p-4'
-                            : useMobileSheet && mobileFullScreen
+                            : isMobileFull
                             ? 'items-stretch justify-stretch'
                             : 'items-end justify-stretch bg-backgroundOverlayStrong',
                         visible ? 'opacity-100' : 'opacity-0'
@@ -260,8 +268,10 @@ export const Modal: FC<ModalProps> = ({
                                       'w-full max-w-[640px] max-h-[calc(var(--app-height)-32px)] overflow-hidden rounded-large',
                                       tall && 'min-h-[calc(var(--app-height)-32px)]'
                                   )
-                                : mobileFullScreen
+                                : mobileHeight === 'full'
                                 ? 'h-full w-full'
+                                : mobileHeight === 'half'
+                                ? 'min-h-[50vh] max-h-[80vh] w-full rounded-t-large'
                                 : 'max-h-[90vh] w-full rounded-t-large',
                             className
                         )}

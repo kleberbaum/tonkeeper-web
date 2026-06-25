@@ -17,7 +17,7 @@ export const IconButton = forwardRef<HTMLDivElement, IconButtonProps>(
             ref={ref}
             onClick={disabled ? undefined : onClick}
             className={cn(
-                'group flex w-[72px] select-none flex-col items-center gap-2 px-1 py-2 text-center',
+                'group flex w-fit min-w-[72px] select-none flex-col items-center gap-2 px-1 py-2 text-center',
                 disabled ? 'cursor-auto' : 'cursor-pointer',
                 className
             )}
@@ -39,7 +39,7 @@ export const IconButton = forwardRef<HTMLDivElement, IconButtonProps>(
             </div>
             <span
                 className={cn(
-                    'text-label3 transition-colors duration-100',
+                    'whitespace-nowrap text-label3 transition-colors duration-100',
                     disabled
                         ? 'text-buttonSecondaryForegroundDisabled'
                         : hovered

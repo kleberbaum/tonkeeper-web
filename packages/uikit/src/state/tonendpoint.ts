@@ -69,14 +69,21 @@ export const useTonenpointConfig = (tonendpoint: Tonendpoint) => {
 
 export const DefaultRefetchInterval = 60000; // 60 sec
 
-export const useTonendpointBuyMethods = () => {
+/**
+ * Legacy `/fiat/methods` buy list. `enabled` defaults to `false` so the
+ * globally-mounted `BuyNotificationControlled` doesn't fire it on every
+ * page load — callers pass `true` only when the modal/buy view is actually
+ * open. Without this gate the multichain home, which has its own onramp
+ * flow via swap.tonkeeper.com, still triggered a stale legacy fetch.
+ */
+export const useTonendpointBuyMethods = (enabled = false) => {
     const { tonendpoint } = useAppContext();
     const { data: countryCode } = useUserCountry();
 
     return useQuery<TonendpoinFiatCategory, Error>(
-        [QueryKey.tonkeeperApi, TonkeeperApiKey.fiat, tonendpoint.params.lang],
+        [QueryKey.tonkeeperApi, TonkeeperApiKey.fiat, tonendpoint?.params.lang],
         async () => {
-            const methods = await tonendpoint.fiatMethods();
+            const methods = await tonendpoint!.fiatMethods();
             const buy = methods.categories[0];
 
             const layout = methods.layoutByCountry.find(item => item.countryCode === countryCode);
@@ -97,7 +104,7 @@ export const useTonendpointBuyMethods = () => {
             };
         },
         {
-            enabled: !!countryCode
+            enabled: enabled && !!countryCode && !!tonendpoint
         }
     );
 };

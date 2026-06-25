@@ -31,3 +31,5 @@ Legend: ✅ shipped · ⚙️ in progress · blank = not started.
     multichain-specific. See CLAUDE.md → "Scope of the flag" for the contract.
 -   iOS and Android are the reference implementations. When designs or behaviour are ambiguous, the
     native apps win.
+-   Every feature step is accepted against `MULTICHAIN_CHECKLIST.md` (design, behaviour, code, i18n,
+    tests). Walk that list before marking a task done or opening a PR.

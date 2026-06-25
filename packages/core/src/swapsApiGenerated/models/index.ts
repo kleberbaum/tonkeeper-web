@@ -68,11 +68,42 @@ export interface BuildOmnistonSwapRequest {
  */
 export interface CalculateSwap400Response {
     /**
-     * 
+     * Human-readable message, safe to show the user
      * @type {string}
      * @memberof CalculateSwap400Response
      */
     error: string;
+    /**
+     * Stable machine-readable code — clients should branch on this instead of parsing the error text
+     * @type {string}
+     * @memberof CalculateSwap400Response
+     */
+    code?: string;
+    /**
+     * UUID v4 for correlating the response to server logs
+     * @type {string}
+     * @memberof CalculateSwap400Response
+     */
+    requestId: string;
+}
+/**
+ * 
+ * @export
+ * @interface CalculateSwap500Response
+ */
+export interface CalculateSwap500Response {
+    /**
+     * Generic sanitised message, never reveals internal details
+     * @type {string}
+     * @memberof CalculateSwap500Response
+     */
+    error: string;
+    /**
+     * UUID v4 for correlating the response to server logs
+     * @type {string}
+     * @memberof CalculateSwap500Response
+     */
+    requestId: string;
 }
 /**
  * 
@@ -80,17 +111,6 @@ export interface CalculateSwap400Response {
  * @interface CreateCrossSwapQuoteRequest
  */
 export interface CreateCrossSwapQuoteRequest {
-    /**
-     * Internal chain identifier, format `{chain}/{net}`. Same prefix
-     * as the asset_id. Examples: `eth/mainnet`, `btc/mainnet`,
-     * `ton/mainnet`, `arb/mainnet`, `op/mainnet`, `polygon/mainnet`,
-     * `base/mainnet`, `avax/mainnet`, `tron/mainnet`, `sol/mainnet`,
-     * `near/mainnet`.
-     * 
-     * @type {string}
-     * @memberof CreateCrossSwapQuoteRequest
-     */
-    sourceChainId: string;
     /**
      * Internal asset identifier (same format as onramp asset_id):
      * - native coin: `{chain}/{net}/coin` — e.g. `eth/mainnet/coin`, `btc/mainnet/coin`, `ton/mainnet/coin`
@@ -107,12 +127,6 @@ export interface CreateCrossSwapQuoteRequest {
      * @memberof CreateCrossSwapQuoteRequest
      */
     sourceAmount: string;
-    /**
-     * Internal chain identifier (see source_chain_id)
-     * @type {string}
-     * @memberof CreateCrossSwapQuoteRequest
-     */
-    destinationChainId: string;
     /**
      * Internal asset identifier (see source_asset)
      * @type {string}
@@ -195,7 +209,7 @@ export interface CreateExchangeRequest {
      */
     wallet: string;
     /**
-     * Destination Tag / Memo for chains that require it on the destination address (XRP, XLM, EOS, BNB-Beacon, HBAR, etc.).
+     * Destination Tag / Memo for chains that require it on the destination address (XRP, XLM, EOS, BNB-Beacon, HBAR, etc.)
      * @type {string}
      * @memberof CreateExchangeRequest
      */
@@ -207,12 +221,162 @@ export interface CreateExchangeRequest {
      */
     flow?: ExchangeFlow;
     /**
-     * User country code (ISO 3166-1 alpha-2). Deprecated: use device_country_code and store_country_code query parameters instead.
+     * User country code (ISO 3166-1 alpha-2). Deprecated: use device_country_code and store_country_code query parameters instead
      * @type {string}
      * @memberof CreateExchangeRequest
      * @deprecated
      */
     country?: string;
+}
+
+
+/**
+ * 
+ * @export
+ * @interface CreateOfframpOrderRequest
+ */
+export interface CreateOfframpOrderRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateOfframpOrderRequest
+     */
+    sourceAssetId: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateOfframpOrderRequest
+     */
+    fiat: string;
+    /**
+     * Source crypto decimal. When `reverse=true`, target fiat
+     * @type {string}
+     * @memberof CreateOfframpOrderRequest
+     */
+    amount: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof CreateOfframpOrderRequest
+     */
+    reverse?: boolean;
+    /**
+     * User's address on the source chain
+     * @type {string}
+     * @memberof CreateOfframpOrderRequest
+     */
+    fromAddress: string;
+    /**
+     * Memo / Destination Tag if required by the chain
+     * @type {string}
+     * @memberof CreateOfframpOrderRequest
+     */
+    extraId?: string;
+    /**
+     * 
+     * @type {ExchangePaymentMethodType}
+     * @memberof CreateOfframpOrderRequest
+     */
+    payoutMethod: ExchangePaymentMethodType;
+    /**
+     * 
+     * @type {ExchangeMerchantSlug}
+     * @memberof CreateOfframpOrderRequest
+     */
+    merchant: ExchangeMerchantSlug;
+    /**
+     * Pin quote from /v2/offramp/quote
+     * @type {string}
+     * @memberof CreateOfframpOrderRequest
+     */
+    merchantTransactionId?: string;
+    /**
+     * Wallet deep link; server appends `?ramp_order_id={id}`
+     * @type {string}
+     * @memberof CreateOfframpOrderRequest
+     */
+    redirectUrl?: string;
+    /**
+     * BCP-47 tag
+     * @type {string}
+     * @memberof CreateOfframpOrderRequest
+     */
+    language?: string;
+}
+
+
+/**
+ * 
+ * @export
+ * @interface CreateOnrampOrderRequest
+ */
+export interface CreateOnrampOrderRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateOnrampOrderRequest
+     */
+    targetAssetId: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateOnrampOrderRequest
+     */
+    fiat: string;
+    /**
+     * Fiat decimal. When `reverse=true`, target crypto
+     * @type {string}
+     * @memberof CreateOnrampOrderRequest
+     */
+    amount: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof CreateOnrampOrderRequest
+     */
+    reverse?: boolean;
+    /**
+     * User's wallet on the target chain
+     * @type {string}
+     * @memberof CreateOnrampOrderRequest
+     */
+    destinationAddress: string;
+    /**
+     * Memo / Destination Tag if required by the chain
+     * @type {string}
+     * @memberof CreateOnrampOrderRequest
+     */
+    extraId?: string;
+    /**
+     * 
+     * @type {ExchangePaymentMethodType}
+     * @memberof CreateOnrampOrderRequest
+     */
+    paymentMethod: ExchangePaymentMethodType;
+    /**
+     * 
+     * @type {ExchangeMerchantSlug}
+     * @memberof CreateOnrampOrderRequest
+     */
+    merchant: ExchangeMerchantSlug;
+    /**
+     * Pin quote from /v2/onramp/quote
+     * @type {string}
+     * @memberof CreateOnrampOrderRequest
+     */
+    merchantTransactionId?: string;
+    /**
+     * Wallet deep link; server appends `?ramp_order_id={id}`
+     * @type {string}
+     * @memberof CreateOnrampOrderRequest
+     */
+    redirectUrl?: string;
+    /**
+     * BCP-47 tag
+     * @type {string}
+     * @memberof CreateOnrampOrderRequest
+     */
+    language?: string;
 }
 
 
@@ -339,6 +503,15 @@ export interface CrossSwapAsset {
      * @memberof CrossSwapAsset
      */
     supportedAggregators: Array<CrossSwapAggregator>;
+    /**
+     * Whitelist of asset_ids this asset may be paired with. Omitted when there
+     * are no restrictions. Present for tokenized RWAs (e.g. Backed Finance
+     * stocks) where issuer policy limits which counterparts are permitted.
+     * 
+     * @type {Array<string>}
+     * @memberof CrossSwapAsset
+     */
+    allowedCounterparts?: Array<string>;
 }
 
 
@@ -385,7 +558,7 @@ export type CrossSwapChainFamily = typeof CrossSwapChainFamily[keyof typeof Cros
 
 
 /**
- * Direction of amount specification. Only exact_input is supported in v1.
+ * Direction of amount specification. Only exact_input is supported in v1
  * @export
  */
 export const CrossSwapExactType = {
@@ -625,7 +798,7 @@ export interface CrossSwapHumanSummary {
 
 
 /**
- * Informational description of one hop inside the route. Legs do not require separate user signatures.
+ * Informational description of one hop inside the route. Legs do not require separate user signatures
  * @export
  * @interface CrossSwapLeg
  */
@@ -940,7 +1113,7 @@ export interface CrossSwapRoute {
      */
     routeType: CrossSwapRouteType;
     /**
-     * Raw base-units amount the user is paying (echoed back from the quote request).
+     * Raw base-units amount the user is paying (echoed back from the quote request)
      * @type {string}
      * @memberof CrossSwapRoute
      */
@@ -980,13 +1153,13 @@ export interface CrossSwapRoute {
      */
     valueDifferenceBps?: number;
     /**
-     * USD price of one whole source-asset unit at quote time. Omitted when unknown.
+     * USD price of one whole source-asset unit at quote time. Omitted when unknown
      * @type {number}
      * @memberof CrossSwapRoute
      */
     sourceUsdPrice?: number;
     /**
-     * USD price of one whole destination-asset unit at quote time. Omitted when unknown.
+     * USD price of one whole destination-asset unit at quote time. Omitted when unknown
      * @type {number}
      * @memberof CrossSwapRoute
      */
@@ -1082,7 +1255,7 @@ export interface CrossSwapSubmit {
 
 
 /**
- * Per-stage time estimate breakdown. Stages may be 0 when not applicable (e.g. no inbound confirmation needed).
+ * Per-stage time estimate breakdown. Stages may be 0 when not applicable (e.g. no inbound confirmation needed)
  * @export
  * @interface CrossSwapTimeEstimate
  */
@@ -1256,7 +1429,7 @@ export interface ExchangeCalculateRequest {
      */
     to: string;
     /**
-     * Crypto network. Deprecated: use from_network and to_network instead.
+     * Crypto network. Deprecated: use from_network and to_network instead
      * @type {string}
      * @memberof ExchangeCalculateRequest
      * @deprecated
@@ -1293,7 +1466,7 @@ export interface ExchangeCalculateRequest {
      */
     purchaseType: ExchangeDirection;
     /**
-     * User country code (ISO 3166-1 alpha-2). Deprecated: use device_country_code and store_country_code query parameters instead.
+     * User country code (ISO 3166-1 alpha-2). Deprecated: use device_country_code and store_country_code query parameters instead
      * @type {string}
      * @memberof ExchangeCalculateRequest
      * @deprecated
@@ -1932,7 +2105,8 @@ export const ExchangePaymentMethodType = {
     Revolut: 'revolut',
     Pix: 'pix',
     Volt: 'volt',
-    P2p: 'p2p'
+    P2p: 'p2p',
+    Ach: 'ach'
 } as const;
 export type ExchangePaymentMethodType = typeof ExchangePaymentMethodType[keyof typeof ExchangePaymentMethodType];
 
@@ -2006,13 +2180,13 @@ export interface ExchangeResult {
      */
     payinAddress: string;
     /**
-     * Memo / Destination Tag the user must include with the deposit transfer (when required by the source chain).
+     * Memo / Destination Tag the user must include with the deposit transfer (when required by the source chain)
      * @type {string}
      * @memberof ExchangeResult
      */
     payinExtraId?: string;
     /**
-     * Human-readable name of the extra id required at the destination (e.g. "Destination Tag", "Memo"). Empty when not required.
+     * Human-readable name of the extra id required at the destination (e.g. "Destination Tag", "Memo"). Empty when not required
      * @type {string}
      * @memberof ExchangeResult
      */
@@ -2078,6 +2252,409 @@ export interface ExchangeSimpleMerchant {
      * @memberof ExchangeSimpleMerchant
      */
     limits?: ExchangeLimits;
+}
+
+
+/**
+ * Off-ramp configuration snapshot. Cacheable via ETag
+ * @export
+ * @interface OfframpConfiguration
+ */
+export interface OfframpConfiguration {
+    /**
+     * 
+     * @type {Array<OfframpConfigurationEntry>}
+     * @memberof OfframpConfiguration
+     */
+    entries: Array<OfframpConfigurationEntry>;
+}
+/**
+ * Supported off-ramp tuple (asset, fiat, payout method, country, merchant)
+ * @export
+ * @interface OfframpConfigurationEntry
+ */
+export interface OfframpConfigurationEntry {
+    /**
+     * `{chain}/{net}/coin` for natives, `{chain}/{net}/jetton|token/{addr}` for tokens
+     * @type {string}
+     * @memberof OfframpConfigurationEntry
+     */
+    assetId: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OfframpConfigurationEntry
+     */
+    symbol: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OfframpConfigurationEntry
+     */
+    networkName?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OfframpConfigurationEntry
+     */
+    networkImage?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OfframpConfigurationEntry
+     */
+    image?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof OfframpConfigurationEntry
+     */
+    decimals: number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof OfframpConfigurationEntry
+     */
+    stablecoin: boolean;
+    /**
+     * ISO 4217
+     * @type {string}
+     * @memberof OfframpConfigurationEntry
+     */
+    fiat: string;
+    /**
+     * ISO 3166-1 alpha-2
+     * @type {string}
+     * @memberof OfframpConfigurationEntry
+     */
+    country: string;
+    /**
+     * 
+     * @type {ExchangePaymentMethodType}
+     * @memberof OfframpConfigurationEntry
+     */
+    payoutMethod: ExchangePaymentMethodType;
+    /**
+     * 
+     * @type {ExchangeMerchantSlug}
+     * @memberof OfframpConfigurationEntry
+     */
+    merchant: ExchangeMerchantSlug;
+    /**
+     * 
+     * @type {ExchangeLimits}
+     * @memberof OfframpConfigurationEntry
+     */
+    limits?: ExchangeLimits;
+    /**
+     * Picker ranking hint (lower = preferred)
+     * @type {number}
+     * @memberof OfframpConfigurationEntry
+     */
+    priority?: number;
+    /**
+     * Source chain needs a Memo / Destination Tag on the deposit
+     * @type {boolean}
+     * @memberof OfframpConfigurationEntry
+     */
+    extraIdRequired: boolean;
+    /**
+     * Form label (e.g. "Memo", "Destination Tag")
+     * @type {string}
+     * @memberof OfframpConfigurationEntry
+     */
+    extraIdName?: string;
+}
+
+
+/**
+ * Off-ramp transaction. Open `widget_url` to complete KYC; the wallet
+ * then sends `amount_in` to `payin_address`. Poll until terminal.
+ * 
+ * @export
+ * @interface OfframpOrder
+ */
+export interface OfframpOrder {
+    /**
+     * 
+     * @type {string}
+     * @memberof OfframpOrder
+     */
+    id: string;
+    /**
+     * 
+     * @type {ExchangeMerchantSlug}
+     * @memberof OfframpOrder
+     */
+    merchant: ExchangeMerchantSlug;
+    /**
+     * 
+     * @type {string}
+     * @memberof OfframpOrder
+     */
+    merchantTransactionId?: string;
+    /**
+     * 
+     * @type {OfframpOrderStatus}
+     * @memberof OfframpOrder
+     */
+    status: OfframpOrderStatus;
+    /**
+     * Provider detail for terminal states
+     * @type {string}
+     * @memberof OfframpOrder
+     */
+    statusReason?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OfframpOrder
+     */
+    widgetUrl: string;
+    /**
+     * Provider deposit address. Prompt the user to send after status `awaiting_funds`
+     * @type {string}
+     * @memberof OfframpOrder
+     */
+    payinAddress: string;
+    /**
+     * Memo / Destination Tag for chains that require it
+     * @type {string}
+     * @memberof OfframpOrder
+     */
+    payinExtraId?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OfframpOrder
+     */
+    extraIdName?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OfframpOrder
+     */
+    amountIn: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OfframpOrder
+     */
+    amountOut: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OfframpOrder
+     */
+    rate: string;
+    /**
+     * 
+     * @type {RampFees}
+     * @memberof OfframpOrder
+     */
+    fees: RampFees;
+    /**
+     * User's deposit tx, populated from `funds_received`
+     * @type {string}
+     * @memberof OfframpOrder
+     */
+    depositTxHash?: string;
+    /**
+     * Merchant refund tx
+     * @type {string}
+     * @memberof OfframpOrder
+     */
+    refundTxHash?: string;
+    /**
+     * Where the refund was sent
+     * @type {string}
+     * @memberof OfframpOrder
+     */
+    refundAddress?: string;
+    /**
+     * Merchant's native order id
+     * @type {string}
+     * @memberof OfframpOrder
+     */
+    providerOrderId?: string;
+    /**
+     * Seconds (best-effort)
+     * @type {number}
+     * @memberof OfframpOrder
+     */
+    estimatedDuration?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof OfframpOrder
+     */
+    dateCreate: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OfframpOrder
+     */
+    dateUpdate?: string;
+}
+
+
+
+/**
+ * Happy path: `created → awaiting_funds → funds_received → completed`.
+ * Terminal: `completed`, `failed`, `cancelled`, `expired`, `refunded`.
+ * 
+ * @export
+ */
+export const OfframpOrderStatus = {
+    Created: 'created',
+    AwaitingFunds: 'awaiting_funds',
+    FundsReceived: 'funds_received',
+    Completed: 'completed',
+    Failed: 'failed',
+    Cancelled: 'cancelled',
+    Expired: 'expired',
+    Refunded: 'refunded'
+} as const;
+export type OfframpOrderStatus = typeof OfframpOrderStatus[keyof typeof OfframpOrderStatus];
+
+/**
+ * 
+ * @export
+ * @interface OfframpQuoteRequest
+ */
+export interface OfframpQuoteRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof OfframpQuoteRequest
+     */
+    sourceAssetId: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OfframpQuoteRequest
+     */
+    fiat: string;
+    /**
+     * Source crypto decimal. When `reverse=true`, target fiat
+     * @type {string}
+     * @memberof OfframpQuoteRequest
+     */
+    amount: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof OfframpQuoteRequest
+     */
+    reverse?: boolean;
+    /**
+     * 
+     * @type {ExchangePaymentMethodType}
+     * @memberof OfframpQuoteRequest
+     */
+    payoutMethod?: ExchangePaymentMethodType;
+    /**
+     * 
+     * @type {ExchangeMerchantSlug}
+     * @memberof OfframpQuoteRequest
+     */
+    merchant?: ExchangeMerchantSlug;
+}
+
+
+/**
+ * Single merchant's off-ramp quote
+ * @export
+ * @interface OfframpQuoteResult
+ */
+export interface OfframpQuoteResult {
+    /**
+     * 
+     * @type {ExchangeMerchantSlug}
+     * @memberof OfframpQuoteResult
+     */
+    merchant: ExchangeMerchantSlug;
+    /**
+     * 
+     * @type {ExchangePaymentMethodType}
+     * @memberof OfframpQuoteResult
+     */
+    payoutMethod: ExchangePaymentMethodType;
+    /**
+     * Source crypto the user pays
+     * @type {string}
+     * @memberof OfframpQuoteResult
+     */
+    amountIn: string;
+    /**
+     * Fiat the user receives, net of fees
+     * @type {string}
+     * @memberof OfframpQuoteResult
+     */
+    amountOut: string;
+    /**
+     * `amount_out / amount_in`
+     * @type {string}
+     * @memberof OfframpQuoteResult
+     */
+    rate: string;
+    /**
+     * 
+     * @type {RampFees}
+     * @memberof OfframpQuoteResult
+     */
+    fees: RampFees;
+    /**
+     * Min source crypto
+     * @type {string}
+     * @memberof OfframpQuoteResult
+     */
+    minAmount?: string;
+    /**
+     * Max source crypto
+     * @type {string}
+     * @memberof OfframpQuoteResult
+     */
+    maxAmount?: string;
+    /**
+     * Rate guarantee expiry
+     * @type {string}
+     * @memberof OfframpQuoteResult
+     */
+    dateExpire: string;
+    /**
+     * Pass to POST /v2/offramp/orders to pin this rate
+     * @type {string}
+     * @memberof OfframpQuoteResult
+     */
+    merchantTransactionId: string;
+}
+
+
+/**
+ * Multi-merchant quote. `items` sorted by `amount_out` desc
+ * @export
+ * @interface OfframpQuotes
+ */
+export interface OfframpQuotes {
+    /**
+     * 
+     * @type {Array<OfframpQuoteResult>}
+     * @memberof OfframpQuotes
+     */
+    items: Array<OfframpQuoteResult>;
+    /**
+     * 
+     * @type {Array<OfframpQuoteResult>}
+     * @memberof OfframpQuotes
+     */
+    suggested: Array<OfframpQuoteResult>;
+    /**
+     * 
+     * @type {RampUnavailableReason}
+     * @memberof OfframpQuotes
+     */
+    unavailableReason?: RampUnavailableReason;
 }
 
 
@@ -2159,6 +2736,398 @@ export interface OmnistonSwapMessages {
     valueDifferenceBps?: number;
 }
 /**
+ * On-ramp configuration snapshot. Cacheable via ETag
+ * @export
+ * @interface OnrampConfiguration
+ */
+export interface OnrampConfiguration {
+    /**
+     * 
+     * @type {Array<OnrampConfigurationEntry>}
+     * @memberof OnrampConfiguration
+     */
+    entries: Array<OnrampConfigurationEntry>;
+}
+/**
+ * Supported on-ramp tuple (asset, fiat, payment method, country, merchant)
+ * @export
+ * @interface OnrampConfigurationEntry
+ */
+export interface OnrampConfigurationEntry {
+    /**
+     * `{chain}/{net}/coin` for natives, `{chain}/{net}/jetton|token/{addr}` for tokens
+     * @type {string}
+     * @memberof OnrampConfigurationEntry
+     */
+    assetId: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OnrampConfigurationEntry
+     */
+    symbol: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OnrampConfigurationEntry
+     */
+    networkName?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OnrampConfigurationEntry
+     */
+    networkImage?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OnrampConfigurationEntry
+     */
+    image?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof OnrampConfigurationEntry
+     */
+    decimals: number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof OnrampConfigurationEntry
+     */
+    stablecoin: boolean;
+    /**
+     * ISO 4217
+     * @type {string}
+     * @memberof OnrampConfigurationEntry
+     */
+    fiat: string;
+    /**
+     * ISO 3166-1 alpha-2
+     * @type {string}
+     * @memberof OnrampConfigurationEntry
+     */
+    country: string;
+    /**
+     * 
+     * @type {ExchangePaymentMethodType}
+     * @memberof OnrampConfigurationEntry
+     */
+    paymentMethod: ExchangePaymentMethodType;
+    /**
+     * 
+     * @type {ExchangeMerchantSlug}
+     * @memberof OnrampConfigurationEntry
+     */
+    merchant: ExchangeMerchantSlug;
+    /**
+     * 
+     * @type {ExchangeLimits}
+     * @memberof OnrampConfigurationEntry
+     */
+    limits?: ExchangeLimits;
+    /**
+     * Picker ranking hint (lower = preferred)
+     * @type {number}
+     * @memberof OnrampConfigurationEntry
+     */
+    priority?: number;
+    /**
+     * Destination chain needs a Memo / Destination Tag
+     * @type {boolean}
+     * @memberof OnrampConfigurationEntry
+     */
+    extraIdRequired: boolean;
+    /**
+     * Form label (e.g. "Memo", "Destination Tag")
+     * @type {string}
+     * @memberof OnrampConfigurationEntry
+     */
+    extraIdName?: string;
+}
+
+
+/**
+ * On-ramp transaction. Open `widget_url`; the merchant collects fiat and
+ * sends `amount_out` to `destination_address`. Poll until terminal.
+ * 
+ * @export
+ * @interface OnrampOrder
+ */
+export interface OnrampOrder {
+    /**
+     * 
+     * @type {string}
+     * @memberof OnrampOrder
+     */
+    id: string;
+    /**
+     * 
+     * @type {ExchangeMerchantSlug}
+     * @memberof OnrampOrder
+     */
+    merchant: ExchangeMerchantSlug;
+    /**
+     * 
+     * @type {string}
+     * @memberof OnrampOrder
+     */
+    merchantTransactionId?: string;
+    /**
+     * 
+     * @type {OnrampOrderStatus}
+     * @memberof OnrampOrder
+     */
+    status: OnrampOrderStatus;
+    /**
+     * Provider detail for terminal states
+     * @type {string}
+     * @memberof OnrampOrder
+     */
+    statusReason?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OnrampOrder
+     */
+    widgetUrl: string;
+    /**
+     * Echo of the value supplied at create time
+     * @type {string}
+     * @memberof OnrampOrder
+     */
+    destinationAddress: string;
+    /**
+     * Memo / Destination Tag for chains that require it
+     * @type {string}
+     * @memberof OnrampOrder
+     */
+    destinationExtraId?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OnrampOrder
+     */
+    extraIdName?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OnrampOrder
+     */
+    amountIn: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OnrampOrder
+     */
+    amountOut: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OnrampOrder
+     */
+    rate: string;
+    /**
+     * 
+     * @type {RampFees}
+     * @memberof OnrampOrder
+     */
+    fees: RampFees;
+    /**
+     * Merchant payout tx, populated from `funds_sent`
+     * @type {string}
+     * @memberof OnrampOrder
+     */
+    destinationTxHash?: string;
+    /**
+     * Merchant's native order id
+     * @type {string}
+     * @memberof OnrampOrder
+     */
+    providerOrderId?: string;
+    /**
+     * Seconds (best-effort)
+     * @type {number}
+     * @memberof OnrampOrder
+     */
+    estimatedDuration?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof OnrampOrder
+     */
+    dateCreate: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OnrampOrder
+     */
+    dateUpdate?: string;
+}
+
+
+
+/**
+ * Happy path: `created → awaiting_payment → payment_received → funds_sent → completed`.
+ * Terminal: `completed`, `failed`, `cancelled`, `expired`, `refunded`.
+ * 
+ * @export
+ */
+export const OnrampOrderStatus = {
+    Created: 'created',
+    AwaitingPayment: 'awaiting_payment',
+    PaymentReceived: 'payment_received',
+    FundsSent: 'funds_sent',
+    Completed: 'completed',
+    Failed: 'failed',
+    Cancelled: 'cancelled',
+    Expired: 'expired',
+    Refunded: 'refunded'
+} as const;
+export type OnrampOrderStatus = typeof OnrampOrderStatus[keyof typeof OnrampOrderStatus];
+
+/**
+ * 
+ * @export
+ * @interface OnrampQuoteRequest
+ */
+export interface OnrampQuoteRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof OnrampQuoteRequest
+     */
+    targetAssetId: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof OnrampQuoteRequest
+     */
+    fiat: string;
+    /**
+     * Fiat decimal. When `reverse=true`, target crypto
+     * @type {string}
+     * @memberof OnrampQuoteRequest
+     */
+    amount: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof OnrampQuoteRequest
+     */
+    reverse?: boolean;
+    /**
+     * 
+     * @type {ExchangePaymentMethodType}
+     * @memberof OnrampQuoteRequest
+     */
+    paymentMethod?: ExchangePaymentMethodType;
+    /**
+     * 
+     * @type {ExchangeMerchantSlug}
+     * @memberof OnrampQuoteRequest
+     */
+    merchant?: ExchangeMerchantSlug;
+}
+
+
+/**
+ * Single merchant's on-ramp quote
+ * @export
+ * @interface OnrampQuoteResult
+ */
+export interface OnrampQuoteResult {
+    /**
+     * 
+     * @type {ExchangeMerchantSlug}
+     * @memberof OnrampQuoteResult
+     */
+    merchant: ExchangeMerchantSlug;
+    /**
+     * 
+     * @type {ExchangePaymentMethodType}
+     * @memberof OnrampQuoteResult
+     */
+    paymentMethod: ExchangePaymentMethodType;
+    /**
+     * Fiat the user pays
+     * @type {string}
+     * @memberof OnrampQuoteResult
+     */
+    amountIn: string;
+    /**
+     * Crypto the user receives, net of fees
+     * @type {string}
+     * @memberof OnrampQuoteResult
+     */
+    amountOut: string;
+    /**
+     * `amount_out / amount_in`
+     * @type {string}
+     * @memberof OnrampQuoteResult
+     */
+    rate: string;
+    /**
+     * 
+     * @type {RampFees}
+     * @memberof OnrampQuoteResult
+     */
+    fees: RampFees;
+    /**
+     * Min fiat
+     * @type {string}
+     * @memberof OnrampQuoteResult
+     */
+    minAmount?: string;
+    /**
+     * Max fiat
+     * @type {string}
+     * @memberof OnrampQuoteResult
+     */
+    maxAmount?: string;
+    /**
+     * Rate guarantee expiry
+     * @type {string}
+     * @memberof OnrampQuoteResult
+     */
+    dateExpire: string;
+    /**
+     * Pass to POST /v2/onramp/orders to pin this rate
+     * @type {string}
+     * @memberof OnrampQuoteResult
+     */
+    merchantTransactionId: string;
+}
+
+
+/**
+ * Multi-merchant quote. `items` sorted by `amount_out` desc
+ * @export
+ * @interface OnrampQuotes
+ */
+export interface OnrampQuotes {
+    /**
+     * 
+     * @type {Array<OnrampQuoteResult>}
+     * @memberof OnrampQuotes
+     */
+    items: Array<OnrampQuoteResult>;
+    /**
+     * 
+     * @type {Array<OnrampQuoteResult>}
+     * @memberof OnrampQuotes
+     */
+    suggested: Array<OnrampQuoteResult>;
+    /**
+     * 
+     * @type {RampUnavailableReason}
+     * @memberof OnrampQuotes
+     */
+    unavailableReason?: RampUnavailableReason;
+}
+
+
+/**
  * 
  * @export
  * @interface P2PSessionResult
@@ -2214,6 +3183,44 @@ export const Provider = {
     Omni: 'omni'
 } as const;
 export type Provider = typeof Provider[keyof typeof Provider];
+
+/**
+ * Fee breakdown in fiat (decimal strings)
+ * @export
+ * @interface RampFees
+ */
+export interface RampFees {
+    /**
+     * 
+     * @type {string}
+     * @memberof RampFees
+     */
+    provider?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof RampFees
+     */
+    network?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof RampFees
+     */
+    total: string;
+}
+
+/**
+ * Set when `items` and `suggested` are both empty
+ * @export
+ */
+export const RampUnavailableReason = {
+    CountryBlocked: 'country_blocked',
+    AmountBelowMin: 'amount_below_min',
+    AmountAboveMax: 'amount_above_max',
+    NoMerchantSupportsPair: 'no_merchant_supports_pair'
+} as const;
+export type RampUnavailableReason = typeof RampUnavailableReason[keyof typeof RampUnavailableReason];
 
 /**
  * 

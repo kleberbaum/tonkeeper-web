@@ -400,7 +400,17 @@ yarn workspace @tonkeeper/core generate:2faApi          # tonkeeper_2fa_backend
 yarn workspace @tonkeeper/core generate:batteryApi      # custodial-battery
 yarn workspace @tonkeeper/core generate:pro             # pro_backend
 yarn workspace @tonkeeper/core generate:tonConsoleApi   # tonconsole_backend
+yarn workspace @tonkeeper/core generate:swapsApi        # swaps_backend_go (Swap/Onramp/Exchange/P2p)
 yarn workspace @tonkeeper/core generate:sdkV2           # public, no token needed
+```
+
+`generate:swapsApi` pulls one `swagger.yaml` covering all of swap, exchange, onramp, offramp, p2p,
+and crosschain operations, and emits `Swap`, `Onramp`, `Exchange`, and `P2p` API classes plus the
+full model set. To regenerate against a feature branch instead of `main`, set
+`SWAPS_BACKEND_BRANCH`:
+
+```sh
+SWAPS_BACKEND_BRANCH=multichain-ramps yarn workspace @tonkeeper/core generate:swapsApi
 ```
 
 ## Branch and commit conventions

@@ -29,7 +29,7 @@ export default defineConfig({
     // it, so this resolves under src/ next to the test (without the prefix the
     // path drops `src/`). No platform suffix: baselines are generated and compared
     // on Linux only, so there is a single committed set. Other platforms skip
-    // screenshot tests (see playwright/test.ts), so no per-OS baselines are written.
+    // screenshot tests (see playwright/test.tsx), so no per-OS baselines are written.
     snapshotPathTemplate: '{snapshotDir}/{testFileDir}/__screenshots__/{testFileName}/{arg}{ext}',
 
     timeout: 30_000,

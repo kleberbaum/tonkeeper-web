@@ -8,7 +8,7 @@ import { Toast } from './Toast';
 
 const Message = styled.div`
     position: fixed;
-    z-index: 20;
+    z-index: 200;
     top: env(safe-area-inset-top);
     left: 50%;
     transform: translateX(-50%)

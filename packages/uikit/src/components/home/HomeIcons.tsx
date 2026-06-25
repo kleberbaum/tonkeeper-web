@@ -1,7 +1,7 @@
 import React from 'react';
 import IcPlus28 from '../../icons/components/IcPlus28';
-import IcArrowUp28 from '../../icons/components/IcArrowUp28';
-import IcArrowDown28 from '../../icons/components/IcArrowDown28';
+import IcArrowUpOutline28 from '../../icons/components/IcArrowUpOutline28';
+import IcArrowDownOutline28 from '../../icons/components/IcArrowDownOutline28';
 import IcMinus28 from '../../icons/components/IcMinus28';
 
 // Home-screen action glyphs rendered at 28px inside the 44px action circle.
@@ -9,9 +9,9 @@ import IcMinus28 from '../../icons/components/IcMinus28';
 // the surrounding button via `currentColor`.
 export const BuyIcon = () => <IcPlus28 className="h-7 w-7" />;
 
-export const SendIcon = () => <IcArrowUp28 className="h-7 w-7" />;
+export const SendIcon = () => <IcArrowUpOutline28 className="h-7 w-7" />;
 
-export const ReceiveIcon = () => <IcArrowDown28 className="h-7 w-7" />;
+export const ReceiveIcon = () => <IcArrowDownOutline28 className="h-7 w-7" />;
 
 export const SellIcon = () => <IcMinus28 className="h-7 w-7" />;
 

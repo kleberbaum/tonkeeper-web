@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '../../../../hooks/translation';
 
 const Ellipsis28 = () => (
     <svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor">

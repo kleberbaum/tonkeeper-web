@@ -33,7 +33,11 @@ export const TranslationContext = React.createContext<I18nContext>({
 });
 
 export const useTranslation = () => {
-    return useContext(TranslationContext);
+    const ctx = useContext(TranslationContext);
+    const testCtx = (
+        globalThis as typeof globalThis & { __TONKEEPER_TEST_I18N_CONTEXT?: I18nContext }
+    ).__TONKEEPER_TEST_I18N_CONTEXT;
+    return !ctx.i18n.enable && testCtx ? testCtx : ctx;
 };
 
 export const tReplace = (product: string, replaces?: Record<string, string | number>) => {
@@ -41,14 +45,15 @@ export const tReplace = (product: string, replaces?: Record<string, string | num
         return product;
     }
 
-    return Object.entries(replaces).reduce(
-        // Global flag so placeholders that appear more than once in a string are all replaced
-        // (e.g. "%{coinSymbolWithEx} … amount of %{coinSymbolWithEx}"). Braces escaped; replacement
-        // passed as a function so a literal `$` in the value isn't treated as a backreference.
-        (acc, [key, val]) =>
-            acc.replace(new RegExp('%\\{' + key + '\\}', 'g'), () => val.toString()),
-        product
-    );
+    return Object.entries(replaces).reduce((acc, [key, val]) => {
+        const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const value = val.toString();
+
+        return acc
+            .replace(new RegExp(`%\\{${escapedKey}\\}`, 'g'), () => value)
+            .replace(new RegExp(`\\{\\{\\s*${escapedKey}\\s*\\}\\}`, 'g'), () => value)
+            .replace(new RegExp(`\\{${escapedKey}\\}`, 'g'), () => value);
+    }, product);
 };
 
 export const useTWithReplaces = (tSimple: Translation) => {

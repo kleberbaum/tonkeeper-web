@@ -16,6 +16,7 @@ import * as runtime from '../runtime';
 import type {
     BuildOmnistonSwapRequest,
     CalculateSwap400Response,
+    CalculateSwap500Response,
     OmnistonSwapMessages,
     Provider,
     SwapAsset,
@@ -49,6 +50,7 @@ export interface SwapApiInterface {
     /**
      * Creates request options for buildOmnistonSwap without sending the request
      * @param {BuildOmnistonSwapRequest} [buildOmnistonSwapRequest] Omniston swap parameters
+     * @deprecated
      * @throws {RequiredError}
      * @memberof SwapApiInterface
      */
@@ -59,6 +61,7 @@ export interface SwapApiInterface {
      * @summary Build Omniston swap
      * @param {BuildOmnistonSwapRequest} [buildOmnistonSwapRequest] Omniston swap parameters
      * @param {*} [options] Override http request option.
+     * @deprecated
      * @throws {RequiredError}
      * @memberof SwapApiInterface
      */
@@ -67,6 +70,7 @@ export interface SwapApiInterface {
     /**
      * Get unsigned messages for Omniston swap
      * Build Omniston swap
+     * @deprecated
      */
     buildOmnistonSwap(requestParameters: BuildOmnistonSwapOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<OmnistonSwapMessages>;
 
@@ -76,6 +80,7 @@ export interface SwapApiInterface {
      * @param {string} toAsset Target asset address (TON or jetton)
      * @param {string} fromAmount Amount to swap (in minimal units)
      * @param {Provider} provider DEX provider
+     * @deprecated
      * @throws {RequiredError}
      * @memberof SwapApiInterface
      */
@@ -89,6 +94,7 @@ export interface SwapApiInterface {
      * @param {string} fromAmount Amount to swap (in minimal units)
      * @param {Provider} provider DEX provider
      * @param {*} [options] Override http request option.
+     * @deprecated
      * @throws {RequiredError}
      * @memberof SwapApiInterface
      */
@@ -97,13 +103,15 @@ export interface SwapApiInterface {
     /**
      * Get swap route with amounts and fees
      * Calculate swap
+     * @deprecated
      */
     calculateSwap(requestParameters: CalculateSwapRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SwapCalculation>;
 
     /**
      * Creates request options for swapAssets without sending the request
-     * @param {string} [q] Free-text query matched against Symbol and Name (case-insensitive). Whitespace is trimmed. Empty/missing returns the full list.
-     * @param {number} [limit] Maximum number of results. When &#x60;q&#x60; is set the server applies an internal default of 50 if omitted; when listing the full snapshot, omitting &#x60;limit&#x60; returns everything. Hard-capped at 1000.
+     * @param {string} [q] Free-text query matched against Symbol and Name (case-insensitive). Whitespace is trimmed. Empty/missing returns the full list
+     * @param {number} [limit] Maximum number of results. When &#x60;q&#x60; is set the server applies an internal default of 50 if omitted; when listing the full snapshot, omitting &#x60;limit&#x60; returns everything. Hard-capped at 1000
+     * @deprecated
      * @throws {RequiredError}
      * @memberof SwapApiInterface
      */
@@ -112,9 +120,10 @@ export interface SwapApiInterface {
     /**
      * Get list of available assets for swapping
      * @summary Get swap assets
-     * @param {string} [q] Free-text query matched against Symbol and Name (case-insensitive). Whitespace is trimmed. Empty/missing returns the full list.
-     * @param {number} [limit] Maximum number of results. When &#x60;q&#x60; is set the server applies an internal default of 50 if omitted; when listing the full snapshot, omitting &#x60;limit&#x60; returns everything. Hard-capped at 1000.
+     * @param {string} [q] Free-text query matched against Symbol and Name (case-insensitive). Whitespace is trimmed. Empty/missing returns the full list
+     * @param {number} [limit] Maximum number of results. When &#x60;q&#x60; is set the server applies an internal default of 50 if omitted; when listing the full snapshot, omitting &#x60;limit&#x60; returns everything. Hard-capped at 1000
      * @param {*} [options] Override http request option.
+     * @deprecated
      * @throws {RequiredError}
      * @memberof SwapApiInterface
      */
@@ -123,11 +132,13 @@ export interface SwapApiInterface {
     /**
      * Get list of available assets for swapping
      * Get swap assets
+     * @deprecated
      */
     swapAssets(requestParameters: SwapAssetsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<SwapAsset>>;
 
     /**
      * Creates request options for swapGas without sending the request
+     * @deprecated
      * @throws {RequiredError}
      * @memberof SwapApiInterface
      */
@@ -137,6 +148,7 @@ export interface SwapApiInterface {
      * Get gas estimates for different swap types
      * @summary Get gas estimates
      * @param {*} [options] Override http request option.
+     * @deprecated
      * @throws {RequiredError}
      * @memberof SwapApiInterface
      */
@@ -145,6 +157,7 @@ export interface SwapApiInterface {
     /**
      * Get gas estimates for different swap types
      * Get gas estimates
+     * @deprecated
      */
     swapGas(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SwapGas>;
 
@@ -157,6 +170,7 @@ export class SwapApi extends runtime.BaseAPI implements SwapApiInterface {
 
     /**
      * Creates request options for buildOmnistonSwap without sending the request
+     * @deprecated
      */
     async buildOmnistonSwapRequestOpts(requestParameters: BuildOmnistonSwapOperationRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
@@ -180,6 +194,7 @@ export class SwapApi extends runtime.BaseAPI implements SwapApiInterface {
     /**
      * Get unsigned messages for Omniston swap
      * Build Omniston swap
+     * @deprecated
      */
     async buildOmnistonSwapRaw(requestParameters: BuildOmnistonSwapOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<OmnistonSwapMessages>> {
         const requestOptions = await this.buildOmnistonSwapRequestOpts(requestParameters);
@@ -191,6 +206,7 @@ export class SwapApi extends runtime.BaseAPI implements SwapApiInterface {
     /**
      * Get unsigned messages for Omniston swap
      * Build Omniston swap
+     * @deprecated
      */
     async buildOmnistonSwap(requestParameters: BuildOmnistonSwapOperationRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<OmnistonSwapMessages> {
         const response = await this.buildOmnistonSwapRaw(requestParameters, initOverrides);
@@ -199,6 +215,7 @@ export class SwapApi extends runtime.BaseAPI implements SwapApiInterface {
 
     /**
      * Creates request options for calculateSwap without sending the request
+     * @deprecated
      */
     async calculateSwapRequestOpts(requestParameters: CalculateSwapRequest): Promise<runtime.RequestOpts> {
         if (requestParameters['fromAsset'] == null) {
@@ -263,6 +280,7 @@ export class SwapApi extends runtime.BaseAPI implements SwapApiInterface {
     /**
      * Get swap route with amounts and fees
      * Calculate swap
+     * @deprecated
      */
     async calculateSwapRaw(requestParameters: CalculateSwapRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SwapCalculation>> {
         const requestOptions = await this.calculateSwapRequestOpts(requestParameters);
@@ -274,6 +292,7 @@ export class SwapApi extends runtime.BaseAPI implements SwapApiInterface {
     /**
      * Get swap route with amounts and fees
      * Calculate swap
+     * @deprecated
      */
     async calculateSwap(requestParameters: CalculateSwapRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SwapCalculation> {
         const response = await this.calculateSwapRaw(requestParameters, initOverrides);
@@ -282,6 +301,7 @@ export class SwapApi extends runtime.BaseAPI implements SwapApiInterface {
 
     /**
      * Creates request options for swapAssets without sending the request
+     * @deprecated
      */
     async swapAssetsRequestOpts(requestParameters: SwapAssetsRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
@@ -310,6 +330,7 @@ export class SwapApi extends runtime.BaseAPI implements SwapApiInterface {
     /**
      * Get list of available assets for swapping
      * Get swap assets
+     * @deprecated
      */
     async swapAssetsRaw(requestParameters: SwapAssetsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<SwapAsset>>> {
         const requestOptions = await this.swapAssetsRequestOpts(requestParameters);
@@ -321,6 +342,7 @@ export class SwapApi extends runtime.BaseAPI implements SwapApiInterface {
     /**
      * Get list of available assets for swapping
      * Get swap assets
+     * @deprecated
      */
     async swapAssets(requestParameters: SwapAssetsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<SwapAsset>> {
         const response = await this.swapAssetsRaw(requestParameters, initOverrides);
@@ -329,6 +351,7 @@ export class SwapApi extends runtime.BaseAPI implements SwapApiInterface {
 
     /**
      * Creates request options for swapGas without sending the request
+     * @deprecated
      */
     async swapGasRequestOpts(): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
@@ -349,6 +372,7 @@ export class SwapApi extends runtime.BaseAPI implements SwapApiInterface {
     /**
      * Get gas estimates for different swap types
      * Get gas estimates
+     * @deprecated
      */
     async swapGasRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SwapGas>> {
         const requestOptions = await this.swapGasRequestOpts();
@@ -360,6 +384,7 @@ export class SwapApi extends runtime.BaseAPI implements SwapApiInterface {
     /**
      * Get gas estimates for different swap types
      * Get gas estimates
+     * @deprecated
      */
     async swapGas(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SwapGas> {
         const response = await this.swapGasRaw(initOverrides);

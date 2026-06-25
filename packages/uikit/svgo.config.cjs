@@ -24,6 +24,18 @@ module.exports = {
         },
         // Size comes from the consumer (className or width/height prop), never
         // baked into the SVG.
-        'removeDimensions'
+        'removeDimensions',
+        // Per-file prefix so SVGs with internal `<clipPath id="a">` /
+        // `<mask id="a">` references don't collide when several icons are on the
+        // same page — without this, `url(#a)` resolves to whichever icon mounted
+        // first and downstream icons render partially clipped.
+        {
+            name: 'prefixIds',
+            params: {
+                delim: '-',
+                prefixIds: true,
+                prefixClassNames: false
+            }
+        }
     ]
 };

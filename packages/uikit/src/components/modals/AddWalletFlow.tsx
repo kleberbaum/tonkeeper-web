@@ -225,7 +225,7 @@ export const AddWalletFlow = () => {
             <Modal
                 isOpen={isOpen}
                 onClose={handleClose}
-                mobileFullScreen
+                mobileHeight="full"
                 disableHeightAnimation
                 tall={!isPicker}
                 tag={`add-wallet-${selectedMethod}`}

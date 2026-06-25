@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '../../../../hooks/translation';
 import BigNumber from 'bignumber.js';
 
 import { MultichainWalletAsset } from '@tonkeeper/core/dist/service/multichainWalletService';

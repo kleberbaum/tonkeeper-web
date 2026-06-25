@@ -58,3 +58,9 @@ package-lock.json
 # Local-only reference checkouts of the native apps; scanned when
 # multichain features need a behaviour reference. Never committed.
 CLAUDE_LOCAL.md
+
+# Ad-hoc screenshots / verification artifacts dropped at the repo root by
+# Playwright MCP and similar tools. Tracked PNG assets live in app/package
+# folders (apps/*/public, apps/mobile/fastlane/...) and are unaffected by
+# the root-only `/*.png`.
+/*.png

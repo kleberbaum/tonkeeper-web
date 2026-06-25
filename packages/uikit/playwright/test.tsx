@@ -6,11 +6,17 @@
 // only when the extensions differ (`.ts` vs `.tsx`). Matching `.tsx` suppresses that
 // rewrite, so path filters like `playwright test src/.../Foo.ct.tsx` keep working.
 import { test as base, expect } from '@playwright/experimental-ct-react';
+import type { Page } from '@playwright/test';
 import type { TestMode } from './index';
 
 export { expect };
 export const test = base;
 export type { TestMode };
+type ScreenshotTarget = 'component' | 'dialog';
+type ScreenshotOptions = {
+    target?: ScreenshotTarget;
+    setupPage?: (page: Page, mode: TestMode) => Promise<void> | void;
+};
 
 /** Viewport size per mode. Mirrors the breakpoints the app targets. */
 export const TEST_MODES = {
@@ -68,14 +74,22 @@ export function screenshot(title: string, render: () => JSX.Element, mode: TestM
 export function screenshotEachMode(
     title: string,
     render: () => JSX.Element,
-    modes: readonly TestMode[] = ['desktop', 'mobile']
+    modes: readonly TestMode[] = ['desktop', 'mobile'],
+    options: ScreenshotOptions = {}
 ) {
+    const target = options.target ?? 'component';
+    const setupPage = options.setupPage;
     for (const mode of modes) {
         test(`${title} [${mode}]`, async ({ mount, page }) => {
             test.skip(!SCREENSHOTS_SUPPORTED, SKIP_REASON);
             await page.setViewportSize(TEST_MODES[mode]);
+            if (setupPage) {
+                await setupPage(page, mode);
+            }
             const component = await mount(render(), { hooksConfig: { mode } });
-            await expect(component).toHaveScreenshot(`${slug(title)}-${mode}.png`);
+            const screenshotTarget =
+                target === 'dialog' ? page.getByRole('dialog').first() : component;
+            await expect(screenshotTarget).toHaveScreenshot(`${slug(title)}-${mode}.png`);
         });
     }
 }

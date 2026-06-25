@@ -69,6 +69,11 @@ export enum QueryKey {
     swapWalletAssets = 'swapWalletAssets',
     swapCustomToken = 'swapCustomToken',
 
+    onrampConfiguration = 'onrampConfiguration',
+    onrampAsset = 'onrampAsset',
+    onrampMerchants = 'onrampMerchants',
+    exchangeLayout = 'exchangeLayout',
+
     multisigWallet = 'multisigWallet',
     multisigOrder = 'multisigOrder',
 

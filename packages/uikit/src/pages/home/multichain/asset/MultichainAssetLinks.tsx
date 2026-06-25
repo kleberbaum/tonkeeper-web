@@ -1,5 +1,5 @@
 import { FC, ReactNode } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '../../../../hooks/translation';
 
 import { AssetDetailsLinks, AssetLink } from '@tonkeeper/core/dist/service/tradingService';
 
