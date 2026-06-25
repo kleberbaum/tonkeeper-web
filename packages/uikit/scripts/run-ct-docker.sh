@@ -5,6 +5,7 @@ MODE="${1:-run}"
 shift || true
 WORKERS="${CT_WORKERS:-1}"
 REPO="$(git rev-parse --show-toplevel)"
+AUTH_TOKEN="${NODE_AUTH_TOKEN:-${YARN_NPM_AUTH_TOKEN:-${GITHUB_TOKEN:-}}}"
 
 case "${MODE}" in
     run)
@@ -29,7 +30,10 @@ for arg in "$@"; do
     PLAYWRIGHT_ARGS="${PLAYWRIGHT_ARGS} \"${arg}\""
 done
 
-docker run --rm -e YARN_NPM_AUTH_TOKEN -v "${REPO}:/work" -w /work \
+docker run --rm \
+    -e NODE_AUTH_TOKEN="${AUTH_TOKEN}" \
+    -e YARN_NPM_AUTH_TOKEN="${AUTH_TOKEN}" \
+    -v "${REPO}:/work" -w /work \
     mcr.microsoft.com/playwright:v1.48.1-jammy \
     bash -lc "
         set -euo pipefail
