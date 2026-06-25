@@ -8,9 +8,6 @@
  * No auth. Returns are normalised to the union of fields iOS and
  * Android render; section `enabled` flags decide whether the UI shows
  * the corresponding card or skips it.
- *
- * Replace this handwritten client with a generated Trading API client once
- * the OpenAPI spec is wired into the web build.
  */
 
 const TRADING_API_BASE_URL = 'https://trading.tonkeeper.com/api/v1/trading';

@@ -2,7 +2,6 @@ import { Account, AccountMultichain } from '@tonkeeper/core/dist/entries/account
 import { HomeMultichain } from '@tonkeeper/uikit/dist/pages/home/multichain/HomeMultichain';
 import { MultichainAssetPage } from '@tonkeeper/uikit/dist/pages/home/multichain/asset/MultichainAssetPage';
 import { InnerBody, useWindowsScroll } from '@tonkeeper/uikit/dist/components/Body';
-import { Footer } from '@tonkeeper/uikit/dist/components/Footer';
 import { AppLayout } from '@tonkeeper/uikit/dist/components/layout/AppLayout';
 import { Loading } from '@tonkeeper/uikit/dist/components/Loading';
 import MemoryScroll from '@tonkeeper/uikit/dist/components/MemoryScroll';
@@ -157,7 +156,6 @@ export const MobileContent: FC<{
         <AppLayout
             standalone={standalone}
             recovery={location.pathname.includes(SettingsRoute.recovery)}
-            bottomBar={<Footer standalone={standalone} />}
         >
             <Switch>
                 <Route path={AppRoute.activity}>
