@@ -17,8 +17,8 @@
         "test:ct": "playwright test -c playwright-ct.config.ts",
         "test:ct:update": "playwright test -c playwright-ct.config.ts --update-snapshots",
         "test:ct:changed": "node ../../scripts/test-changed-components.mjs",
-        "test:ct:docker": "REPO=$(git rev-parse --show-toplevel) && docker run --rm -v \"$REPO\":/work -v \"$HOME/.npm_local\":\"$HOME/.npm_local\":ro -w /work mcr.microsoft.com/playwright:v1.48.1-jammy bash -lc \"corepack enable && yarn install --immutable && cd packages/uikit && rm -rf playwright/.cache && yarn test:ct\"",
-        "test:ct:update:docker": "REPO=$(git rev-parse --show-toplevel) && docker run --rm -v \"$REPO\":/work -v \"$HOME/.npm_local\":\"$HOME/.npm_local\":ro -w /work mcr.microsoft.com/playwright:v1.48.1-jammy bash -lc \"corepack enable && yarn install --immutable && cd packages/uikit && rm -rf playwright/.cache && yarn test:ct:update\""
+        "test:ct:docker": "sh -c 'REPO=$(git rev-parse --show-toplevel) && TOKEN=\"${NODE_AUTH_TOKEN:-${GITHUB_TOKEN:-}}\" && if [ -z \"$TOKEN\" ]; then echo \"error: NODE_AUTH_TOKEN or GITHUB_TOKEN is required to install @tonkeeper packages in Docker\" >&2; exit 1; fi && docker run --rm -e NODE_AUTH_TOKEN=\"$TOKEN\" -v \"$REPO\":/work -w /work mcr.microsoft.com/playwright:v1.48.1-jammy bash -lc \"corepack enable && yarn install --immutable && cd packages/uikit && rm -rf playwright/.cache && yarn test:ct\"'",
+        "test:ct:update:docker": "sh -c 'REPO=$(git rev-parse --show-toplevel) && TOKEN=\"${NODE_AUTH_TOKEN:-${GITHUB_TOKEN:-}}\" && if [ -z \"$TOKEN\" ]; then echo \"error: NODE_AUTH_TOKEN or GITHUB_TOKEN is required to install @tonkeeper packages in Docker\" >&2; exit 1; fi && docker run --rm -e NODE_AUTH_TOKEN=\"$TOKEN\" -v \"$REPO\":/work -w /work mcr.microsoft.com/playwright:v1.48.1-jammy bash -lc \"corepack enable && yarn install --immutable && cd packages/uikit && rm -rf playwright/.cache && yarn test:ct:update\"'"
     },
     "license": "ISC",
     "dependencies": {

@@ -125,7 +125,7 @@ export const MnemonicInputForm: FC<{
                 items.splice(index, max, ...slice);
                 return items;
             });
-            focusInput(ref.current, max - 1);
+            focusInput(ref.current, index + max - 1);
         },
         [setMnemonic]
     );

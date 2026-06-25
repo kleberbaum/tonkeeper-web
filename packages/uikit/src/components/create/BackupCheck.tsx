@@ -35,13 +35,13 @@ export const BackupCheck: FC<{
     const fieldsRef = useRef<HTMLDivElement>(null);
 
     // One position from each third of the phrase, matching the legacy
-    // CheckMnemonic behaviour. For 24 words: [1-7], [8-15], [16-23].
+    // CheckMnemonic behaviour. For 24 words: [1-8], [9-16], [17-24].
     const positions = useMemo(() => {
         const third = Math.floor(mnemonic.length / 3);
         return [
             getRandomInt(1, third + 1),
             getRandomInt(third + 1, 2 * third + 1),
-            getRandomInt(2 * third + 1, mnemonic.length)
+            getRandomInt(2 * third + 1, mnemonic.length + 1)
         ];
     }, [mnemonic.length]);
 

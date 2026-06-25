@@ -154,10 +154,9 @@ ways:
 
     Two things the script handles / you should know:
 
-    - **chainkit `file:` mount.** `chainkit` is a `file:` dependency resolved from an absolute host
-      path (`~/.npm_local/...`); Yarn re-resolves `file:` deps from source on every install (the
-      `.yarn/cache` zip is only the fetch artifact). The script bind-mounts that dir read-only into
-      the container at the same path so `yarn install` resolves it — no published package needed.
+    - **GitHub Packages auth.** `chainkit` is fetched from `npm.pkg.github.com`, so the container
+      needs an auth token. Export either `NODE_AUTH_TOKEN` or `GITHUB_TOKEN` before running the
+      script; the wrapper forwards it into Docker as `NODE_AUTH_TOKEN` for Yarn.
     - **It shares your `node_modules`.** The repo (incl. `node_modules`) is bind-mounted, so the
       container's install rebuilds native modules (`esbuild`, `sharp`, …) as **Linux** binaries in
       place. After running, your macOS host deps are Linux ones — **run `yarn install` on the host
