@@ -6,7 +6,7 @@ import { FieldWord } from '../fields/FieldWord';
  * error border until the field loses focus once — typing an unfinished
  * word shouldn't paint the box red mid-keystroke. Shared by the
  * mnemonic-entry form (`MnemonicInputForm`) and the 3-word verification
- * step (`CheckMnemonic`).
+ * step (`BackupCheck`).
  */
 export const WordInput: FC<{
     value: string;

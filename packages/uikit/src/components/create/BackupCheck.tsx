@@ -33,7 +33,7 @@ export const BackupCheck: FC<{
     const fieldsRef = useRef<HTMLDivElement>(null);
 
     // One position from each third of the phrase, matching the legacy
-    // CheckMnemonic behaviour. For 24 words: [1-8], [9-16], [17-24].
+    // For 24 words: [1-8], [9-16], [17-24].
     const positions = useMemo(() => {
         const third = Math.floor(mnemonic.length / 3);
         return [
