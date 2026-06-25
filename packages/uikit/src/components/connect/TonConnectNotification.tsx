@@ -317,7 +317,7 @@ const useManifest = (params: ConnectRequest | null) => {
 
     return useQuery<DAppManifest, Error>(
         [QueryKey.estimate, params],
-        async () => {
+        async (): Promise<DAppManifest> => {
             sdk.uiEvents.emit('copy', {
                 method: 'copy',
                 params: t('loading')

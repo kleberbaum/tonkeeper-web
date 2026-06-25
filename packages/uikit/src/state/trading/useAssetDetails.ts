@@ -10,7 +10,7 @@ export const useAssetDetails = (assetId: string) => {
 
     return useQuery<AssetDetails | null, Error>(
         [QueryKey.tradingAssetDetails, assetId, fiat],
-        async () => {
+        async (): Promise<AssetDetails | null> => {
             try {
                 return await getAssetDetails({ assetId, currency: fiat });
             } catch (e) {

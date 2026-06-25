@@ -221,7 +221,7 @@ export const useNftDNSLinkData = (nft: NFT) => {
 
     return useQuery<DnsRecord | null, Error>(
         ['dns_link', nft?.address],
-        async () => {
+        async (): Promise<DnsRecord | null> => {
             const { dns: domainName } = nft;
             if (!domainName) return null;
 

@@ -1,3 +1,10 @@
+// This file MUST keep the `.tsx` extension (it holds no JSX). The `screenshot` /
+// `screenshotEachMode` helpers below call Playwright's `test()`, so every screenshot
+// test resolves its source location to this file. When a `*.ct.tsx` contains only
+// screenshot tests, all of its tests point here; Playwright's loader then treats that
+// as a source-map case and rewrites the file suite's location to this helper — but
+// only when the extensions differ (`.ts` vs `.tsx`). Matching `.tsx` suppresses that
+// rewrite, so path filters like `playwright test src/.../Foo.ct.tsx` keep working.
 import { test as base, expect } from '@playwright/experimental-ct-react';
 import type { TestMode } from './index';
 

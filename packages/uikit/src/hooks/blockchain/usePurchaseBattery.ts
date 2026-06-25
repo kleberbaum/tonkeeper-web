@@ -50,7 +50,7 @@ export function useEstimatePurchaseBattery({
             promoCode,
             batteryConfig
         ],
-        async () => {
+        async (): Promise<TonEstimation> => {
             try {
                 const needPayload = giftRecipient || promoCode || !payWithTon;
                 return await transferService.estimate(await getSender!(), {

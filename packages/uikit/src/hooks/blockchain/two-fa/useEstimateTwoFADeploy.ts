@@ -21,7 +21,7 @@ export function useEstimateTwoFADeploy() {
 
     return useQuery<TonEstimation, Error>(
         ['estimate-deploy-2fa-plugin', wallet],
-        async () => {
+        async (): Promise<TonEstimation> => {
             try {
                 if (!isStandardTonWallet(wallet)) {
                     throw new Error('Cant deploy two fa plugin using this wallet');

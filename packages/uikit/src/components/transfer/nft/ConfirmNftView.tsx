@@ -92,7 +92,7 @@ const useNftTransferEstimation = (
 
     return useQuery<TonEstimation, Error>(
         [QueryKey.estimate, data?.address, accounts, getSenderKey],
-        async () => {
+        async (): Promise<TonEstimation> => {
             try {
                 if (account.type === 'watch-only') {
                     throw new Error('account not controllable');
