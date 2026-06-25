@@ -32,8 +32,8 @@ export const BackupCheck: FC<{
     const formId = useId();
     const fieldsRef = useRef<HTMLDivElement>(null);
 
-    // One position from each third of the phrase, matching the legacy
-    // For 24 words: [1-8], [9-16], [17-24].
+    // One position from each third of the phrase. For 24 words:
+    // [1-8], [9-16], [17-24].
     const positions = useMemo(() => {
         const third = Math.floor(mnemonic.length / 3);
         return [
