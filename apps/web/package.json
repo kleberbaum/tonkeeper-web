@@ -5,11 +5,11 @@
     "description": "Your web wallet on The Open Network",
     "dependencies": {
         "@tanstack/react-query": "4.3.4",
+        "@tonkeeper/chainkit": "0.0.4",
         "@tonkeeper/core": "0.1.0",
         "@tonkeeper/locales": "0.1.0",
         "@tonkeeper/uikit": "0.1.0",
         "buffer": "^6.0.3",
-        "chainkit": "npm:@tonkeeper/chainkit@0.0.4",
         "copy-to-clipboard": "^3.3.3",
         "i18next": "^22.1.4",
         "i18next-browser-languagedetector": "^7.0.2",

@@ -4,7 +4,7 @@ import {
     Address as ChainkitAddress,
     Chain as ChainkitChain,
     CryptoWallet as ChainkitCryptoWallet
-} from 'chainkit';
+} from '@tonkeeper/chainkit';
 
 import { BuildTxArgs, ChainAdapter, ChainId, ChainSigner, NotImplementedError } from './types';
 

@@ -5041,6 +5041,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tonkeeper/chainkit@npm:0.0.4":
+  version: 0.0.4
+  resolution: "@tonkeeper/chainkit@npm:0.0.4::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40tonkeeper%2Fchainkit%2F0.0.4%2Fb57f18a93d791bda09ee7dfca3406c78399c1f19"
+  dependencies:
+    "@js-joda/core": "npm:3.2.0"
+    "@trustwallet/wallet-core": "npm:4.6.0"
+    ws: "npm:8.18.3"
+  checksum: 10/d751a37b6dbf9bc8b15bd8fb9a0ec0be33ed17a99468585038e2d43f0d35f6e45e8caf7b30d8dd15d999630eee8c49278f5e791fc487ebfd577a1d4033a56d38
+  languageName: node
+  linkType: hard
+
 "@tonkeeper/core@npm:0.1.0, @tonkeeper/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@tonkeeper/core@workspace:packages/core"
@@ -5057,13 +5068,13 @@ __metadata:
     "@ton/core": "npm:0.56.0"
     "@ton/crypto": "npm:3.2.0"
     "@ton/ton": "npm:^16.0.0"
+    "@tonkeeper/chainkit": "npm:0.0.4"
     "@types/aes-js": "npm:^3.1.4"
     "@types/js-yaml": "npm:^4.0.9"
     "@types/punycode": "npm:^2"
     aes-js: "npm:^3.1.2"
     bignumber.js: "npm:^9.1.1"
     bip39: "npm:^3.1.0"
-    chainkit: "npm:@tonkeeper/chainkit@0.0.4"
     crc-32: "npm:^1.2.2"
     ethers: "npm:^6.13.4"
     js-yaml: "npm:^4.1.0"
@@ -5372,6 +5383,7 @@ __metadata:
   resolution: "@tonkeeper/web@workspace:apps/web"
   dependencies:
     "@tanstack/react-query": "npm:4.3.4"
+    "@tonkeeper/chainkit": "npm:0.0.4"
     "@tonkeeper/core": "npm:0.1.0"
     "@tonkeeper/locales": "npm:0.1.0"
     "@tonkeeper/uikit": "npm:0.1.0"
@@ -5384,7 +5396,6 @@ __metadata:
     "@vitejs/plugin-react": "npm:^4.2.1"
     autoprefixer: "npm:^10.4.20"
     buffer: "npm:^6.0.3"
-    chainkit: "npm:@tonkeeper/chainkit@0.0.4"
     copy-to-clipboard: "npm:^3.3.3"
     fs-extra: "npm:^11.2.0"
     i18next: "npm:^22.1.4"
@@ -9125,17 +9136,6 @@ __metadata:
     loupe: "npm:^3.1.0"
     pathval: "npm:^2.0.0"
   checksum: 10/0d0ef63106083b05c7ba510697cd9991a02b8df5984a7d010ab4af10205c7a1f27d1c06bfa4679540894295ac4dcc22aa2a281e2e4cfe5133c1db379626689a2
-  languageName: node
-  linkType: hard
-
-"chainkit@npm:@tonkeeper/chainkit@0.0.4":
-  version: 0.0.4
-  resolution: "@tonkeeper/chainkit@npm:0.0.4::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40tonkeeper%2Fchainkit%2F0.0.4%2Fb57f18a93d791bda09ee7dfca3406c78399c1f19"
-  dependencies:
-    "@js-joda/core": "npm:3.2.0"
-    "@trustwallet/wallet-core": "npm:4.6.0"
-    ws: "npm:8.18.3"
-  checksum: 10/d751a37b6dbf9bc8b15bd8fb9a0ec0be33ed17a99468585038e2d43f0d35f6e45e8caf7b30d8dd15d999630eee8c49278f5e791fc487ebfd577a1d4033a56d38
   languageName: node
   linkType: hard
 
@@ -20269,10 +20269,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "tonkeeper-web@workspace:."
   dependencies:
+    "@tonkeeper/chainkit": "npm:0.0.4"
     "@tonkeeper/uikit": "workspace:^"
     "@typescript-eslint/eslint-plugin": "npm:^5.50.0"
     "@typescript-eslint/parser": "npm:^5.50.0"
-    chainkit: "npm:@tonkeeper/chainkit@0.0.4"
     eslint: "npm:^8.33.0"
     eslint-config-airbnb-typescript: "npm:^17.0.0"
     eslint-config-prettier: "npm:^8.6.0"

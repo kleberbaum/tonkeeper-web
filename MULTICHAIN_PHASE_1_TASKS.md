@@ -62,12 +62,12 @@ derivation lives in `walletContract()` (Track C) and tx flows in the per-strateg
 | File                                                           | Purpose                                                                                                                                                                              |
 | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `packages/core/src/chains/types.ts`                            | `ChainId` (`'ton' \| 'evm' \| 'btc' \| 'tron' \| 'sol'`), `ChainAdapter<TMessage, TSignature>` interface, `BuildTxArgs`, `Fee`, `NotImplementedError`.                               |
-| `packages/core/src/chains/ready.ts`                            | `ensureReady()` — memoised, single-shared-promise wrapper around `chainkit.ready()`. Awaited at app startup and in test `beforeAll`.                                                 |
+| `packages/core/src/chains/ready.ts`                            | `ensureReady()` — memoised, single-shared-promise wrapper around `@tonkeeper/chainkit.ready()`. Awaited at app startup and in test `beforeAll`.                                      |
 | `packages/core/src/chains/result.ts`                           | `unwrap<T,E>(res: Res<T,E>): T` helper that throws on `Err`. Centralises the chain-kit `Res` translation.                                                                            |
 | `packages/core/src/chains/adapter.ts`                          | `ChainkitAdapter` class — single implementation for every chain. `chainOf(id)` maps `ChainId → chainkit.Chain.X.Mainnet`; throws for `sol` ("chain-kit 0.0.1-alpha1 has no Solana"). |
 | `packages/core/src/chains/index.ts`                            | `getAdapter(chain)` with a `Map<ChainId, ChainAdapter>` memo. Re-exports types + `ensureReady` + `unwrap`.                                                                           |
 | `packages/core/src/chains/__tests__/adapter.test.ts`           | 20 assertions across `validateAddress`, amount roundtrips, NotImplementedError stubs, and registry memoisation.                                                                      |
-| `packages/core/src/chains/__tests__/chainkit-resolves.test.ts` | A1 smoke — `import('chainkit')` resolves and `await ready()` returns in ~25ms under vitest Node.                                                                                     |
+| `packages/core/src/chains/__tests__/chainkit-resolves.test.ts` | A1 smoke — `import('@tonkeeper/chainkit')` resolves and `await ready()` returns in ~25ms under vitest Node.                                                                          |
 
 ### `ChainAdapter` interface shape
 
@@ -92,9 +92,10 @@ union (`{ type: 'cell' | 'eth-typed' | … }`) without touching the adapter shap
 
 ### Tasks
 
--   [x] **A1.** Add chain-kit `.tgz` dependency to `packages/core/package.json` and smoke-test that
-        `import { ready } from 'chainkit'` resolves and `await ready()` returns. `ready()` is ~25ms
-        under Node CJS — no `wallet-core.wasm` fetch shim needed (that's browser-only).
+-   [x] **A1.** Add chain-kit dependency to `packages/core/package.json` and smoke-test that
+        `import { ready } from '@tonkeeper/chainkit'` resolves and `await ready()` returns.
+        `ready()` is ~25ms under Node CJS — no `wallet-core.wasm` fetch shim needed (that's
+        browser-only).
 -   [x] **A2.** Scaffold `index.ts`, `types.ts`, `ready.ts`, `result.ts`, `adapter.ts`. Five files.
 -   [x] **A3.** `ensureReady()` memoises into a single shared promise; `unwrap()` translates
         `Res<T,E>` into a regular thrown `Error`. Exercised via the adapter tests.

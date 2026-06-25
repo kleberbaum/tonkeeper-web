@@ -1,4 +1,4 @@
-import { ready as chainkitReady } from 'chainkit';
+import { ready as chainkitReady } from '@tonkeeper/chainkit';
 
 /**
  * Idempotent wrapper around `chainkit.ready()`.
