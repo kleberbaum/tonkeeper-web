@@ -8,6 +8,9 @@
  * No auth. Returns are normalised to the union of fields iOS and
  * Android render; section `enabled` flags decide whether the UI shows
  * the corresponding card or skips it.
+ *
+ * Replace this handwritten client with a generated Trading API client once
+ * the OpenAPI spec is wired into the web build.
  */
 
 const TRADING_API_BASE_URL = 'https://trading.tonkeeper.com/api/v1/trading';
@@ -58,7 +61,22 @@ export interface AssetDetailsLinks {
     note?: string;
 }
 
+export type AssetVerification = 'whitelist' | 'none' | 'blacklist' | string;
+
+export interface AssetDetailsAsset {
+    assetType: string;
+    assetId: string;
+    symbol: string;
+    name: string;
+    decimals: number;
+    trustScore: number;
+    image: string;
+    isScam: boolean;
+    verification: AssetVerification;
+}
+
 export interface AssetDetails {
+    asset: AssetDetailsAsset;
     about: AssetDetailsAbout;
     overview: AssetDetailsOverview;
     tradingActivity: AssetDetailsTradingActivity;
@@ -68,7 +86,17 @@ export interface AssetDetails {
 }
 
 interface RawAssetDetailsResponse {
-    asset?: unknown;
+    asset: {
+        asset_type: string;
+        id: string;
+        symbol: string;
+        name: string;
+        decimals: number;
+        trust_score: number;
+        image_url: string;
+        is_scam: boolean;
+        verification: AssetVerification;
+    };
     sections: {
         about: { enabled: boolean; text?: string; source?: string; note?: string };
         overview: {
@@ -93,6 +121,20 @@ interface RawAssetDetailsResponse {
         };
     };
     data_freshness_sec: number;
+}
+
+function normalizeAssetDetailsAsset(raw: RawAssetDetailsResponse['asset']): AssetDetailsAsset {
+    return {
+        assetType: raw.asset_type,
+        assetId: raw.id,
+        symbol: raw.symbol,
+        name: raw.name,
+        decimals: raw.decimals,
+        trustScore: raw.trust_score,
+        image: raw.image_url,
+        isScam: raw.is_scam,
+        verification: raw.verification
+    };
 }
 
 export interface GetAssetDetailsArgs {
@@ -123,6 +165,7 @@ export async function getAssetDetails(args: GetAssetDetailsArgs): Promise<AssetD
 
     const raw = (await response.json()) as RawAssetDetailsResponse;
     return {
+        asset: normalizeAssetDetailsAsset(raw.asset),
         about: {
             enabled: raw.sections.about.enabled,
             text: raw.sections.about.text,

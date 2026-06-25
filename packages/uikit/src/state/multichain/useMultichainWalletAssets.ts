@@ -26,10 +26,32 @@ function computeTotalFiat(assets: MultichainWalletAsset[]): BigNumber {
     }, new BigNumber(0));
 }
 
+async function fetchAvailableMultichainWalletAssets(
+    walletId: string,
+    fiat: string
+): Promise<MultichainWalletAsset[]> {
+    const assets: MultichainWalletAsset[] = [];
+    let cursor: string | undefined;
+
+    do {
+        const response = await getMultichainWalletAssets({
+            walletId,
+            currency: fiat,
+            limit: 50,
+            cursor,
+            availableOnly: true
+        });
+        assets.push(...response.assets);
+        cursor = response.nextCursor || undefined;
+    } while (cursor);
+
+    return assets;
+}
+
 /**
  * Multichain wallet-assets query. Fetches the flat list of assets the
  * backend has indexed for this multichain wallet — TON + EVM + BTC +
- * TRON in one response, mirroring iOS / Android.
+ * TRON across cursor pages, mirroring iOS / Android.
  *
  * Gated on `account.type === 'multichain'` and the account carrying a
  * `multichainWalletId`. Non-multichain accounts never fire — keeps the
@@ -48,22 +70,10 @@ export const useMultichainWalletAssets = () => {
             if (!walletId) {
                 return { assets: [], totalFiat: new BigNumber(0) };
             }
-            const response = await getMultichainWalletAssets({
-                walletId,
-                currency: fiat,
-                // Backend caps `limit` at 50. Phase 2 will paginate via
-                // `nextCursor`; for now one page is enough to render the
-                // top assets on the home screen.
-                limit: 50,
-                // Drop zero-balance rows on the home portfolio — matches the
-                // iOS/Android behaviour where the home shows only assets the
-                // wallet actually holds. The Manage-crypto sheet uses
-                // `useAllMultichainWalletAssets` to fetch everything.
-                availableOnly: true
-            });
+            const assets = await fetchAvailableMultichainWalletAssets(walletId, fiat);
             return {
-                assets: response.assets,
-                totalFiat: computeTotalFiat(response.assets)
+                assets,
+                totalFiat: computeTotalFiat(assets)
             };
         },
         {
