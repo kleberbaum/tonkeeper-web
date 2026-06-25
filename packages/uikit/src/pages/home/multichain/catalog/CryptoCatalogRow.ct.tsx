@@ -1,5 +1,3 @@
-import BigNumber from 'bignumber.js';
-
 import { CatalogAsset } from '@tonkeeper/core/dist/service/multichainWalletService';
 
 import { expect, screenshot, test } from '../../../../../playwright/test';
@@ -15,14 +13,19 @@ import { CryptoCatalogRow } from './CryptoCatalogRow';
 //   - row without price and without mcap still lays out without
 //     collapsing the centre column.
 
-const sampleAsset = (overrides: Partial<CatalogAsset>): CatalogAsset => ({
-    assetId: 'ton/mainnet/coin',
-    symbol: 'TON',
-    name: 'Toncoin',
-    decimals: 9,
-    image: '',
-    ...overrides
-});
+type CatalogAssetFixture = Omit<CatalogAsset, 'price'> & {
+    price?: CatalogAsset['price'] | number | string;
+};
+
+const sampleAsset = (overrides: Partial<CatalogAssetFixture>): CatalogAsset =>
+    ({
+        assetId: 'ton/mainnet/coin',
+        symbol: 'TON',
+        name: 'Toncoin',
+        decimals: 9,
+        image: '',
+        ...overrides
+    } as CatalogAsset);
 
 const CARD = 'w-[360px] overflow-hidden rounded-2xl bg-backgroundContent';
 const NARROW = 'w-[280px] overflow-hidden rounded-2xl bg-backgroundContent';
@@ -31,7 +34,7 @@ screenshot('CryptoCatalogRow mcap billions tier', () => (
     <div className={CARD}>
         <CryptoCatalogRow
             asset={sampleAsset({
-                price: new BigNumber('5.43'),
+                price: 5.43,
                 diff24h: '+2.34%',
                 marketCap: '15900000000'
             })}
@@ -47,7 +50,7 @@ screenshot('CryptoCatalogRow mcap millions tier with negative diff', () => (
                 symbol: 'SHIB',
                 name: 'Shiba Inu',
                 decimals: 18,
-                price: new BigNumber('0.0000234'),
+                price: 0.0000234,
                 diff24h: '-1.20%',
                 marketCap: '185500000'
             })}
@@ -63,7 +66,7 @@ screenshot('CryptoCatalogRow mcap thousands tier', () => (
                 symbol: 'TINY',
                 name: 'Tiny Mcap',
                 decimals: 18,
-                price: new BigNumber('0.012'),
+                price: 0.012,
                 diff24h: '+0.50%',
                 marketCap: '54200'
             })}
@@ -79,7 +82,7 @@ screenshot('CryptoCatalogRow mcap sub-$1K tier', () => (
                 symbol: 'NANO',
                 name: 'Nano Coin',
                 decimals: 18,
-                price: new BigNumber('0.001'),
+                price: 0.001,
                 diff24h: '+0.10%',
                 marketCap: '420'
             })}
@@ -95,7 +98,7 @@ screenshot('CryptoCatalogRow no mcap and no diff', () => (
                 symbol: 'USDT',
                 name: 'Tether USD',
                 decimals: 6,
-                price: new BigNumber('0.999')
+                price: 0.999
             })}
         />
     </div>
@@ -109,7 +112,7 @@ screenshot('CryptoCatalogRow long symbol truncates beside chain chip', () => (
                 symbol: 'SUPERLONGTOKEN',
                 name: 'Long Token',
                 decimals: 18,
-                price: new BigNumber('1.23'),
+                price: 1.23,
                 diff24h: '+0.42%',
                 marketCap: '1230000000'
             })}
@@ -118,12 +121,6 @@ screenshot('CryptoCatalogRow long symbol truncates beside chain chip', () => (
 ));
 
 test('CryptoCatalogRow tap calls onSelect before navigating', async ({ mount }) => {
-    // No price/diff/marketCap on this fixture — Playwright CT serializes
-    // props across the test ↔ browser boundary, which strips the BigNumber
-    // prototype. The row's `.toNumber()` branch errors on a deserialized
-    // instance, so the screenshot tests pass real BigNumbers (they render
-    // the price block) while this behavioural test exercises just the
-    // click contract.
     let selected = 0;
     const c = await mount(
         <div className="w-[360px] overflow-hidden rounded-2xl bg-backgroundContent">

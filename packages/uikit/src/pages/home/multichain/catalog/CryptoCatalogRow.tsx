@@ -9,6 +9,27 @@ import { useNavigate } from '../../../../hooks/router/useNavigate';
 import { MultichainRoute } from '../../../../libs/routes';
 import { isNativeRow, networkIcon, networkLabel, parseAssetIdHead } from '../multichain-utils';
 
+function parsePriceNumber(price: CatalogAsset['price']): number | undefined {
+    if (price === undefined || price === null) return undefined;
+
+    if (typeof price === 'number') {
+        return Number.isFinite(price) ? price : undefined;
+    }
+
+    if (typeof price === 'string') {
+        const parsed = Number(price);
+        return Number.isFinite(parsed) ? parsed : undefined;
+    }
+
+    const maybeBigNumber = price as { toNumber?: () => number };
+    if (typeof maybeBigNumber.toNumber === 'function') {
+        const parsed = maybeBigNumber.toNumber();
+        return Number.isFinite(parsed) ? parsed : undefined;
+    }
+
+    return undefined;
+}
+
 function diffClass(raw: string | undefined): string {
     if (!raw) return 'text-textSecondary';
     if (raw.startsWith('-')) return 'text-accentRed';
@@ -58,7 +79,7 @@ export const CryptoCatalogRow: FC<{ asset: CatalogAsset; onSelect?: () => void }
             </div>
         );
 
-    const priceNum = asset.price ? asset.price.toNumber() : undefined;
+    const priceNum = parsePriceNumber(asset.price);
     const diff = asset.diff24h;
     const secondary = formatMarketCap(asset.marketCap);
 
