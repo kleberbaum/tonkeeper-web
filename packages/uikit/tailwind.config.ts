@@ -127,7 +127,17 @@ const config: Config = {
                 small: 'var(--tk-rounding-small)',
                 medium: 'var(--tk-rounding-medium)',
                 large: 'var(--tk-rounding-large)',
-                full: 'var(--tk-rounding-full)'
+                full: 'var(--tk-rounding-full)',
+
+                // Mirror the `corner*` scale on the styled-components theme.
+                // Naming matches the source keys so a reader can grep both.
+                corner3xSmall: 'var(--tk-corner-3xsmall)',
+                corner2xSmall: 'var(--tk-corner-2xsmall)',
+                cornerExtraSmall: 'var(--tk-corner-extra-small)',
+                cornerSmall: 'var(--tk-corner-small)',
+                cornerMedium: 'var(--tk-corner-medium)',
+                cornerLarge: 'var(--tk-corner-large)',
+                cornerFull: 'var(--tk-corner-full)'
             },
             fontFamily: {
                 // Body font is set in `globalStyle.ts`; mono mirrors
