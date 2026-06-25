@@ -6,7 +6,7 @@
 // only when the extensions differ (`.ts` vs `.tsx`). Matching `.tsx` suppresses that
 // rewrite, so path filters like `playwright test src/.../Foo.ct.tsx` keep working.
 import { test as base, expect } from '@playwright/experimental-ct-react';
-import type { Page } from '@playwright/test';
+import type { Page } from 'playwright-core';
 import type { TestMode } from './index';
 
 export { expect };
