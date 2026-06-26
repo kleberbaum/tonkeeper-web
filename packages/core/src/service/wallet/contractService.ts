@@ -3,7 +3,7 @@ import { beginCell, Cell, storeStateInit } from '@ton/core';
 import { Network } from '../../entries/network';
 import { TonWalletStandard, WalletVersion } from '../../entries/wallet';
 import { BlockchainConfig } from '../../tonApiV2';
-import { getStrategy } from './contracts';
+import { getStrategy, registerWalletContractStrategies } from './contracts';
 import type { TonWalletContract, TonWalletContractArgs } from './contracts/ton-strategy';
 
 const GAS_SAFETY_MULTIPLIER = 105n;
@@ -15,12 +15,14 @@ export const walletContract = (
     publicKey: Buffer | string,
     version: WalletVersion,
     network: Network
-): TonWalletContract =>
-    getStrategy<TonWalletContractArgs, TonWalletContract>('ton').create({
+): TonWalletContract => {
+    registerWalletContractStrategies();
+    return getStrategy<TonWalletContractArgs, TonWalletContract>('ton').create({
         publicKey,
         version,
         network
     });
+};
 
 export const walletContractFromState = (wallet: TonWalletStandard): TonWalletContract =>
     walletContract(wallet.publicKey, wallet.version, wallet.network ?? Network.MAINNET);
