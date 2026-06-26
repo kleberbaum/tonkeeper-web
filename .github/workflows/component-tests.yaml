@@ -65,7 +65,7 @@ jobs:
               working-directory: ./packages/uikit
               env:
                   BASE_REF: origin/${{ github.base_ref }}
-              run: node ../../scripts/test-changed-components.mjs
+              run: yarn test:ct:changed
 
             # main: run the full suite as the authoritative baseline check.
             - name: Run full component test suite

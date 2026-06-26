@@ -77,6 +77,10 @@ function runPlaywright(args) {
     console.log(`[test-changed] playwright test ${args.join(' ')}`.trim());
     execFileSync('npx', ['playwright', 'test', '-c', 'playwright-ct.config.ts', ...args], {
         cwd: uikitDir,
+        env: {
+            ...process.env,
+            NODE_OPTIONS: process.env.NODE_OPTIONS || '--max-old-space-size=6144'
+        },
         stdio: 'inherit'
     });
 }
