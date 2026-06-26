@@ -40,7 +40,9 @@ env:
 
 permissions:
     contents: read
+    issues: write
     packages: read
+    pull-requests: write
 
 jobs:
     web-build:
