@@ -1,11 +1,10 @@
 import { FC } from 'react';
-import styled, { css } from 'styled-components';
 import { useAppSdk } from '../../hooks/appSdk';
 import { useTranslation } from '../../hooks/translation';
+import { useIsFullWidthMode } from '../../hooks/useIsFullWidthMode';
 import { useActiveConfig } from '../../state/wallet';
-import { hexToRGBA } from '../../libs/css';
-import { Body1, Body2, Body2Class, Body3, H2Label2Responsive } from '../Text';
-import { BorderSmallResponsive } from '../shared/Styles';
+import { cn } from '../../libs/css';
+import { Body1, Body2, Body3, H2Label2Responsive } from '../Text';
 import { ExclamationMarkCircleIcon } from '../Icon';
 import { Button } from '../fields/Button';
 
@@ -19,99 +18,18 @@ import { Button } from '../fields/Button';
  * variants and pulls in the appropriate explanation callout.
  */
 
-const HeadingBlock = styled.div`
-    display: flex;
-    text-align: center;
-    gap: 1rem;
-    flex-direction: column;
-    margin-bottom: 16px;
-
-    ${p =>
-        p.theme.displayType === 'full-width' &&
-        css`
-            gap: 2px;
-        `}
-`;
-
-const Body = styled(Body1)`
-    user-select: none;
-    text-align: center;
-    color: ${props => props.theme.textSecondary};
-    ${p =>
-        p.theme.displayType === 'full-width' &&
-        css`
-            ${Body2Class};
-            max-width: 450px;
-            display: block;
-            margin: 0 auto;
-        `}
-    text-wrap: balance;
-`;
-
-const WordsGrid = styled.div<{ wordsNumber: 12 | 24 }>`
-    display: grid;
-    grid-template-rows: repeat(${p => p.wordsNumber / 2}, minmax(0, 1fr));
-    grid-auto-flow: column;
-    gap: 0.5rem;
-    place-content: space-evenly;
-    margin: 0 0 1rem;
-    white-space: normal;
-`;
-
-const WordNumber = styled(Body2)`
-    display: inline-block;
-    width: 24px;
-    line-height: 24px;
-    color: ${props => props.theme.textSecondary};
-    user-select: none;
-`;
-
-const MamAccountCallout = styled.div`
-    background: ${p => p.theme.backgroundContent};
-    ${BorderSmallResponsive};
-    padding: 8px 12px;
-    display: flex;
-    gap: 12px;
-    margin-bottom: 24px;
-`;
-
-const TronAccountCallout = styled.div`
-    background: ${p => hexToRGBA(p.theme.accentOrange, 0.16)};
-    ${BorderSmallResponsive};
-    padding: 8px 12px;
-    display: flex;
-    gap: 12px;
-    margin-bottom: 24px;
-`;
-
-const Body3Secondary = styled(Body3)`
-    color: ${p => p.theme.textSecondary};
-`;
-
-const Body3Orange = styled(Body3)`
-    color: ${p => p.theme.accentOrange};
-`;
-
-const ExclamationMarkCircleIconStyled = styled(ExclamationMarkCircleIcon)`
-    margin-top: 4px;
-    height: 16px;
-    width: 16px;
-    color: ${p => p.theme.accentOrange};
-    flex-shrink: 0;
-`;
-
-const LinkStyled = styled(Body3)`
-    color: ${p => p.theme.accentBlueConstant};
-    cursor: pointer;
-`;
-
-const H2Label2ResponsiveStyled = styled(H2Label2Responsive)`
-    ${p =>
-        p.theme.displayType === 'compact' &&
-        css`
-            padding: 0 40px;
-        `}
-`;
+const Caption: FC<{ children: React.ReactNode }> = ({ children }) => {
+    const isFullWidth = useIsFullWidthMode();
+    const className = cn(
+        'select-none text-center text-textSecondary [text-wrap:balance]',
+        isFullWidth && 'mx-auto block max-w-[450px]'
+    );
+    return isFullWidth ? (
+        <Body2 className={className}>{children}</Body2>
+    ) : (
+        <Body1 className={className}>{children}</Body1>
+    );
+};
 
 export const MnemonicDisplay: FC<{
     mnemonic: string[];
@@ -122,26 +40,34 @@ export const MnemonicDisplay: FC<{
     const { t } = useTranslation();
     const config = useActiveConfig();
     const sdk = useAppSdk();
+    const isFullWidth = useIsFullWidthMode();
     type ??= 'standard';
 
+    const calloutCorner = isFullWidth ? 'rounded-corner2xSmall' : 'rounded-cornerSmall';
+
     const MamNotice = type === 'mam' && (
-        <MamAccountCallout>
+        <div className={cn('mb-6 flex gap-3 bg-backgroundContent px-3 py-2', calloutCorner)}>
             <div>
-                <Body3Secondary>{t('mam_account_explanation') + ' '}</Body3Secondary>
+                <Body3 className="text-textSecondary">{t('mam_account_explanation') + ' '}</Body3>
                 {!!config.mam_learn_more_url && (
-                    <LinkStyled onClick={() => sdk.openPage(config.mam_learn_more_url!)}>
+                    <Body3
+                        className="cursor-pointer text-accentBlueConstant"
+                        onClick={() => sdk.openPage(config.mam_learn_more_url!)}
+                    >
                         {t('learn_more')}
-                    </LinkStyled>
+                    </Body3>
                 )}
             </div>
-            <ExclamationMarkCircleIconStyled />
-        </MamAccountCallout>
+            <ExclamationMarkCircleIcon className="mt-1 h-4 w-4 shrink-0 text-accentOrange" />
+        </div>
     );
 
     return (
         <>
-            <HeadingBlock>
-                <H2Label2ResponsiveStyled>
+            <div
+                className={cn('mb-4 flex flex-col text-center', isFullWidth ? 'gap-0.5' : 'gap-4')}
+            >
+                <H2Label2Responsive className={cn(!isFullWidth && 'px-10')}>
                     {t(
                         type === 'mam'
                             ? 'secret_words_account_title'
@@ -149,47 +75,60 @@ export const MnemonicDisplay: FC<{
                             ? 'export_trc_20_wallet'
                             : 'secret_words_title'
                     )}
-                </H2Label2ResponsiveStyled>
+                </H2Label2Responsive>
                 {!descriptionDown && (
-                    <Body>
+                    <Caption>
                         {t(
                             mnemonic.length === 12
                                 ? 'secret_words_caption_12'
                                 : 'secret_words_caption'
                         )}
-                    </Body>
+                    </Caption>
                 )}
-            </HeadingBlock>
+            </div>
 
             {!descriptionDown && MamNotice}
 
             {type === 'tron' && (
-                <TronAccountCallout>
+                <div className={cn('mb-6 flex gap-3 bg-accentOrange/16 px-3 py-2', calloutCorner)}>
                     <div>
-                        <Body3Orange>{t('tron_account_export_warning_explanation')}</Body3Orange>
+                        <Body3 className="text-accentOrange">
+                            {t('tron_account_export_warning_explanation')}
+                        </Body3>
                     </div>
-                    <ExclamationMarkCircleIconStyled />
-                </TronAccountCallout>
+                    <ExclamationMarkCircleIcon className="mt-1 h-4 w-4 shrink-0 text-accentOrange" />
+                </div>
             )}
 
-            <WordsGrid wordsNumber={mnemonic.length as 12 | 24}>
+            <div
+                className={cn(
+                    'mb-4 grid grid-flow-col place-content-evenly gap-2 whitespace-normal',
+                    mnemonic.length === 12
+                        ? '[grid-template-rows:repeat(6,minmax(0,1fr))]'
+                        : '[grid-template-rows:repeat(12,minmax(0,1fr))]'
+                )}
+            >
                 {mnemonic.map((world, index) => (
                     <Body1 key={index}>
-                        <WordNumber> {index + 1}.</WordNumber> {world}{' '}
+                        <Body2 className="inline-block w-6 select-none leading-6 text-textSecondary">
+                            {' '}
+                            {index + 1}.
+                        </Body2>{' '}
+                        {world}{' '}
                     </Body1>
                 ))}
-            </WordsGrid>
+            </div>
 
             {descriptionDown && (
                 <>
                     {MamNotice}
-                    <Body>
+                    <Caption>
                         {t(
                             mnemonic.length === 12
                                 ? 'secret_words_caption_12'
                                 : 'secret_words_caption'
                         )}
-                    </Body>
+                    </Caption>
                 </>
             )}
 

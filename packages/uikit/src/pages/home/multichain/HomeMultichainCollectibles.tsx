@@ -13,7 +13,7 @@ const NftCard: FC<{ nft: NFT; onClick: () => void }> = ({ nft, onClick }) => {
         <button
             type="button"
             onClick={onClick}
-            className="flex w-[160px] shrink-0 flex-col overflow-hidden rounded-2xl bg-backgroundContent text-left"
+            className="flex w-[160px] shrink-0 flex-col overflow-hidden rounded-medium bg-backgroundContent text-left"
         >
             <div className="aspect-square w-full bg-backgroundContentTint">
                 {image && (

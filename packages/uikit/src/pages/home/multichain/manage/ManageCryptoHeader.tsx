@@ -20,7 +20,7 @@ export const ManageCryptoHeader: FC<{ onClose: () => void }> = ({ onClose }) => 
             <button
                 aria-label={t('close')}
                 onClick={onClose}
-                className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-2xl bg-buttonSecondaryBackground text-buttonSecondaryForeground"
+                className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-medium bg-buttonSecondaryBackground text-buttonSecondaryForeground"
             >
                 <Close16 />
             </button>

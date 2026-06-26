@@ -16,7 +16,7 @@ export const MultichainAssetAbout: FC<{ about: AssetDetailsAbout }> = ({ about }
     return (
         <section className="flex flex-col px-4 pb-4">
             <div className="py-3 text-label1 text-textPrimary">{t('wallet_asset_about')}</div>
-            <div className="overflow-hidden rounded-2xl bg-backgroundContent px-4 pb-3 pt-4">
+            <div className="overflow-hidden rounded-medium bg-backgroundContent px-4 pb-3 pt-4">
                 <p className={cn('text-body2 text-textPrimary', !expanded && 'line-clamp-3')}>
                     {about.text}
                 </p>

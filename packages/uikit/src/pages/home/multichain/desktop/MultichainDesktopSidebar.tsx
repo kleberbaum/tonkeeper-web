@@ -37,7 +37,7 @@ export const MultichainDesktopSidebar: FC<{ account: AccountMultichain }> = ({ a
 
     return (
         <aside className="flex h-full w-[280px] shrink-0 flex-col gap-2">
-            <div className="rounded-2xl bg-backgroundContent p-4">
+            <div className="rounded-medium bg-backgroundContent p-4">
                 <div className="flex items-start justify-between">
                     <div className="text-h2 text-textPrimary">{totalLabel}</div>
                     <div className="text-textAccent">
@@ -46,8 +46,8 @@ export const MultichainDesktopSidebar: FC<{ account: AccountMultichain }> = ({ a
                 </div>
             </div>
 
-            <div className="rounded-2xl bg-backgroundContent p-2">
-                <div className="relative flex items-center gap-3 rounded-xl bg-backgroundContentTint px-3 py-2.5">
+            <div className="rounded-medium bg-backgroundContent p-2">
+                <div className="relative flex items-center gap-3 rounded-small bg-backgroundContentTint px-3 py-2.5">
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-backgroundPage text-xl">
                         {account.emoji}
                     </div>
@@ -56,7 +56,7 @@ export const MultichainDesktopSidebar: FC<{ account: AccountMultichain }> = ({ a
                             <span className="truncate text-label2 text-textPrimary">
                                 {account.name}
                             </span>
-                            <span className="rounded-md bg-backgroundPage px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-tight text-textAccent">
+                            <span className="rounded-md bg-backgroundPage px-1.5 py-0.5 text-body4Caps uppercase text-textAccent">
                                 {t('multichain')}
                             </span>
                         </div>

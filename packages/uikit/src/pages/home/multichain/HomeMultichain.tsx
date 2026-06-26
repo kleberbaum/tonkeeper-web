@@ -108,11 +108,11 @@ export const HomeMultichain: FC<{ account: AccountMultichain; compact?: boolean 
                     </button>
                 </div>
                 {allAssets.length === 0 ? (
-                    <div className="rounded-2xl bg-backgroundContent px-4 py-6 text-center text-body2 text-textSecondary">
+                    <div className="rounded-medium bg-backgroundContent px-4 py-6 text-center text-body2 text-textSecondary">
                         {isFetching ? 'Loading assets…' : 'No assets yet'}
                     </div>
                 ) : (
-                    <div className="overflow-hidden rounded-2xl bg-backgroundContent">
+                    <div className="overflow-hidden rounded-medium bg-backgroundContent">
                         {visibleAssets.map((asset, idx) => (
                             <div
                                 key={asset.assetId}

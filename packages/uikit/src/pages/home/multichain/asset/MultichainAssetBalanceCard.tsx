@@ -38,7 +38,7 @@ export const MultichainAssetBalanceCard: FC<{
             <div className="py-3 text-label1 text-textPrimary">
                 {t('wallet_asset_your_balance')}
             </div>
-            <div className="overflow-hidden rounded-2xl bg-backgroundContent">
+            <div className="overflow-hidden rounded-medium bg-backgroundContent">
                 <div className="flex items-center gap-2 px-4 py-4">
                     <ChainBadgeOverlay
                         className="shrink-0"

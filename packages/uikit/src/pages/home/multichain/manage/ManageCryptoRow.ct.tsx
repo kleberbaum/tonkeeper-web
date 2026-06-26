@@ -1,9 +1,5 @@
-import BigNumber from 'bignumber.js';
-
-import { MultichainWalletAsset } from '@tonkeeper/core/dist/service/multichainWalletService';
-
 import { expect, screenshot, test } from '../../../../../playwright/test';
-import { ManageCryptoRow } from './ManageCryptoRow';
+import { ManageRowAsset, ManageRowHarness } from './ManageCryptoRowHarness';
 
 // Edge cases the screenshot suite targets:
 //   - subtitle composition: `{balance} {symbol}` with no price, vs
@@ -15,7 +11,7 @@ import { ManageCryptoRow } from './ManageCryptoRow';
 //   - eye state: visible uses `text-textAccent`, hidden uses
 //     `text-textTertiary` — drives the only visual signal of the toggle.
 
-const sampleAsset = (overrides: Partial<MultichainWalletAsset>): MultichainWalletAsset => ({
+const sampleAsset = (overrides: Partial<ManageRowAsset>): ManageRowAsset => ({
     assetId: 'ton/mainnet/coin',
     chain: 'ton',
     name: 'TON',
@@ -27,23 +23,23 @@ const sampleAsset = (overrides: Partial<MultichainWalletAsset>): MultichainWalle
     ...overrides
 });
 
-const CARD = 'w-[360px] overflow-hidden rounded-2xl bg-backgroundContent';
-const NARROW = 'w-[280px] overflow-hidden rounded-2xl bg-backgroundContent';
+const CARD = 'w-[360px] overflow-hidden rounded-medium bg-backgroundContent';
+const NARROW = 'w-[280px] overflow-hidden rounded-medium bg-backgroundContent';
 
 const TON_VISIBLE = sampleAsset({
     balance: '4530000000',
-    price: new BigNumber('5.43')
+    priceStr: '5.43'
 });
 
 screenshot('ManageCryptoRow TON visible baseline', () => (
     <div className={CARD}>
-        <ManageCryptoRow asset={TON_VISIBLE} visible onToggle={() => {}} />
+        <ManageRowHarness asset={TON_VISIBLE} visible onToggle={() => {}} />
     </div>
 ));
 
 screenshot('ManageCryptoRow hidden eye with chain chip', () => (
     <div className={CARD}>
-        <ManageCryptoRow
+        <ManageRowHarness
             asset={sampleAsset({
                 assetId: 'tron/mainnet/trc20/TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
                 chain: 'tron',
@@ -51,7 +47,7 @@ screenshot('ManageCryptoRow hidden eye with chain chip', () => (
                 symbol: 'USDT',
                 decimals: 6,
                 balance: '25790000',
-                price: new BigNumber('0.999')
+                priceStr: '0.999'
             })}
             visible={false}
             onToggle={() => {}}
@@ -61,7 +57,7 @@ screenshot('ManageCryptoRow hidden eye with chain chip', () => (
 
 screenshot('ManageCryptoRow no price drops the fiat segment of the subtitle', () => (
     <div className={CARD}>
-        <ManageCryptoRow
+        <ManageRowHarness
             asset={sampleAsset({
                 assetId: 'eth/mainnet/erc20/0x6b175474e89094c44da98b954eedeac495271d0f',
                 chain: 'evm',
@@ -78,7 +74,7 @@ screenshot('ManageCryptoRow no price drops the fiat segment of the subtitle', ()
 
 screenshot('ManageCryptoRow long symbol truncates beside chip', () => (
     <div className={NARROW}>
-        <ManageCryptoRow
+        <ManageRowHarness
             asset={sampleAsset({
                 assetId: 'eth/mainnet/erc20/0xdeadbeef',
                 chain: 'evm',
@@ -86,7 +82,7 @@ screenshot('ManageCryptoRow long symbol truncates beside chip', () => (
                 symbol: 'SUPERLONGTOKEN',
                 decimals: 18,
                 balance: '12340000000000000000',
-                price: new BigNumber('0.42')
+                priceStr: '0.42'
             })}
             visible
             onToggle={() => {}}
@@ -96,7 +92,7 @@ screenshot('ManageCryptoRow long symbol truncates beside chip', () => (
 
 screenshot('ManageCryptoRow very large balance stays single line', () => (
     <div className={CARD}>
-        <ManageCryptoRow
+        <ManageRowHarness
             asset={sampleAsset({
                 assetId: 'eth/mainnet/erc20/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
                 chain: 'evm',
@@ -104,7 +100,7 @@ screenshot('ManageCryptoRow very large balance stays single line', () => (
                 symbol: 'USDC',
                 decimals: 6,
                 balance: '1234567890000', // 1.234M USDC
-                price: new BigNumber('1.00')
+                priceStr: '1.00'
             })}
             visible
             onToggle={() => {}}
@@ -115,8 +111,8 @@ screenshot('ManageCryptoRow very large balance stays single line', () => (
 test('ManageCryptoRow tapping the row fires onToggle', async ({ mount }) => {
     let toggled = 0;
     const c = await mount(
-        <div className="w-[360px] overflow-hidden rounded-2xl bg-backgroundContent">
-            <ManageCryptoRow asset={TON_VISIBLE} visible onToggle={() => toggled++} />
+        <div className="w-[360px] overflow-hidden rounded-medium bg-backgroundContent">
+            <ManageRowHarness asset={TON_VISIBLE} visible onToggle={() => toggled++} />
         </div>
     );
     await c.getByRole('button').click();
@@ -125,8 +121,8 @@ test('ManageCryptoRow tapping the row fires onToggle', async ({ mount }) => {
 
 test('ManageCryptoRow visible=true uses the textAccent eye colour', async ({ mount }) => {
     const c = await mount(
-        <div className="w-[360px] overflow-hidden rounded-2xl bg-backgroundContent">
-            <ManageCryptoRow asset={TON_VISIBLE} visible onToggle={() => {}} />
+        <div className="w-[360px] overflow-hidden rounded-medium bg-backgroundContent">
+            <ManageRowHarness asset={TON_VISIBLE} visible onToggle={() => {}} />
         </div>
     );
     // EyeVisible uses text-textAccent; EyeHidden uses text-textTertiary.
@@ -136,8 +132,8 @@ test('ManageCryptoRow visible=true uses the textAccent eye colour', async ({ mou
 
 test('ManageCryptoRow visible=false uses the textTertiary eye colour', async ({ mount }) => {
     const c = await mount(
-        <div className="w-[360px] overflow-hidden rounded-2xl bg-backgroundContent">
-            <ManageCryptoRow asset={TON_VISIBLE} visible={false} onToggle={() => {}} />
+        <div className="w-[360px] overflow-hidden rounded-medium bg-backgroundContent">
+            <ManageRowHarness asset={TON_VISIBLE} visible={false} onToggle={() => {}} />
         </div>
     );
     await expect(c.locator('svg.text-textTertiary')).toBeVisible();

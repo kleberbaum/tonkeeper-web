@@ -2,6 +2,8 @@ import { FC, useEffect, useRef, useState } from 'react';
 
 import { CatalogSort } from '@tonkeeper/core/dist/service/multichainWalletService';
 
+import { useTranslation } from '../../../../hooks/translation';
+
 const ArrowsUpDown = () => (
     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
         <path
@@ -35,21 +37,23 @@ const Check16 = () => (
 
 interface Option {
     value: CatalogSort;
-    label: string;
+    labelKey: string;
 }
 
 const OPTIONS: Option[] = [
-    { value: 'market_cap', label: 'Market Cap' },
-    { value: 'volume', label: 'Volume' }
+    { value: 'market_cap', labelKey: 'wallet_asset_market_cap' },
+    { value: 'volume', labelKey: 'wallet_asset_volume' }
 ];
 
 export const CryptoCatalogSortButton: FC<{
     value: CatalogSort;
     onChange: (sort: CatalogSort) => void;
 }> = ({ value, onChange }) => {
+    const { t } = useTranslation();
     const [open, setOpen] = useState(false);
     const wrapperRef = useRef<HTMLDivElement>(null);
-    const activeLabel = OPTIONS.find(o => o.value === value)?.label ?? 'Sort';
+    const activeOption = OPTIONS.find(o => o.value === value);
+    const activeLabel = activeOption ? t(activeOption.labelKey) : t('crypto_catalog_sort');
 
     useEffect(() => {
         if (!open) return;
@@ -63,7 +67,7 @@ export const CryptoCatalogSortButton: FC<{
     return (
         <div ref={wrapperRef} className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2">
             {open && (
-                <div className="absolute bottom-full left-1/2 mb-2 w-[180px] -translate-x-1/2 overflow-hidden rounded-2xl bg-backgroundContentTint shadow-[0_4px_16px_rgba(0,0,0,0.1),0_16px_64px_rgba(0,0,0,0.08)]">
+                <div className="absolute bottom-full left-1/2 mb-2 w-[180px] -translate-x-1/2 overflow-hidden rounded-medium bg-backgroundContentTint shadow-[0_4px_16px_rgba(0,0,0,0.1),0_16px_64px_rgba(0,0,0,0.08)]">
                     {OPTIONS.map((opt, idx) => (
                         <button
                             key={opt.value}
@@ -77,7 +81,7 @@ export const CryptoCatalogSortButton: FC<{
                                 (idx > 0 ? 'border-t border-separatorCommon' : '')
                             }
                         >
-                            <span>{opt.label}</span>
+                            <span>{t(opt.labelKey)}</span>
                             {opt.value === value && (
                                 <span className="text-textAccent">
                                     <Check16 />
@@ -90,7 +94,7 @@ export const CryptoCatalogSortButton: FC<{
             <button
                 type="button"
                 onClick={() => setOpen(o => !o)}
-                className="flex items-center gap-2 rounded-2xl bg-buttonTertiaryBackground px-4 py-2 text-label2 text-buttonTertiaryForeground shadow-lg"
+                className="flex items-center gap-2 rounded-medium bg-buttonTertiaryBackground px-4 py-2 text-label2 text-buttonTertiaryForeground shadow-lg"
             >
                 <span>{activeLabel}</span>
                 <ArrowsUpDown />

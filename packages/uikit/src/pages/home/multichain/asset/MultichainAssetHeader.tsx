@@ -3,6 +3,7 @@ import { FC } from 'react';
 import { MultichainWalletAsset } from '@tonkeeper/core/dist/service/multichainWalletService';
 
 import { useNavigate } from '../../../../hooks/router/useNavigate';
+import { useTranslation } from '../../../../hooks/translation';
 import { networkLabel, parseAssetIdHead } from '../multichain-utils';
 
 const ChevronLeft16 = () => (
@@ -35,15 +36,16 @@ function tokenStandard(network: string, type: string): string {
 }
 
 export const MultichainAssetHeader: FC<{ asset: MultichainWalletAsset }> = ({ asset }) => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { network, type } = parseAssetIdHead(asset.assetId);
 
     return (
         <header className="relative flex h-[64px] shrink-0 items-center justify-center px-16">
             <button
-                aria-label="Back"
+                aria-label={t('wallet_asset_back')}
                 onClick={() => navigate(-1)}
-                className="absolute left-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-2xl bg-buttonSecondaryBackground text-buttonSecondaryForeground"
+                className="absolute left-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-medium bg-buttonSecondaryBackground text-buttonSecondaryForeground"
             >
                 <ChevronLeft16 />
             </button>
@@ -52,8 +54,8 @@ export const MultichainAssetHeader: FC<{ asset: MultichainWalletAsset }> = ({ as
                 <div className="text-body2 text-textSecondary">{tokenStandard(network, type)}</div>
             </div>
             <button
-                aria-label="More"
-                className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-2xl bg-buttonSecondaryBackground text-buttonSecondaryForeground"
+                aria-label={t('wallet_asset_more')}
+                className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-medium bg-buttonSecondaryBackground text-buttonSecondaryForeground"
             >
                 <Ellipsis16 />
             </button>

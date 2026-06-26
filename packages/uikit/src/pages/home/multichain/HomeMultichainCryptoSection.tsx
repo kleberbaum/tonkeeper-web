@@ -45,7 +45,7 @@ export const HomeMultichainCryptoSection: FC<{ assets: MultichainWalletAsset[] }
                     </svg>
                 </button>
             </header>
-            <div className="overflow-hidden rounded-2xl bg-backgroundContent mx-4">
+            <div className="overflow-hidden rounded-medium bg-backgroundContent mx-4">
                 {assets.map((asset, index) => (
                     <div
                         key={asset.assetId}

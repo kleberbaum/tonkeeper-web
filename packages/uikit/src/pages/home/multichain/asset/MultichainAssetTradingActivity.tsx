@@ -36,7 +36,7 @@ export const MultichainAssetTradingActivity: FC<{
             <div className="py-3 text-label1 text-textPrimary">
                 {t('wallet_asset_trading_activity_24h')}
             </div>
-            <div className="flex flex-col overflow-hidden rounded-2xl bg-backgroundContent">
+            <div className="flex flex-col overflow-hidden rounded-medium bg-backgroundContent">
                 {activity.volume24h && (
                     <div className="flex items-center justify-between px-4 pb-2 pt-4">
                         <div className="text-body1 text-textSecondary">

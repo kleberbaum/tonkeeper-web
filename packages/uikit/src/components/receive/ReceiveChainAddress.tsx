@@ -67,7 +67,7 @@ export const ReceiveChainAddress: FC<ReceiveChainAddressProps> = ({ chain, addre
         <div className="flex flex-col items-center gap-4 pb-2">
             <p className="px-4 text-center text-body1 text-textSecondary">{warningText}</p>
 
-            <div className="relative flex flex-col items-center gap-3 rounded-large bg-white p-6">
+            <div className="relative flex flex-col items-center gap-3 rounded-large bg-constantWhite p-6">
                 <div className="relative h-[248px] w-[248px]">
                     <QRCode
                         size={248}
@@ -79,7 +79,7 @@ export const ReceiveChainAddress: FC<ReceiveChainAddressProps> = ({ chain, addre
                     />
                     <div
                         aria-hidden
-                        className="pointer-events-none absolute left-1/2 top-1/2 h-[78px] w-[78px] -translate-x-1/2 -translate-y-1/2 bg-white"
+                        className="pointer-events-none absolute left-1/2 top-1/2 h-[78px] w-[78px] -translate-x-1/2 -translate-y-1/2 bg-constantWhite"
                     />
                     <div
                         aria-hidden
@@ -88,7 +88,7 @@ export const ReceiveChainAddress: FC<ReceiveChainAddressProps> = ({ chain, addre
                         {chain.icon}
                     </div>
                 </div>
-                <p className="max-w-[240px] break-all text-center font-mono text-body1 leading-[22px] text-black">
+                <p className="max-w-[240px] break-all text-center font-mono text-body1 leading-[22px] text-constantBlack">
                     {address}
                 </p>
             </div>

@@ -2,6 +2,7 @@ import { FC } from 'react';
 
 import { useActiveAccount } from '../../../state/wallet';
 import { useNavigate } from '../../../hooks/router/useNavigate';
+import { useTranslation } from '../../../hooks/translation';
 import { AppRoute } from '../../../libs/routes';
 
 const QrScannerIcon: FC = () => (
@@ -54,6 +55,7 @@ const GearIcon: FC = () => (
 );
 
 export const HomeMultichainHeaderBar: FC = () => {
+    const { t } = useTranslation();
     const account = useActiveAccount();
     const navigate = useNavigate();
 
@@ -61,7 +63,7 @@ export const HomeMultichainHeaderBar: FC = () => {
         <div className="flex items-center justify-between px-4 py-3">
             <button
                 type="button"
-                aria-label="Scan QR"
+                aria-label={t('scan_qr_title')}
                 className="-m-2 p-2 transition-opacity hover:opacity-80"
                 onClick={() => {
                     /* QR scan entry-point — wired in a follow-up */
@@ -97,7 +99,7 @@ export const HomeMultichainHeaderBar: FC = () => {
             <div className="flex items-center gap-2">
                 <button
                     type="button"
-                    aria-label="History"
+                    aria-label={t('page_header_history')}
                     className="-m-2 p-2 transition-opacity hover:opacity-80"
                     onClick={() => navigate(AppRoute.activity)}
                 >
@@ -105,7 +107,7 @@ export const HomeMultichainHeaderBar: FC = () => {
                 </button>
                 <button
                     type="button"
-                    aria-label="Settings"
+                    aria-label={t('wallet_aside_settings')}
                     className="-m-2 p-2 transition-opacity hover:opacity-80"
                     onClick={() => navigate(AppRoute.settings)}
                 >

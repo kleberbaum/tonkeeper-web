@@ -28,7 +28,7 @@ import { ChainId } from './chains/types';
  * `false`. A build-time replacement (DefinePlugin / Vite `define`) can
  * be wired later if we need per-environment flips without a recompile.
  */
-export const MULTICHAIN_ENABLED = true;
+export const MULTICHAIN_ENABLED = false;
 
 /**
  * Chains every newly-created `AccountMultichain` ships with. SOL is

@@ -26,14 +26,14 @@ export const MultichainAssetActionBar: FC<{ hasBalance: boolean; compact?: boole
             <div className="flex w-full items-center gap-3 px-6 py-4">
                 <button
                     type="button"
-                    className="flex h-14 flex-1 items-center justify-center rounded-2xl bg-buttonPrimaryBackground px-6 text-label1 text-buttonPrimaryForeground"
+                    className="flex h-14 flex-1 items-center justify-center rounded-medium bg-buttonPrimaryBackground px-6 text-label1 text-buttonPrimaryForeground"
                 >
                     {t('wallet_buy')}
                 </button>
                 {hasBalance && (
                     <button
                         type="button"
-                        className="flex h-14 flex-1 items-center justify-center rounded-2xl bg-buttonPrimaryBackground px-6 text-label1 text-buttonPrimaryForeground"
+                        className="flex h-14 flex-1 items-center justify-center rounded-medium bg-buttonPrimaryBackground px-6 text-label1 text-buttonPrimaryForeground"
                     >
                         {t('wallet_sell')}
                     </button>

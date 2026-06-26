@@ -3,6 +3,7 @@ import { Area, AreaChart, XAxis, YAxis } from 'recharts';
 
 import { useAppContext } from '../../../../hooks/appContext';
 import { formatFiatCurrency } from '../../../../hooks/balance';
+import { useTranslation } from '../../../../hooks/translation';
 import { ChartPeriod, useAssetCharts } from '../../../../state/trading/useAssetCharts';
 
 const CHART_HEIGHT = 240;
@@ -39,6 +40,7 @@ export const MultichainAssetChart: FC<{ assetId: string; period: ChartPeriod }> 
     assetId,
     period
 }) => {
+    const { t } = useTranslation();
     const { fiat } = useAppContext();
     const { data, isFetching } = useAssetCharts(assetId, period);
     const [ref, width] = useMeasuredWidth();
@@ -62,7 +64,7 @@ export const MultichainAssetChart: FC<{ assetId: string; period: ChartPeriod }> 
                 className="flex w-full shrink-0 items-center justify-center overflow-hidden px-8 text-body3 text-textTertiary"
                 style={heightStyle}
             >
-                {isFetching ? 'Loading chart…' : 'Chart unavailable'}
+                {isFetching ? t('wallet_asset_chart_loading') : t('wallet_asset_chart_unavailable')}
             </section>
         );
     }

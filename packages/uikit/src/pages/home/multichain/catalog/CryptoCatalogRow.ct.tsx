@@ -27,8 +27,8 @@ const sampleAsset = (overrides: Partial<CatalogAssetFixture>): CatalogAsset =>
         ...overrides
     } as CatalogAsset);
 
-const CARD = 'w-[360px] overflow-hidden rounded-2xl bg-backgroundContent';
-const NARROW = 'w-[280px] overflow-hidden rounded-2xl bg-backgroundContent';
+const CARD = 'w-[360px] overflow-hidden rounded-medium bg-backgroundContent';
+const NARROW = 'w-[280px] overflow-hidden rounded-medium bg-backgroundContent';
 
 screenshot('CryptoCatalogRow mcap billions tier', () => (
     <div className={CARD}>
@@ -123,7 +123,7 @@ screenshot('CryptoCatalogRow long symbol truncates beside chain chip', () => (
 test('CryptoCatalogRow tap calls onSelect before navigating', async ({ mount }) => {
     let selected = 0;
     const c = await mount(
-        <div className="w-[360px] overflow-hidden rounded-2xl bg-backgroundContent">
+        <div className="w-[360px] overflow-hidden rounded-medium bg-backgroundContent">
             <CryptoCatalogRow asset={sampleAsset({})} onSelect={() => selected++} />
         </div>
     );
@@ -133,7 +133,7 @@ test('CryptoCatalogRow tap calls onSelect before navigating', async ({ mount }) 
 
 test('CryptoCatalogRow positive and negative diffs use accent colours', async ({ mount }) => {
     const c = await mount(
-        <div className="w-[360px] overflow-hidden rounded-2xl bg-backgroundContent">
+        <div className="w-[360px] overflow-hidden rounded-medium bg-backgroundContent">
             <CryptoCatalogRow
                 asset={sampleAsset({
                     assetId: 'eth/mainnet/erc20/0xdeadbeef',

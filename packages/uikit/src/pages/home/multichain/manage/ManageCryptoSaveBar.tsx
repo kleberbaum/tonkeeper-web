@@ -10,7 +10,7 @@ export const ManageCryptoSaveBar: FC<{
                 type="button"
                 onClick={onSave}
                 disabled={isSaving}
-                className="flex h-14 w-full items-center justify-center rounded-2xl bg-buttonPrimaryBackground text-label1 text-buttonPrimaryForeground disabled:opacity-60"
+                className="flex h-14 w-full items-center justify-center rounded-medium bg-buttonPrimaryBackground text-label1 text-buttonPrimaryForeground disabled:opacity-60"
             >
                 {isSaving ? 'Saving…' : 'Save Changes'}
             </button>

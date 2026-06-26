@@ -2,6 +2,7 @@ import { FC, useEffect, useMemo, useState } from 'react';
 
 import { AssetFilterChange } from '@tonkeeper/core/dist/service/multichainWalletService';
 
+import { useTranslation } from '../../../../hooks/translation';
 import { useAllMultichainWalletAssets } from '../../../../state/multichain/useAllMultichainWalletAssets';
 import {
     useMultichainHiddenAssets,
@@ -20,6 +21,7 @@ export const ManageCryptoModal: FC<{ onClose: () => void; compact?: boolean }> =
     onClose,
     compact = false
 }) => {
+    const { t } = useTranslation();
     const { data, isFetching } = useAllMultichainWalletAssets();
     const persistedHidden = useMultichainHiddenAssets();
     const { mutateAsync: persistHiddenLocally } = useMutateMultichainHiddenAssets();
@@ -106,7 +108,7 @@ export const ManageCryptoModal: FC<{ onClose: () => void; compact?: boolean }> =
                     dirty ? 'pb-28' : 'pb-6'
                 }`}
             >
-                <div className="mx-4 overflow-hidden rounded-2xl bg-backgroundContent">
+                <div className="mx-4 overflow-hidden rounded-medium bg-backgroundContent">
                     {filtered.length > 0 ? (
                         filtered.map((asset, idx) => {
                             // Local hidden set is the source of truth.
@@ -133,7 +135,7 @@ export const ManageCryptoModal: FC<{ onClose: () => void; compact?: boolean }> =
                         })
                     ) : (
                         <div className="px-4 py-6 text-center text-body2 text-textSecondary">
-                            {isFetching ? 'Loading…' : 'No assets'}
+                            {isFetching ? t('loading') : t('add_funds_no_assets_found')}
                         </div>
                     )}
                 </div>

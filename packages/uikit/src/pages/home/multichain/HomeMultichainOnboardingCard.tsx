@@ -9,7 +9,7 @@ import { useTranslation } from '../../../hooks/translation';
 export const HomeMultichainOnboardingCard: FC = () => {
     const { t } = useTranslation();
     return (
-        <div className="mx-4 mb-4 flex items-center gap-3 overflow-hidden rounded-2xl bg-backgroundContent px-4 py-3">
+        <div className="mx-4 mb-4 flex items-center gap-3 overflow-hidden rounded-medium bg-backgroundContent px-4 py-3">
             <div className="min-w-0 flex-1">
                 <div className="truncate text-label2 text-textPrimary">
                     {t('wallet_onboarding_card_title')}

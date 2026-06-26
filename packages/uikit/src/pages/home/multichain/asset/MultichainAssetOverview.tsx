@@ -43,7 +43,7 @@ export const MultichainAssetOverview: FC<{ overview: AssetDetailsOverview }> = (
     return (
         <section className="flex flex-col px-4 pb-4">
             <div className="py-3 text-label1 text-textPrimary">{t('wallet_asset_overview')}</div>
-            <div className="overflow-hidden rounded-2xl bg-backgroundContent">
+            <div className="overflow-hidden rounded-medium bg-backgroundContent">
                 <Row label={t('wallet_asset_market_cap')} value={overview.marketCap} isFirst />
                 <Row label={t('wallet_asset_total_supply')} value={overview.totalSupply} />
                 <Row

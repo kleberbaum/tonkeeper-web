@@ -1,9 +1,5 @@
-import BigNumber from 'bignumber.js';
-
-import { MultichainWalletAsset } from '@tonkeeper/core/dist/service/multichainWalletService';
-
 import { expect, screenshot, test } from '../../../../playwright/test';
-import { HomeMultichainAssetRow } from './HomeMultichainAssetRow';
+import { AssetRowAsset, AssetRowHarness } from './HomeMultichainAssetRowHarness';
 
 // Edge cases the screenshot suite targets:
 //   - long symbol next to a chain chip → `truncate` on the symbol span
@@ -14,7 +10,7 @@ import { HomeMultichainAssetRow } from './HomeMultichainAssetRow';
 //   - missing price → secondary lines collapse, layout doesn't shift.
 //   - long fiat balance (millions) → secondary line still fits.
 
-const sampleAsset = (overrides: Partial<MultichainWalletAsset>): MultichainWalletAsset => ({
+const sampleAsset = (overrides: Partial<AssetRowAsset>): AssetRowAsset => ({
     assetId: 'ton/mainnet/coin',
     chain: 'ton',
     name: 'TON',
@@ -28,17 +24,17 @@ const sampleAsset = (overrides: Partial<MultichainWalletAsset>): MultichainWalle
 
 // CT's static mount-loader can't resolve component wrappers defined in the
 // test file (see Frame note in other rows). Inline the card container.
-const CARD = 'w-[360px] overflow-hidden rounded-2xl bg-backgroundContent';
+const CARD = 'w-[360px] overflow-hidden rounded-medium bg-backgroundContent';
 
 // Narrow card variant to force truncation regardless of monitor width.
-const NARROW = 'w-[280px] overflow-hidden rounded-2xl bg-backgroundContent';
+const NARROW = 'w-[280px] overflow-hidden rounded-medium bg-backgroundContent';
 
 screenshot('HomeMultichainAssetRow TON native baseline', () => (
     <div className={CARD}>
-        <HomeMultichainAssetRow
+        <AssetRowHarness
             asset={sampleAsset({
                 balance: '4530000000',
-                price: new BigNumber('5.43'),
+                priceStr: '5.43',
                 diff24h: '+2.34%'
             })}
         />
@@ -47,7 +43,7 @@ screenshot('HomeMultichainAssetRow TON native baseline', () => (
 
 screenshot('HomeMultichainAssetRow long symbol truncates beside chain chip', () => (
     <div className={NARROW}>
-        <HomeMultichainAssetRow
+        <AssetRowHarness
             asset={sampleAsset({
                 assetId: 'eth/mainnet/erc20/0xdeadbeef',
                 chain: 'evm',
@@ -55,7 +51,7 @@ screenshot('HomeMultichainAssetRow long symbol truncates beside chain chip', () 
                 symbol: 'SUPERLONGTOKEN',
                 decimals: 18,
                 balance: '12340000000000000000',
-                price: new BigNumber('0.42'),
+                priceStr: '0.42',
                 diff24h: '+1.10%'
             })}
         />
@@ -64,7 +60,7 @@ screenshot('HomeMultichainAssetRow long symbol truncates beside chain chip', () 
 
 screenshot('HomeMultichainAssetRow sub-cent price renders without collapsing', () => (
     <div className={CARD}>
-        <HomeMultichainAssetRow
+        <AssetRowHarness
             asset={sampleAsset({
                 assetId: 'eth/mainnet/erc20/0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce',
                 chain: 'evm',
@@ -72,7 +68,7 @@ screenshot('HomeMultichainAssetRow sub-cent price renders without collapsing', (
                 symbol: 'SHIB',
                 decimals: 18,
                 balance: '12345670000000000000000000', // 12.3M SHIB
-                price: new BigNumber('0.00000234'),
+                priceStr: '0.00000234',
                 diff24h: '-0.42%'
             })}
         />
@@ -81,7 +77,7 @@ screenshot('HomeMultichainAssetRow sub-cent price renders without collapsing', (
 
 screenshot('HomeMultichainAssetRow huge fiat balance stays single-line', () => (
     <div className={CARD}>
-        <HomeMultichainAssetRow
+        <AssetRowHarness
             asset={sampleAsset({
                 assetId: 'eth/mainnet/erc20/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
                 chain: 'evm',
@@ -89,7 +85,7 @@ screenshot('HomeMultichainAssetRow huge fiat balance stays single-line', () => (
                 symbol: 'USDC',
                 decimals: 6,
                 balance: '1234567890000', // 1.234M USDC
-                price: new BigNumber('1.00'),
+                priceStr: '1.00',
                 diff24h: '+0.01%'
             })}
         />
@@ -98,7 +94,7 @@ screenshot('HomeMultichainAssetRow huge fiat balance stays single-line', () => (
 
 screenshot('HomeMultichainAssetRow no price hides secondary lines without shifting layout', () => (
     <div className={CARD}>
-        <HomeMultichainAssetRow
+        <AssetRowHarness
             asset={sampleAsset({
                 assetId: 'eth/mainnet/erc20/0x6b175474e89094c44da98b954eedeac495271d0f',
                 chain: 'evm',
@@ -113,11 +109,11 @@ screenshot('HomeMultichainAssetRow no price hides secondary lines without shifti
 
 test('HomeMultichainAssetRow renders symbol and balance', async ({ mount }) => {
     const c = await mount(
-        <div className="w-[360px] overflow-hidden rounded-2xl bg-backgroundContent">
-            <HomeMultichainAssetRow
+        <div className="w-[360px] overflow-hidden rounded-medium bg-backgroundContent">
+            <AssetRowHarness
                 asset={sampleAsset({
                     balance: '4530000000',
-                    price: new BigNumber('5.43'),
+                    priceStr: '5.43',
                     diff24h: '+2.34%'
                 })}
             />
@@ -129,8 +125,8 @@ test('HomeMultichainAssetRow renders symbol and balance', async ({ mount }) => {
 
 test('HomeMultichainAssetRow truncates long symbols to one line', async ({ mount }) => {
     const c = await mount(
-        <div className="w-[280px] overflow-hidden rounded-2xl bg-backgroundContent">
-            <HomeMultichainAssetRow
+        <div className="w-[280px] overflow-hidden rounded-medium bg-backgroundContent">
+            <AssetRowHarness
                 asset={sampleAsset({
                     assetId: 'eth/mainnet/erc20/0xdeadbeef',
                     chain: 'evm',
@@ -138,7 +134,7 @@ test('HomeMultichainAssetRow truncates long symbols to one line', async ({ mount
                     name: 'Long Token Name',
                     decimals: 18,
                     balance: '12340000000000000000',
-                    price: new BigNumber('0.42')
+                    priceStr: '0.42'
                 })}
             />
         </div>
