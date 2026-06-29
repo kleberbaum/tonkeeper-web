@@ -3,7 +3,7 @@ import { Notification } from '@tonkeeper/uikit/dist/components/Notification';
 import { Body2, Label1 } from '@tonkeeper/uikit/dist/components/Text';
 import { Button } from '@tonkeeper/uikit/dist/components/fields/Button';
 import { Checkbox } from '@tonkeeper/uikit/dist/components/fields/Checkbox';
-import { useAccountLabel } from '@tonkeeper/uikit/dist/hooks/accountUtils';
+import { WalletEmoji } from '@tonkeeper/uikit/dist/components/shared/emoji/WalletEmoji';
 import { useTranslation } from '@tonkeeper/uikit/dist/hooks/translation';
 import { FC, useState } from 'react';
 import styled from 'styled-components';
@@ -28,6 +28,23 @@ const ConfirmBox = styled.div`
     margin-bottom: 16px;
 `;
 
+// Top-align the checkbox box with the first line of the (multi-line) label.
+const TopAlignedCheckbox = styled(Checkbox)`
+    align-items: flex-start;
+`;
+
+const CheckboxLabel = styled.span`
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2px;
+`;
+
+const InlineEmoji = styled(WalletEmoji)`
+    display: inline-flex;
+    vertical-align: middle;
+`;
+
 const BackUpLink = styled.button`
     border: none;
     outline: none;
@@ -47,7 +64,6 @@ export const SignOutSheet: FC<{
 }> = ({ account, onClose, onBackUp, onConfirm }) => {
     const { t } = useTranslation();
     const [checked, setChecked] = useState(false);
-    const label = useAccountLabel(account ?? ({ allTonWallets: [] } as unknown as Account));
 
     // Reset the checkbox whenever a different account's sheet opens.
     const [lastId, setLastId] = useState<string | undefined>(undefined);
@@ -56,15 +72,28 @@ export const SignOutSheet: FC<{
         setChecked(false);
     }
 
+    // "...for %{name}" — render the wallet emoji inline right where the name goes
+    // so the checkbox reads "I have a backup copy of the recovery phrase for 🍃 Savings".
+    const [before, after] = t('twa_sign_out_backed_up').split('%{name}');
+
     return (
         <Notification isOpen={!!account} handleClose={onClose} title={t('twa_sign_out')}>
             {afterClose => (
                 <Content>
                     <Subtitle>{t('twa_sign_out_subtitle')}</Subtitle>
                     <ConfirmBox>
-                        <Checkbox checked={checked} onChange={setChecked} light>
-                            {t('twa_sign_out_backed_up', { address: label })}
-                        </Checkbox>
+                        <TopAlignedCheckbox checked={checked} onChange={setChecked} light>
+                            <CheckboxLabel>
+                                {before}
+                                <InlineEmoji
+                                    emoji={account?.emoji}
+                                    emojiSize="16px"
+                                    containerSize="16px"
+                                />
+                                {account?.name}
+                                {after}
+                            </CheckboxLabel>
+                        </TopAlignedCheckbox>
                         <BackUpLink onClick={() => afterClose(onBackUp)}>
                             <Label1>{t('twa_back_up')}</Label1>
                         </BackUpLink>

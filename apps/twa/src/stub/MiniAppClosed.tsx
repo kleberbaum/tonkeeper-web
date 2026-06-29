@@ -1,10 +1,11 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { Account, AccountId } from '@tonkeeper/core/dist/entries/account';
+import { Account, AccountSecret, isMnemonicAndPassword } from '@tonkeeper/core/dist/entries/account';
 import { accountsStorage } from '@tonkeeper/core/dist/service/accountsStorage';
 import { ListBlock, ListItem, ListItemPayload } from '@tonkeeper/uikit/dist/components/List';
 import { Body2, H2, Label2 } from '@tonkeeper/uikit/dist/components/Text';
 import { Button } from '@tonkeeper/uikit/dist/components/fields/Button';
 import { ChevronRightIcon } from '@tonkeeper/uikit/dist/components/Icon';
+import { WalletEmoji } from '@tonkeeper/uikit/dist/components/shared/emoji/WalletEmoji';
 import { useAppSdk } from '@tonkeeper/uikit/dist/hooks/appSdk';
 import { useAccountLabel } from '@tonkeeper/uikit/dist/hooks/accountUtils';
 import { useTranslation } from '@tonkeeper/uikit/dist/hooks/translation';
@@ -14,7 +15,7 @@ import { FC, useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { TwaAppSdk } from '../libs/appSdk';
 import { useHandleBackButton } from '../libs/twaHooks';
-import { AccountActionsSheet } from './AccountActionsSheet';
+import { RecoveryPasswordSheet } from './RecoveryPasswordSheet';
 import { RecoveryPhrase } from './RecoveryPhrase';
 import { SignOutSheet } from './SignOutSheet';
 
@@ -26,17 +27,28 @@ const WEB_APP_URL = 'https://wallet.tonkeeper.com';
 const Root = styled.div`
     display: flex;
     flex-direction: column;
-    min-height: var(--app-height, 100%);
+    height: var(--app-height, 100%);
     box-sizing: border-box;
     padding: 16px;
 `;
 
-const Top = styled.div`
-    flex-grow: 1;
+// Fills the space between the top of the screen and the pinned download button.
+// `justify-content: center` keeps the header + list group centered when it fits;
+// once the list outgrows the available space it shrinks and scrolls internally.
+const Middle = styled.div`
+    flex: 1 1 auto;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+`;
+
+const Header = styled.div`
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     gap: 8px;
     padding: 24px 0;
 `;
@@ -59,14 +71,24 @@ const Subtitle = styled(Body2)`
     max-width: 320px;
 `;
 
+// The only scrollable element: the wallet list. The rounded ListBlock clips its
+// rows, and the scrollbar is hidden so the list edge stays clean.
 const Accounts = styled(ListBlock)`
     width: 100%;
     margin-top: 16px;
+    flex-shrink: 1;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+        display: none;
+    }
 `;
 
 const Row = styled(ListItemPayload)`
-    justify-content: space-between;
     align-items: center;
+    gap: 12px;
 `;
 
 const RowText = styled.div`
@@ -74,6 +96,7 @@ const RowText = styled.div`
     flex-direction: column;
     gap: 2px;
     overflow: hidden;
+    flex-grow: 1;
 `;
 
 const Address = styled(Body2)`
@@ -107,6 +130,7 @@ const AccountRow: FC<{ account: Account; onSelect: () => void }> = ({ account, o
     return (
         <ListItem hover={false} onClick={onSelect}>
             <Row>
+                <WalletEmoji emoji={account.emoji} emojiSize="24px" containerSize="28px" />
                 <RowText>
                     <Label2>{account.name}</Label2>
                     <Address>{label}</Address>
@@ -139,33 +163,33 @@ export const MiniAppClosed: FC<{ sdk: TwaAppSdk }> = ({ sdk }) => {
     const client = useQueryClient();
     const { data: accounts } = useAccountsStateQuery();
 
-    const [actionAccount, setActionAccount] = useState<Account | null>(null);
+    // Only accounts with a recoverable secret belong in the list — watch-only,
+    // hardware and other non-mnemonic accounts have no recovery phrase to show.
+    const recoverableAccounts = (accounts ?? []).filter(isMnemonicAndPassword);
+
+    const [passwordAccount, setPasswordAccount] = useState<Account | null>(null);
+    const [recovery, setRecovery] = useState<{ account: Account; secret: AccountSecret } | null>(
+        null
+    );
     const [signOutAccount, setSignOutAccount] = useState<Account | null>(null);
-    const [recoverAccountId, setRecoverAccountId] = useState<AccountId | null>(null);
-
-    const closeAll = useCallback(() => {
-        setActionAccount(null);
-        setSignOutAccount(null);
-    }, []);
-
-    const backFromRecovery = useCallback(() => setRecoverAccountId(null), []);
 
     const onBack = useCallback(() => {
-        if (recoverAccountId) {
-            setRecoverAccountId(null);
-        } else if (signOutAccount) {
+        if (signOutAccount) {
             setSignOutAccount(null);
-        } else if (actionAccount) {
-            setActionAccount(null);
+        } else if (passwordAccount) {
+            setPasswordAccount(null);
+        } else if (recovery) {
+            setRecovery(null);
         } else {
             sdk.miniApp.close();
         }
-    }, [recoverAccountId, signOutAccount, actionAccount, sdk]);
+    }, [signOutAccount, passwordAccount, recovery, sdk]);
 
-    // Show Telegram's native back button only on sub-screens (recovery phrase)
-    // and open sheets; on the root list let Telegram show its close control.
+    // Show Telegram's native back button on every sub-screen (the recovery page
+    // and the password / sign-out sheets); on the root list let Telegram show
+    // its own close control.
     const showBackButton =
-        recoverAccountId !== null || actionAccount !== null || signOutAccount !== null;
+        recovery !== null || passwordAccount !== null || signOutAccount !== null;
     useHandleBackButton(onBack, showBackButton);
 
     const onSignOutConfirm = useCallback(async () => {
@@ -173,66 +197,65 @@ export const MiniAppClosed: FC<{ sdk: TwaAppSdk }> = ({ sdk }) => {
         await accountsStorage(sdk.storage).removeAccountFromState(signOutAccount.id);
         await client.invalidateQueries([QueryKey.account]);
         setSignOutAccount(null);
+        setRecovery(null);
     }, [signOutAccount, sdk, client]);
 
-    if (recoverAccountId) {
-        return <RecoveryPhrase accountId={recoverAccountId} onBack={backFromRecovery} />;
+    if (recovery) {
+        return (
+            <>
+                <RecoveryPhrase
+                    secret={recovery.secret}
+                    onSignOut={() => setSignOutAccount(recovery.account)}
+                />
+                <SignOutSheet
+                    account={signOutAccount}
+                    onClose={() => setSignOutAccount(null)}
+                    onBackUp={() => setSignOutAccount(null)}
+                    onConfirm={onSignOutConfirm}
+                />
+            </>
+        );
     }
 
-    const hasWallets = !!accounts && accounts.length > 0;
+    const hasWallets = recoverableAccounts.length > 0;
 
     return (
         <Root>
-            <Top>
-                <IconWrapper>
-                    <WarningTriangle />
-                </IconWrapper>
-                <Title>{t('twa_closed_title')}</Title>
-                <Subtitle>
-                    {hasWallets ? t('twa_closed_subtitle_wallets') : t('twa_closed_subtitle')}
-                </Subtitle>
+            <Middle>
+                <Header>
+                    <IconWrapper>
+                        <WarningTriangle />
+                    </IconWrapper>
+                    <Title>{t('twa_closed_title')}</Title>
+                    <Subtitle>
+                        {hasWallets ? t('twa_closed_subtitle_wallets') : t('twa_closed_subtitle')}
+                    </Subtitle>
+                </Header>
 
                 {hasWallets && (
-                    <Accounts>
-                        {accounts!.map(account => (
+                    <Accounts margin={false}>
+                        {recoverableAccounts.map(account => (
                             <AccountRow
                                 key={account.id}
                                 account={account}
-                                onSelect={() => setActionAccount(account)}
+                                onSelect={() => setPasswordAccount(account)}
                             />
                         ))}
                     </Accounts>
                 )}
-            </Top>
+            </Middle>
 
             <Bottom>
                 <DownloadButton sdk={sdk} />
             </Bottom>
 
-            <AccountActionsSheet
-                account={actionAccount}
-                onClose={closeAll}
-                onShowRecovery={() => {
-                    const id = actionAccount?.id ?? null;
-                    closeAll();
-                    setRecoverAccountId(id);
+            <RecoveryPasswordSheet
+                account={passwordAccount}
+                onClose={() => setPasswordAccount(null)}
+                onUnlocked={(account, secret) => {
+                    setPasswordAccount(null);
+                    setRecovery({ account, secret });
                 }}
-                onSignOut={() => {
-                    const account = actionAccount;
-                    setActionAccount(null);
-                    setSignOutAccount(account);
-                }}
-            />
-
-            <SignOutSheet
-                account={signOutAccount}
-                onClose={() => setSignOutAccount(null)}
-                onBackUp={() => {
-                    const id = signOutAccount?.id ?? null;
-                    setSignOutAccount(null);
-                    setRecoverAccountId(id);
-                }}
-                onConfirm={onSignOutConfirm}
             />
         </Root>
     );

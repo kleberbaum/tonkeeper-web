@@ -63,6 +63,14 @@ const TwaLoader = () => {
     useEffect(() => {
         if (!sdk) return;
 
+        // Telegram opens mini apps at partial height on mobile (iOS especially);
+        // expand to the full available height so the bottom button is reachable.
+        // Bots launched via the menu button aren't always in fullscreen mode, so
+        // we expand here rather than relying on the bot's Telegram configuration.
+        if (!sdk.viewport.isExpanded) {
+            sdk.viewport.expand();
+        }
+
         const theme = sdk.miniApp.isDark ? defaultTheme : lightTheme;
 
         if (sdk.miniApp.supports('setBackgroundColor')) {
