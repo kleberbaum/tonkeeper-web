@@ -178,8 +178,6 @@ export const InnerBody = React.forwardRef<
             timer = setTimeout(function () {
                 document.body.classList.remove('scroll');
             }, 300);
-
-            sdk.twaExpand?.();
         }, 50);
 
         element.addEventListener('scroll', handlerScroll);

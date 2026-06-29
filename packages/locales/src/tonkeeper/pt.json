@@ -441,5 +441,19 @@
     "staking_details_pool_address_label": "Endereço do pool",
     "staking_pending_deposit": "{amount} %{coinSymbolWithEx} em stake pendente",
     "staking_pools_min_deposit": "Depósito mín. {minDeposit} %{coinSymbolWithEx}",
-    "staking_tf_full_withdrawal_only": "Apenas saque integral disponível"
+    "staking_tf_full_withdrawal_only": "Apenas saque integral disponível",
+    "twa_closed_title": "Mini app fechado",
+    "twa_closed_subtitle": "Continue pelo app para iOS, Android ou Web.",
+    "twa_closed_subtitle_wallets": "Salve suas frases de recuperação e saia das suas carteiras. Continue pelo app para iOS, Android ou Web.",
+    "twa_download_ios": "Baixar app para iOS",
+    "twa_download_android": "Baixar app para Android",
+    "twa_open_web": "Abrir app Web",
+    "twa_show_recovery_phrase": "Mostrar frase de recuperação",
+    "twa_sign_out": "Sair",
+    "twa_recovery_title": "Frase de recuperação",
+    "twa_recovery_subtitle": "Anote estas palavras com seus números e guarde-as em local seguro.",
+    "twa_copy_phrase": "Copiar frase",
+    "twa_sign_out_subtitle": "As chaves da carteira serão removidas deste mini app.",
+    "twa_sign_out_backed_up": "Fiz o backup da frase de recuperação da carteira %{address}",
+    "twa_back_up": "Fazer backup"
 }

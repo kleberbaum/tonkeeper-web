@@ -167,7 +167,6 @@ export interface IAppSdk {
     prompt: (message: string, defaultValue?: string) => Promise<string | null>;
 
     requestExtensionPermission: () => Promise<void>;
-    twaExpand?: () => void;
     hapticNotification: (type: 'success' | 'error' | 'impact_medium' | 'impact_light') => void;
 
     notifications?: NotificationService;
@@ -324,8 +323,6 @@ export abstract class BaseApp implements IAppSdk {
     prompt = async (message: string, defaultValue?: string) => window.prompt(message, defaultValue);
 
     requestExtensionPermission = async () => {};
-
-    twaExpand = () => {};
 
     hapticNotification = (_: 'success' | 'error' | 'impact_medium' | 'impact_light') => {};
 

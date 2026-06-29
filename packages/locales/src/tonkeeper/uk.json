@@ -1694,5 +1694,19 @@
     "staking_details_pool_address_label": "Адреса пулу",
     "staking_pending_deposit": "{amount} %{coinSymbolWithEx} очікують на стейкінг",
     "staking_pools_min_deposit": "Мін. депозит {minDeposit} %{coinSymbolWithEx}",
-    "staking_tf_full_withdrawal_only": "Доступний лише повний вивід"
+    "staking_tf_full_withdrawal_only": "Доступний лише повний вивід",
+    "twa_closed_title": "Міні-застосунок закрито",
+    "twa_closed_subtitle": "Продовжуйте в застосунку для iOS, Android або у вебверсії.",
+    "twa_closed_subtitle_wallets": "Будь ласка, збережіть свої секретні фрази та вийдіть зі своїх гаманців. Продовжуйте в застосунку для iOS, Android або у вебверсії.",
+    "twa_download_ios": "Завантажити застосунок для iOS",
+    "twa_download_android": "Завантажити застосунок для Android",
+    "twa_open_web": "Відкрити вебверсію",
+    "twa_show_recovery_phrase": "Показати секретну фразу",
+    "twa_sign_out": "Вийти",
+    "twa_recovery_title": "Секретна фраза",
+    "twa_recovery_subtitle": "Запишіть ці слова разом з їхніми номерами та зберігайте в безпечному місці.",
+    "twa_copy_phrase": "Скопіювати фразу",
+    "twa_sign_out_subtitle": "Ключі гаманця буде видалено з цього міні-застосунку.",
+    "twa_sign_out_backed_up": "Я зберіг резервну копію секретної фрази для гаманця %{address}",
+    "twa_back_up": "Створити копію"
 }

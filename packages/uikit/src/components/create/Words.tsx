@@ -239,14 +239,7 @@ export const Words: FC<{
     onCheck: () => void;
     showMamInfo?: boolean;
 }> = ({ mnemonic, onCheck, showMamInfo }) => {
-    const sdk = useAppSdk();
     const { t } = useTranslation();
-
-    useEffect(() => {
-        if (sdk.twaExpand) {
-            sdk.twaExpand();
-        }
-    }, [sdk]);
 
     return (
         <CenterContainer>

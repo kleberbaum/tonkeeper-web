@@ -1691,5 +1691,19 @@
     "staking_details_pool_address_label": "Dirección del pool",
     "staking_pending_deposit": "{amount} %{coinSymbolWithEx} en depósito pendiente",
     "staking_pools_min_deposit": "Depósito mín. {minDeposit} %{coinSymbolWithEx}",
-    "staking_tf_full_withdrawal_only": "Solo está disponible el retiro completo"
+    "staking_tf_full_withdrawal_only": "Solo está disponible el retiro completo",
+    "twa_closed_title": "Mini app cerrada",
+    "twa_closed_subtitle": "Continúa en la app de iOS, Android o web.",
+    "twa_closed_subtitle_wallets": "Guarda tus frases de recuperación y cierra sesión en tus billeteras. Continúa en la app de iOS, Android o web.",
+    "twa_download_ios": "Descargar app para iOS",
+    "twa_download_android": "Descargar app para Android",
+    "twa_open_web": "Abrir app web",
+    "twa_show_recovery_phrase": "Mostrar frase de recuperación",
+    "twa_sign_out": "Cerrar sesión",
+    "twa_recovery_title": "Frase de recuperación",
+    "twa_recovery_subtitle": "Anota estas palabras con sus números y guárdalas en un lugar seguro.",
+    "twa_copy_phrase": "Copiar frase",
+    "twa_sign_out_subtitle": "Las claves de la billetera se eliminarán de esta mini app.",
+    "twa_sign_out_backed_up": "He guardado la frase de recuperación de la billetera %{address}",
+    "twa_back_up": "Crear copia"
 }
