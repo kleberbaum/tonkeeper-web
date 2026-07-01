@@ -17,7 +17,7 @@ import {
 import { useUserFiatQuery } from '@tonkeeper/uikit/dist/state/fiat';
 import { useUserLanguage } from '@tonkeeper/uikit/dist/state/language';
 import { useTonendpoint, useTonenpointConfig } from '@tonkeeper/uikit/dist/state/tonendpoint';
-import { useActiveTonNetwork } from '@tonkeeper/uikit/dist/state/wallet';
+import { useAccountsStateQuery, useActiveTonNetwork } from '@tonkeeper/uikit/dist/state/wallet';
 import { defaultTheme } from '@tonkeeper/uikit/dist/styles/defaultTheme';
 import { GlobalStyle } from '@tonkeeper/uikit/dist/styles/globalStyle';
 import { lightTheme } from '@tonkeeper/uikit/dist/styles/lightTheme';
@@ -30,7 +30,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import StandardErrorBoundary from './components/ErrorBoundary';
 import { TwaAppSdk } from './libs/appSdk';
-import { useTwaAppViewport } from './libs/hooks';
+import { useStubAnalytics, useTwaAppViewport, useTwaErrorReporting } from './libs/hooks';
 import { MiniAppClosed } from './stub/MiniAppClosed';
 
 const queryClient = new QueryClient({
@@ -136,8 +136,12 @@ const StubApp: FC<{ sdk: TwaAppSdk }> = ({ sdk }) => {
 const Loader: FC<{ sdk: TwaAppSdk }> = ({ sdk }) => {
     const { data: lang, isLoading: isLangLoading } = useUserLanguage();
     const { data: fiat } = useUserFiatQuery();
+    const { data: accounts } = useAccountsStateQuery();
     const network = useActiveTonNetwork();
     const { i18n } = useTranslation();
+
+    const { data: tracker } = useStubAnalytics(accounts, network, sdk.version);
+    useTwaErrorReporting();
 
     useTwaAppViewport(false, sdk);
 
@@ -183,9 +187,9 @@ const Loader: FC<{ sdk: TwaAppSdk }> = ({ sdk }) => {
             hideFireblocks: true,
             defaultWalletVersion: WalletVersion.V5R1,
             browserLength: 4,
-            tracker: undefined
+            tracker: tracker?.track
         };
-    }, [serverConfig, fiat, tonendpoint]);
+    }, [serverConfig, fiat, tonendpoint, tracker]);
 
     if (isLangLoading || !context) {
         return <Loading />;

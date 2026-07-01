@@ -10,6 +10,7 @@ import { Notification } from '@tonkeeper/uikit/dist/components/Notification';
 import { Button } from '@tonkeeper/uikit/dist/components/fields/Button';
 import { Input } from '@tonkeeper/uikit/dist/components/fields/Input';
 import { useAppSdk } from '@tonkeeper/uikit/dist/hooks/appSdk';
+import { useAnalyticsTrack } from '@tonkeeper/uikit/dist/hooks/analytics';
 import { useTranslation } from '@tonkeeper/uikit/dist/hooks/translation';
 import { FC, FormEventHandler, useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -43,6 +44,7 @@ export const RecoveryPasswordSheet: FC<{
 }> = ({ account, onClose, onUnlocked }) => {
     const { t } = useTranslation();
     const sdk = useAppSdk();
+    const track = useAnalyticsTrack();
     const [encryptedSecret, setEncryptedSecret] = useState<string | undefined>(undefined);
     const [password, setPassword] = useState('');
     const [error, setError] = useState(false);
@@ -88,6 +90,7 @@ export const RecoveryPasswordSheet: FC<{
             setError(false);
             try {
                 const secret = await decryptWalletSecret(encryptedSecret, password);
+                track({ eventName: 'twa_sunset_reveal_success' });
                 afterClose(() => onUnlocked(account, secret));
             } catch (err) {
                 sdk.hapticNotification('error');

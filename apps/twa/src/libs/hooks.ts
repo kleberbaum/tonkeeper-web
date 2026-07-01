@@ -2,12 +2,18 @@ import { useQuery } from '@tanstack/react-query';
 import { Viewport } from '@tma.js/sdk';
 import { Account } from '@tonkeeper/core/dist/entries/account';
 import { Network } from '@tonkeeper/core/dist/entries/network';
-import { Analytics, Aptabase, toWalletType } from "@tonkeeper/uikit/dist/hooks/analytics";
+import {
+    Analytics,
+    Aptabase,
+    toWalletType,
+    useAnalyticsTrack
+} from '@tonkeeper/uikit/dist/hooks/analytics';
 import { QueryKey } from '@tonkeeper/uikit/dist/libs/queryKey';
 import React, { useEffect } from 'react';
 import { TwaAppSdk } from './appSdk';
 import { useAppSdk } from "@tonkeeper/uikit/dist/hooks/appSdk";
 import { getUserOS } from "@tonkeeper/uikit/dist/libs/web";
+import { reportStubError, setStubErrorReporter } from './errorReporter';
 
 export const ViewportContext = React.createContext<Viewport>(undefined!);
 
@@ -69,33 +75,76 @@ export const useTwaAppViewport = (setAppHeight: boolean, sdk: TwaAppSdk) => {
     }, [sdk]);
 };
 
-export const useAnalytics = (
-    activeAccount: Account | undefined,
+const APTABASE_HOST = import.meta.env.VITE_APP_APTABASE_HOST;
+const APTABASE_KEY = import.meta.env.VITE_APP_APTABASE;
+
+/**
+ * Builds the Aptabase tracker for the sunset stub. There is no active account
+ * here, so events are attributed to the persistent user id and session id from
+ * the SDK identity and the tracker initialises from the wallet list alone.
+ * Returns no tracker when the Aptabase env keys are absent (e.g. dev builds),
+ * which leaves AppContext.tracker undefined and turns tracking into a no-op.
+ */
+export const useStubAnalytics = (
     accounts: Account[] | undefined,
     network: Network | undefined,
     version: string
 ) => {
     const sdk = useAppSdk();
     return useQuery<Analytics>(
-        [QueryKey.analytics, activeAccount, accounts, network],
+        [QueryKey.analytics, 'twa-stub', accounts?.length ?? 0, network],
         async () => {
             const tracker = new Aptabase({
-                    host: import.meta.env.VITE_APP_APTABASE_HOST,
-                    key: import.meta.env.VITE_APP_APTABASE,
-                    appVersion: version,
-                    userIdentity: sdk.userIdentity
-                })
+                host: APTABASE_HOST,
+                key: APTABASE_KEY,
+                appVersion: version,
+                userIdentity: sdk.userIdentity
+            });
 
             tracker.init({
-                application: 'Twa',
-                walletType: toWalletType(activeAccount?.activeTonWallet),
-                activeAccount: activeAccount!,
-                accounts: accounts!,
-                network
+                application: 'twa',
+                walletType: toWalletType(accounts?.[0]?.activeTonWallet),
+                accounts: accounts ?? [],
+                network,
+                platform: 'twa'
             });
 
             return tracker;
         },
-        { enabled: accounts != null && activeAccount != null }
+        { enabled: !!APTABASE_HOST && !!APTABASE_KEY && accounts !== undefined }
     );
+};
+
+/**
+ * Routes runtime errors to the custom_error analytics event: registers the
+ * module-level reporter that the top-level error boundary reads, plus global
+ * listeners for uncaught errors and unhandled promise rejections.
+ */
+export const useTwaErrorReporting = () => {
+    const track = useAnalyticsTrack();
+    useEffect(() => {
+        setStubErrorReporter((severity, error_message, error_code) => {
+            track({
+                eventName: 'custom_error',
+                severity,
+                error_message,
+                error_code: error_code ?? null
+            });
+        });
+
+        const onError = (e: ErrorEvent) => reportStubError('error', e.message);
+        const onRejection = (e: PromiseRejectionEvent) => {
+            const reason = e.reason;
+            const message = reason instanceof Error ? reason.message : String(reason ?? 'unknown');
+            reportStubError('error', message);
+        };
+
+        window.addEventListener('error', onError);
+        window.addEventListener('unhandledrejection', onRejection);
+        return () => {
+            window.removeEventListener('error', onError);
+            window.removeEventListener('unhandledrejection', onRejection);
+            setStubErrorReporter(undefined);
+        };
+    }, [track]);
 };

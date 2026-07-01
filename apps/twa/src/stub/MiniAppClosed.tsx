@@ -1,5 +1,13 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { Account, AccountSecret, isMnemonicAndPassword } from '@tonkeeper/core/dist/entries/account';
+import {
+    Account,
+    AccountSecret,
+    isMnemonicAndPassword
+} from '@tonkeeper/core/dist/entries/account';
+import {
+    AnalyticsEventTwaSunsetDownloadClick,
+    AnalyticsEventTwaSunsetOpen
+} from '@tonkeeper/core/dist/analytics';
 import { accountsStorage } from '@tonkeeper/core/dist/service/accountsStorage';
 import { ListBlock, ListItem, ListItemPayload } from '@tonkeeper/uikit/dist/components/List';
 import { Body2, H2, Label2 } from '@tonkeeper/uikit/dist/components/Text';
@@ -7,11 +15,12 @@ import { Button } from '@tonkeeper/uikit/dist/components/fields/Button';
 import { ChevronRightIcon } from '@tonkeeper/uikit/dist/components/Icon';
 import { WalletEmoji } from '@tonkeeper/uikit/dist/components/shared/emoji/WalletEmoji';
 import { useAppSdk } from '@tonkeeper/uikit/dist/hooks/appSdk';
+import { useAnalyticsTrack } from '@tonkeeper/uikit/dist/hooks/analytics';
 import { useAccountLabel } from '@tonkeeper/uikit/dist/hooks/accountUtils';
 import { useTranslation } from '@tonkeeper/uikit/dist/hooks/translation';
 import { QueryKey } from '@tonkeeper/uikit/dist/libs/queryKey';
 import { useAccountsStateQuery } from '@tonkeeper/uikit/dist/state/wallet';
-import { FC, useCallback, useState } from 'react';
+import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { TwaAppSdk } from '../libs/appSdk';
 import { useHandleBackButton } from '../libs/twaHooks';
@@ -141,18 +150,51 @@ const AccountRow: FC<{ account: Account; onSelect: () => void }> = ({ account, o
     );
 };
 
+type SunsetPlatform = NonNullable<AnalyticsEventTwaSunsetOpen['telegram_platform']>;
+type SunsetDestination = AnalyticsEventTwaSunsetDownloadClick['destination'];
+
+// Collapse Telegram's platform list to the analytics enum: native iOS/Android
+// stay as-is, every desktop/web client folds into 'web', anything unknown into
+// 'other'.
+const toSunsetPlatform = (platform: string): SunsetPlatform => {
+    switch (platform) {
+        case 'ios':
+        case 'android':
+        case 'android_x':
+            return platform;
+        case 'macos':
+        case 'tdesktop':
+        case 'weba':
+        case 'webk':
+        case 'web':
+            return 'web';
+        default:
+            return 'other';
+    }
+};
+
 const DownloadButton: FC<{ sdk: TwaAppSdk }> = ({ sdk }) => {
     const { t } = useTranslation();
+    const track = useAnalyticsTrack();
     const platform = sdk.launchParams.platform;
-    const { labelKey, url } =
+    const {
+        labelKey,
+        url,
+        destination
+    }: { labelKey: string; url: string; destination: SunsetDestination } =
         platform === 'ios'
-            ? { labelKey: 'twa_download_ios', url: APP_STORE_URL }
+            ? { labelKey: 'twa_download_ios', url: APP_STORE_URL, destination: 'app_store' }
             : platform === 'android' || platform === 'android_x'
-            ? { labelKey: 'twa_download_android', url: GOOGLE_PLAY_URL }
-            : { labelKey: 'twa_open_web', url: WEB_APP_URL };
+            ? { labelKey: 'twa_download_android', url: GOOGLE_PLAY_URL, destination: 'google_play' }
+            : { labelKey: 'twa_open_web', url: WEB_APP_URL, destination: 'web' };
+
+    const onClick = () => {
+        track({ eventName: 'twa_sunset_download_click', destination });
+        sdk.openPage(url);
+    };
 
     return (
-        <Button primary fullWidth onClick={() => sdk.openPage(url)}>
+        <Button primary fullWidth onClick={onClick}>
             {t(labelKey)}
         </Button>
     );
@@ -161,11 +203,27 @@ const DownloadButton: FC<{ sdk: TwaAppSdk }> = ({ sdk }) => {
 export const MiniAppClosed: FC<{ sdk: TwaAppSdk }> = ({ sdk }) => {
     const { t } = useTranslation();
     const client = useQueryClient();
+    const track = useAnalyticsTrack();
     const { data: accounts } = useAccountsStateQuery();
 
     // Only accounts with a recoverable secret belong in the list — watch-only,
     // hardware and other non-mnemonic accounts have no recovery phrase to show.
     const recoverableAccounts = (accounts ?? []).filter(isMnemonicAndPassword);
+
+    // Reach metric: fire once per session, after the account list has loaded so
+    // has_wallets / wallets_count reflect the real state rather than the empty
+    // pre-load list.
+    const openTracked = useRef(false);
+    useEffect(() => {
+        if (accounts === undefined || openTracked.current) return;
+        openTracked.current = true;
+        track({
+            eventName: 'twa_sunset_open',
+            telegram_platform: toSunsetPlatform(sdk.launchParams.platform),
+            has_wallets: recoverableAccounts.length > 0,
+            wallets_count: recoverableAccounts.length
+        });
+    }, [accounts, recoverableAccounts.length, sdk, track]);
 
     const [passwordAccount, setPasswordAccount] = useState<Account | null>(null);
     const [recovery, setRecovery] = useState<{ account: Account; secret: AccountSecret } | null>(
@@ -188,17 +246,17 @@ export const MiniAppClosed: FC<{ sdk: TwaAppSdk }> = ({ sdk }) => {
     // Show Telegram's native back button on every sub-screen (the recovery page
     // and the password / sign-out sheets); on the root list let Telegram show
     // its own close control.
-    const showBackButton =
-        recovery !== null || passwordAccount !== null || signOutAccount !== null;
+    const showBackButton = recovery !== null || passwordAccount !== null || signOutAccount !== null;
     useHandleBackButton(onBack, showBackButton);
 
     const onSignOutConfirm = useCallback(async () => {
         if (!signOutAccount) return;
         await accountsStorage(sdk.storage).removeAccountFromState(signOutAccount.id);
         await client.invalidateQueries([QueryKey.account]);
+        track({ eventName: 'twa_sunset_sign_out' });
         setSignOutAccount(null);
         setRecovery(null);
-    }, [signOutAccount, sdk, client]);
+    }, [signOutAccount, sdk, client, track]);
 
     if (recovery) {
         return (
@@ -238,7 +296,10 @@ export const MiniAppClosed: FC<{ sdk: TwaAppSdk }> = ({ sdk }) => {
                             <AccountRow
                                 key={account.id}
                                 account={account}
-                                onSelect={() => setPasswordAccount(account)}
+                                onSelect={() => {
+                                    track({ eventName: 'twa_sunset_reveal_start' });
+                                    setPasswordAccount(account);
+                                }}
                             />
                         ))}
                     </Accounts>
