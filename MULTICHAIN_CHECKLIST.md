@@ -28,6 +28,9 @@ See also: `MULTICHAIN_PLAN.md` (roadmap), `CLAUDE.md` (architecture, styling rul
 -   [ ] All touched components use Tailwind. No `styled.X`, no template-literal CSS, no
         `createGlobalStyle` in touched files. Legacy components that the feature lands changes in
         get ported in the same PR. See CLAUDE.md → "Styling".
+-   [ ] New screens use the existing UI primitives from `packages/uikit/src/primitives/` (buttons,
+        inputs, loaders, etc.). Do not import legacy styled-components components or invent
+        one-off primitives when the UI library already provides the element.
 -   [ ] API clients are regenerated from spec — no hand-written request / response types that should
         come from the generator. See CLAUDE.md → "Regenerating API clients".
 -   [ ] All chain interactions go through `chainKit`. No ad-hoc per-chain SDK calls.

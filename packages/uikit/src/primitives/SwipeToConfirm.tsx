@@ -51,6 +51,15 @@ export const SwipeToConfirm: FC<SwipeToConfirmProps> = ({
     const pointerStart = useRef(0);
     const maxX = useRef(0);
     const [dragX, setDragX] = useState(0);
+    // Mirror of `dragX` for reads inside pointer handlers: the handler closures
+    // capture a stale `dragX` from their render, so the release decision and the
+    // next drag's origin must come from this synchronously-updated ref.
+    const dragXRef = useRef(0);
+
+    const setDrag = (value: number) => {
+        dragXRef.current = value;
+        setDragX(value);
+    };
 
     const measure = () => {
         const width = trackRef.current?.offsetWidth ?? 0;
@@ -67,8 +76,8 @@ export const SwipeToConfirm: FC<SwipeToConfirmProps> = ({
     // Pin the handle at the far edge while the parent processes the
     // confirmed action; reset it once we're idle again.
     useEffect(() => {
-        if (status === 'loading') setDragX(maxX.current);
-        else if (status === 'idle') setDragX(0);
+        if (status === 'loading') setDrag(maxX.current);
+        else if (status === 'idle') setDrag(0);
     }, [status]);
 
     const interactive = status === 'idle' && !disabled;
@@ -77,23 +86,23 @@ export const SwipeToConfirm: FC<SwipeToConfirmProps> = ({
         if (!interactive) return;
         measure();
         dragging.current = true;
-        pointerStart.current = e.clientX - dragX;
+        pointerStart.current = e.clientX - dragXRef.current;
         e.currentTarget.setPointerCapture(e.pointerId);
     };
 
     const onPointerMove = (e: ReactPointerEvent) => {
         if (!dragging.current) return;
-        setDragX(clamp(e.clientX - pointerStart.current, 0, maxX.current));
+        setDrag(clamp(e.clientX - pointerStart.current, 0, maxX.current));
     };
 
     const onPointerUp = () => {
         if (!dragging.current) return;
         dragging.current = false;
-        if (dragX >= maxX.current * COMPLETE_RATIO && maxX.current > 0) {
-            setDragX(maxX.current);
+        if (dragXRef.current >= maxX.current * COMPLETE_RATIO && maxX.current > 0) {
+            setDrag(maxX.current);
             onConfirm();
         } else {
-            setDragX(0);
+            setDrag(0);
         }
     };
 
