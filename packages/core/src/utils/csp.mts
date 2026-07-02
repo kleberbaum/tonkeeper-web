@@ -33,7 +33,18 @@ export const baseCspConfig = {
         'https://*.tonconsole.com',
         'https://api.trongrid.io/',
         'https://duckduckgo.com',
-        'https://oauth.telegram.org'
+        'https://oauth.telegram.org',
+
+        /* TEMPORARY: third-party node providers @tonkeeper/chainkit reaches
+         * for multichain estimate/broadcast (TON / EVM / BTC; TRON uses
+         * trongrid above). They rely on chain-kit's embedded shared API keys
+         * and widen the allowlist to non-first-party hosts. Remove once
+         * chain-kit defaults to Tonkeeper-hosted RPC (under *.tonkeeper.com).
+         * chain-kit exposes no host list to import, so they're listed here by
+         * host (CSP ignores the path). */
+        'https://toncenter.com',
+        'https://*.g.alchemy.com',
+        'https://go.getblock.io'
     ],
 
     /* Allow loading pwa manifest */

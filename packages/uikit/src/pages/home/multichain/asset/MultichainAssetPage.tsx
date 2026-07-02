@@ -56,7 +56,7 @@ export const MultichainAssetPage: FC<{ assetId: string; compact?: boolean }> = (
                 <MultichainAssetTradingActivity activity={details.tradingActivity} />
             )}
             {details?.links && <MultichainAssetLinks links={details.links} />}
-            <MultichainAssetActionBar hasBalance={hasBalance} compact={compact} />
+            <MultichainAssetActionBar asset={asset} hasBalance={hasBalance} compact={compact} />
         </div>
     );
 };

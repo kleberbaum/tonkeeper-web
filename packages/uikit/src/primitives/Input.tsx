@@ -105,7 +105,10 @@ export const Label = forwardRef<HTMLLabelElement, LabelProps>(
         const theme = useTheme();
         const isFullWidth = theme?.displayType === 'full-width';
 
-        const resting = isFullWidth ? 'translate-y-[18px]' : 'translate-y-[23px]';
+        // Resting: vertically centered in the 64px (min-h-16) field —
+        // (64 − 16px line) / 2 = 24px. Lifted: floated to the top on
+        // focus / when filled.
+        const resting = 'translate-y-[24px]';
         const lifted = isFullWidth
             ? 'translate-y-[10px] scale-[0.7]'
             : 'translate-y-[12px] scale-[0.7]';

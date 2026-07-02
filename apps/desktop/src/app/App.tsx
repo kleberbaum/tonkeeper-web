@@ -311,6 +311,7 @@ export const Loader: FC = () => {
         proFeatures: true,
         experimental: true,
         ios: false,
+        hideQrScanner: true,
         defaultWalletVersion: WalletVersion.V5R1,
         multichainEnabled: MULTICHAIN_ENABLED,
         tracker: tracker?.track

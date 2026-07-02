@@ -1,5 +1,17 @@
 import { expect, screenshot, test } from '../../../../../playwright/test';
+import { MultichainWalletAsset } from '@tonkeeper/core/dist/service/multichainWalletService';
 import { MultichainAssetActionBar } from './MultichainAssetActionBar';
+
+const ASSET: MultichainWalletAsset = {
+    assetId: 'eth/mainnet/coin',
+    chain: 'evm',
+    name: 'Ethereum',
+    symbol: 'ETH',
+    decimals: 18,
+    image: '',
+    balance: '0',
+    isHidden: false
+};
 
 // Edge cases the screenshot suite targets:
 //   - hasBalance true → Buy + Sell + more (3 controls).
@@ -13,20 +25,20 @@ const FRAME = 'relative w-[390px] bg-backgroundPage';
 
 screenshot('MultichainAssetActionBar with balance shows buy sell and more', () => (
     <div className={FRAME}>
-        <MultichainAssetActionBar hasBalance compact />
+        <MultichainAssetActionBar asset={ASSET} hasBalance compact />
     </div>
 ));
 
 screenshot('MultichainAssetActionBar without balance hides sell', () => (
     <div className={FRAME}>
-        <MultichainAssetActionBar hasBalance={false} compact />
+        <MultichainAssetActionBar asset={ASSET} hasBalance={false} compact />
     </div>
 ));
 
 test('MultichainAssetActionBar renders sell only when there is a balance', async ({ mount }) => {
     const c = await mount(
         <div className={FRAME}>
-            <MultichainAssetActionBar hasBalance compact />
+            <MultichainAssetActionBar asset={ASSET} hasBalance compact />
         </div>
     );
     await expect(c.getByText('Sell')).toBeVisible();
@@ -36,7 +48,7 @@ test('MultichainAssetActionBar renders sell only when there is a balance', async
 test('MultichainAssetActionBar omits sell button without a balance', async ({ mount }) => {
     const c = await mount(
         <div className={FRAME}>
-            <MultichainAssetActionBar hasBalance={false} compact />
+            <MultichainAssetActionBar asset={ASSET} hasBalance={false} compact />
         </div>
     );
     await expect(c.getByText('Buy')).toBeVisible();

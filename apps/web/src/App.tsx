@@ -209,6 +209,7 @@ const Loader: FC = () => {
         extension: false,
         proFeatures: true,
         ios,
+        hideQrScanner: true,
         defaultWalletVersion: WalletVersion.V5R1,
         hideMultisig: isMobile,
         hideFireblocks: true,

@@ -5,7 +5,6 @@ import { useAppSdk } from '../../../hooks/appSdk';
 import { useTranslation } from '../../../hooks/translation';
 import { useNavigate } from '../../../hooks/router/useNavigate';
 import { AppRoute } from '../../../libs/routes';
-import { TransferInitParams } from '@tonkeeper/core/dist/AppSdk';
 import { SendIcon, ReceiveIcon } from '../../../components/home/HomeIcons';
 import IcSwapHorizontalOutline28 from '../../../icons/components/IcSwapHorizontalOutline28';
 import IcStakingOutline28 from '../../../icons/components/IcStakingOutline28';
@@ -17,6 +16,7 @@ import { EnterAmountScreen } from '../../../components/onramp/EnterAmountScreen'
 import { PaymentMethodScreen } from '../../../components/onramp/PaymentMethodScreen';
 import { ProviderDisclaimerModal } from '../../../components/onramp/ProviderDisclaimerModal';
 import { MultichainReceiveBody } from '../../../components/receive/MultichainReceiveSheet';
+import { MultichainSendFlow } from '../../../components/transfer/multichain/MultichainSendFlow';
 import { Modal } from '../../../primitives/Modal';
 import {
     useCreateOnrampOrder,
@@ -48,6 +48,7 @@ export const HomeMultichainActions: FC = () => {
     const navigate = useNavigate();
     const [, setSwapOpen] = useSwapMobileNotification();
     const [step, setStep] = useState<Step>('closed');
+    const [sendOpen, setSendOpen] = useState(false);
     const [selectedAsset, setSelectedAsset] = useState<OnrampAssetRow | undefined>(undefined);
     const [selectedMethod, setSelectedMethod] = useState<ExchangePaymentMethodType | undefined>(
         undefined
@@ -93,12 +94,7 @@ export const HomeMultichainActions: FC = () => {
     const createOrder = useCreateOnrampOrder();
     const destinationAddress = useDestinationAddress(selectedAsset?.assetId);
 
-    const onSend = () =>
-        sdk.uiEvents.emit('transfer', {
-            method: 'transfer',
-            id: Date.now(),
-            params: { from: 'wallet' } as TransferInitParams
-        });
+    const onSend = () => setSendOpen(true);
 
     const onAddFunds = () => setStep('add_funds');
 
@@ -133,6 +129,14 @@ export const HomeMultichainActions: FC = () => {
                     onClick={onStake}
                 />
             </div>
+            <MultichainSendFlow
+                isOpen={sendOpen}
+                onClose={() => setSendOpen(false)}
+                onAddFunds={() => {
+                    setSendOpen(false);
+                    setStep('add_funds');
+                }}
+            />
             <Modal
                 isOpen={step === 'add_funds' || step === 'receive'}
                 onClose={() => setStep('closed')}

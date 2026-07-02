@@ -30,17 +30,20 @@ for arg in "$@"; do
     PLAYWRIGHT_ARGS="${PLAYWRIGHT_ARGS} \"${arg}\""
 done
 
+# Mount the repo at the same absolute path inside the container as on the host so the
+# file paths Playwright prints (expected/actual/diff snapshots, stack traces) resolve
+# on the host and stay clickable from the terminal.
 docker run --rm \
     -e NODE_AUTH_TOKEN="${AUTH_TOKEN}" \
     -e YARN_NPM_AUTH_TOKEN="${AUTH_TOKEN}" \
-    -v "${REPO}:/work" -w /work \
+    -v "${REPO}:${REPO}" -w "${REPO}" \
     mcr.microsoft.com/playwright:v1.48.1-jammy \
     bash -lc "
         set -euo pipefail
         corepack enable
 
         # Mitigate intermittent mount visibility glitches in Docker Desktop.
-        mkdir -p /work/packages/uikit/src/components/layout
+        mkdir -p \"${REPO}/packages/uikit/src/components/layout\"
 
         install_ok=0
         for i in 1 2 3; do

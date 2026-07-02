@@ -89,6 +89,14 @@ export type ModalProps = {
     /** Hide the top-right close (X) button. */
     hideCloseButton?: boolean;
     /**
+     * Back-button handler shown as the top-left arrow. Use this when the
+     * enclosing screen knows its own back target (e.g. a multi-step flow).
+     * For content-driven back (a sub-step inside the body), a child of the
+     * modal can call `useSetModalOnBack` instead; if both are present the
+     * prop wins.
+     */
+    onBack?: () => void;
+    /**
      * Mobile-only height variant:
      *  - `'auto'` (default) — bottom sheet sized to content, capped at 90vh
      *  - `'half'`          — bottom sheet floor 50vh, cap 80vh
@@ -128,6 +136,7 @@ export const Modal: FC<ModalProps> = ({
     subheading,
     topBarTitle,
     hideCloseButton,
+    onBack: onBackProp,
     mobileHeight = 'auto',
     tall,
     afterClose,
@@ -139,7 +148,10 @@ export const Modal: FC<ModalProps> = ({
 
     const [mounted, setMounted] = useState(false);
     const [visible, setVisible] = useState(false);
-    const [onBack, setOnBack] = useState<(() => void) | undefined>();
+    // Back handler can come from the `onBack` prop (parent-driven) or from a
+    // child via `useSetModalOnBack` (content-driven); the prop takes priority.
+    const [onBackFromContext, setOnBack] = useState<(() => void) | undefined>();
+    const onBack = onBackProp ?? onBackFromContext;
     const [onCloseInterceptor, setOnCloseInterceptor] = useState<OnCloseInterceptor>();
     const [footerElement, setFooterElement] = useState<HTMLDivElement | null>(null);
     const [headerElement, setHeaderElement] = useState<HTMLDivElement | null>(null);

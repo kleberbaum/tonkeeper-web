@@ -64,3 +64,10 @@ CLAUDE_LOCAL.md
 # folders (apps/*/public, apps/mobile/fastlane/...) and are unaffected by
 # the root-only `/*.png`.
 /*.png
+
+# Playwright run artifacts. These belong under packages/uikit (already ignored
+# there); guard the repo root too so a stray run — or an accidental click on a
+# relative artifact path from a terminal at the repo root — is never committed.
+/test-results/
+/playwright-report/
+/blob-report/

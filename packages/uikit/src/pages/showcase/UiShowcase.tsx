@@ -14,8 +14,10 @@ import {
     Radio,
     SearchField,
     Switch,
+    SwipeToConfirm,
     TextArea,
-    Toast
+    Toast,
+    TokenSwitch
 } from '../../primitives';
 import IcSnowflake16 from '../../icons/components/IcSnowflake16';
 import IcPlus28 from '../../icons/components/IcPlus28';
@@ -385,6 +387,39 @@ const ChainBadgeOverlayShowcase = () => (
     </Section>
 );
 
+const TokenSwitchShowcase = () => (
+    <Section title="TokenSwitch">
+        <Tile label="Native (no badge)">
+            <TokenSwitch icon={<IcChainTon20 />} symbol="TON" />
+        </Tile>
+        <Tile label="Token w/ chain badge">
+            <TokenSwitch icon={<SampleTokenIcon />} chainBadge={<IcChainEth20 />} symbol="SHIB" />
+        </Tile>
+    </Section>
+);
+
+const SwipeToConfirmShowcase = () => (
+    <Section title="SwipeToConfirm">
+        <Tile label="Idle" className="w-[358px]">
+            <SwipeToConfirm onConfirm={() => {}} label="Confirm" hint="Swipe right" />
+        </Tile>
+        <Tile label="Loading" className="w-[358px]">
+            <SwipeToConfirm
+                onConfirm={() => {}}
+                status="loading"
+                label="Confirm"
+                hint="Swipe right"
+            />
+        </Tile>
+        <Tile label="Done" className="w-[358px]">
+            <SwipeToConfirm onConfirm={() => {}} status="done" doneLabel="Done" />
+        </Tile>
+        <Tile label="Disabled" className="w-[358px]">
+            <SwipeToConfirm onConfirm={() => {}} disabled label="Confirm" hint="Swipe right" />
+        </Tile>
+    </Section>
+);
+
 export const UiShowcase: FC = () => (
     <div className="min-h-screen w-full overflow-auto bg-backgroundPage px-10 py-8 text-textPrimary">
         <h1 className="mb-2 text-h2">UI Kit Showcase</h1>
@@ -405,6 +440,8 @@ export const UiShowcase: FC = () => (
         <FieldWordShowcase />
         <ChainChipShowcase />
         <ChainBadgeOverlayShowcase />
+        <TokenSwitchShowcase />
+        <SwipeToConfirmShowcase />
     </div>
 );
 

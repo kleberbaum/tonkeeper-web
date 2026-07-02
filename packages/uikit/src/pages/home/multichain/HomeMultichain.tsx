@@ -6,6 +6,7 @@ import { AccountMultichain } from '@tonkeeper/core/dist/entries/account';
 import { useAppContext } from '../../../hooks/appContext';
 import { formatFiatCurrency } from '../../../hooks/balance';
 import { useMultichainWalletAssets } from '../../../state/multichain/useMultichainWalletAssets';
+import { useEnsureChainKitReady } from '../../../state/multichain/transfer/useMultichainTransfer';
 import { CryptoCatalogModal } from './catalog/CryptoCatalogModal';
 import { HomeMultichainActions } from './HomeMultichainActions';
 import { HomeMultichainAssetRow } from './HomeMultichainAssetRow';
@@ -64,6 +65,12 @@ export const HomeMultichain: FC<{ account: AccountMultichain; compact?: boolean 
     const { t } = useTranslation();
     const { fiat } = useAppContext();
     const { data, isFetching } = useMultichainWalletAssets();
+
+    // chain-kit's WASM core takes ~2s to initialise; warm it as soon as the
+    // wallet home mounts so address validation and fee estimation are ready
+    // by the time the user opens the send flow, not blocked behind a cold start.
+    useEnsureChainKitReady();
+
     const [catalogOpen, setCatalogOpen] = useState(false);
     const [manageOpen, setManageOpen] = useState(false);
     const [moreExpanded, setMoreExpanded] = useState(false);

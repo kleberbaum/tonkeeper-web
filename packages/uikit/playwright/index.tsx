@@ -159,8 +159,14 @@ beforeMount<HooksConfig>(async ({ App, hooksConfig }) => {
     const account = buildActiveMultichainAccount();
     await sdk.storage.set(AppKey.ACCOUNTS, [account]);
     await sdk.storage.set(AppKey.ACTIVE_ACCOUNT_ID, account.id);
+    await sdk.storage.set(AppKey.FIAT, FiatCurrencies.USD);
     queryClient.clear();
     queryClient.setQueryData([QueryKey.account, QueryKey.wallet], account);
+    // `useUserFiat` throws synchronously when its query is empty, so components
+    // that read the wallet's fiat currency (`useMultichainWalletAssets`, the
+    // send flow) crash on first render without a seeded value. The queryFn reads
+    // the same storage key set above, so it survives react-query refetches.
+    queryClient.setQueryData([AppKey.FIAT], FiatCurrencies.USD);
 
     return (
         <TranslationContext.Provider value={testTranslationContext}>

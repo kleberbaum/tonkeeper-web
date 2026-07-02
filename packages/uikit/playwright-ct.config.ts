@@ -38,7 +38,12 @@ export default defineConfig({
     forbidOnly: !!process.env.CI,
     retries: process.env.CI ? 1 : 0,
     workers: process.env.CI ? 1 : undefined,
-    reporter: process.env.CI ? [['html', { open: 'never' }], ['list']] : [['list']],
+    // `terminalImageLinksReporter` prints screenshot expected/actual/diff images as
+    // OSC 8 terminal hyperlinks (short label bound to a file:// URL) so they open on
+    // click regardless of path length or the terminal's cwd.
+    reporter: process.env.CI
+        ? [['html', { open: 'never' }], ['list'], ['./playwright/terminalImageLinksReporter.ts']]
+        : [['list'], ['./playwright/terminalImageLinksReporter.ts']],
 
     use: {
         // Dedicated dev-server port so it doesn't clash with app dev servers.

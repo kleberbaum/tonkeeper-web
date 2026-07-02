@@ -41,3 +41,9 @@ export type { FieldWordProps } from './FieldWord';
 
 export { Modal, useSetModalOnBack, useSetModalOnCloseInterceptor } from './Modal';
 export type { ModalProps, OnCloseInterceptor } from './Modal';
+
+export { SwipeToConfirm } from './SwipeToConfirm';
+export type { SwipeToConfirmProps, SwipeToConfirmStatus } from './SwipeToConfirm';
+
+export { TokenSwitch } from './TokenSwitch';
+export type { TokenSwitchProps } from './TokenSwitch';
