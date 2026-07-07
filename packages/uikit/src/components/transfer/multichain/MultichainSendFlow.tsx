@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useLayoutEffect, useRef, useState } from 'react';
 
 import { MultichainWalletAsset } from '@tonkeeper/core/dist/service/multichainWalletService';
 
@@ -40,16 +40,19 @@ export const MultichainSendFlow: FC<MultichainSendFlowProps> = ({
     const [asset, setAsset] = useState<MultichainWalletAsset | undefined>(initialAsset);
     const [sendState, setSendState] = useState<MultichainSendState | undefined>();
 
-    // Reset to a clean state once the flow has fully closed so reopening
-    // always starts at the entry step (picker, or the pre-selected form).
-    useEffect(() => {
-        if (isOpen) return undefined;
-        const handle = window.setTimeout(() => {
-            setStep(firstStep);
-            setAsset(initialAsset);
-            setSendState(undefined);
-        }, 250);
-        return () => window.clearTimeout(handle);
+    // Snap back to the entry step whenever the flow opens, so a new session
+    // never inherits the previous one's step/asset/confirm state. Resetting on
+    // open (before paint) — rather than on a delayed timer after close — keeps
+    // the last screen visible through the close animation and avoids the race
+    // where reopening quickly cancels a pending reset.
+    const wasOpen = useRef(isOpen);
+    useLayoutEffect(() => {
+        const justOpened = isOpen && !wasOpen.current;
+        wasOpen.current = isOpen;
+        if (!justOpened) return;
+        setStep(firstStep);
+        setAsset(initialAsset);
+        setSendState(undefined);
     }, [isOpen, firstStep, initialAsset]);
 
     return (
@@ -67,6 +70,7 @@ export const MultichainSendFlow: FC<MultichainSendFlowProps> = ({
             />
             {asset && (
                 <SendFormScreen
+                    key={asset.assetId}
                     isOpen={isOpen && step === 'form'}
                     onClose={onClose}
                     onBack={initialAsset ? undefined : () => setStep('choose_asset')}

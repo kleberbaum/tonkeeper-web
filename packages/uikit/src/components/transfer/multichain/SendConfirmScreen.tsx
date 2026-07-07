@@ -9,7 +9,7 @@ import {
 import { Button, SwipeToConfirm } from '../../../primitives';
 import { Modal } from '../../../primitives/Modal';
 import { useTranslation } from '../../../hooks/translation';
-import { useIsFullWidthMode } from '../../../hooks/useIsFullWidthMode';
+import { useIsCapacitorApp } from '../../../hooks/appSdk';
 import { useAppContext } from '../../../hooks/appContext';
 import { formatFiatCurrency, formatter } from '../../../hooks/balance';
 import { useActiveAccount, useActiveWalletForChain } from '../../../state/wallet';
@@ -38,7 +38,7 @@ export const SendConfirmScreen: FC<SendConfirmScreenProps> = ({
 }) => {
     const { t } = useTranslation();
     const { fiat } = useAppContext();
-    const isFullWidth = useIsFullWidthMode();
+    const isMobileApp = useIsCapacitorApp();
     const account = useActiveAccount();
     const fromWallet = useActiveWalletForChain(state.asset.chain);
     const { data: assetsData } = useMultichainWalletAssets();
@@ -120,9 +120,11 @@ export const SendConfirmScreen: FC<SendConfirmScreenProps> = ({
         if (input) send.mutate(input);
     };
 
-    // Desktop has no swipe affordance — a plain Confirm button; mobile swipes.
+    // Swipe-to-confirm is a native-app affordance only. Desktop, the extension
+    // popup, and mobile web all get a plain Confirm button; only the Capacitor
+    // app (phone/tablet) swipes.
     const action =
-        isFullWidth && status !== 'done' ? (
+        !isMobileApp && status !== 'done' ? (
             <Button
                 variant="primaryBlue"
                 size="large"
