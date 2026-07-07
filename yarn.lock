@@ -5052,6 +5052,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tonkeeper/chainkit@npm:0.1.1":
+  version: 0.1.1
+  resolution: "@tonkeeper/chainkit@npm:0.1.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40tonkeeper%2Fchainkit%2F0.1.1%2F389f8579f26055e903b58b2f9fd675fef4808346"
+  dependencies:
+    "@js-joda/core": "npm:3.2.0"
+    "@trustwallet/wallet-core": "npm:4.6.0"
+    node-polyfill-webpack-plugin: "npm:4.1.0"
+    ws: "npm:8.18.3"
+  checksum: 10/d8cce519b9292ea817b1a1f0f5933f085042842e473e9c2cb62b2e06e476cf99fecbb9ba5e38b2ec3dc411d735e5713d119bc3c3f831059da8252b1e955e0814
+  languageName: node
+  linkType: hard
+
 "@tonkeeper/core@npm:0.1.0, @tonkeeper/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@tonkeeper/core@workspace:packages/core"
@@ -5068,7 +5080,7 @@ __metadata:
     "@ton/core": "npm:0.56.0"
     "@ton/crypto": "npm:3.2.0"
     "@ton/ton": "npm:^16.0.0"
-    "@tonkeeper/chainkit": "npm:0.0.4"
+    "@tonkeeper/chainkit": "npm:0.1.1"
     "@types/aes-js": "npm:^3.1.4"
     "@types/js-yaml": "npm:^4.0.9"
     "@types/punycode": "npm:^2"
@@ -5386,7 +5398,7 @@ __metadata:
   resolution: "@tonkeeper/web@workspace:apps/web"
   dependencies:
     "@tanstack/react-query": "npm:4.3.4"
-    "@tonkeeper/chainkit": "npm:0.0.4"
+    "@tonkeeper/chainkit": "npm:0.1.1"
     "@tonkeeper/core": "npm:0.1.0"
     "@tonkeeper/locales": "npm:0.1.0"
     "@tonkeeper/uikit": "npm:0.1.0"
@@ -16119,7 +16131,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-polyfill-webpack-plugin@npm:^4.1.0":
+"node-polyfill-webpack-plugin@npm:4.1.0, node-polyfill-webpack-plugin@npm:^4.1.0":
   version: 4.1.0
   resolution: "node-polyfill-webpack-plugin@npm:4.1.0"
   dependencies:

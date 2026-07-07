@@ -9,6 +9,7 @@ import { useMultichainWalletAssets } from '../../../state/multichain/useMulticha
 import { useEnsureChainKitReady } from '../../../state/multichain/transfer/useMultichainTransfer';
 import { CryptoCatalogModal } from './catalog/CryptoCatalogModal';
 import { HomeMultichainActions } from './HomeMultichainActions';
+import { HomeMultichainHeaderBar } from './HomeMultichainHeaderBar';
 import { HomeMultichainAssetRow } from './HomeMultichainAssetRow';
 import { ManageCryptoModal } from './manage/ManageCryptoModal';
 import { MoreAssetsButton } from './MoreAssetsButton';
@@ -84,68 +85,73 @@ export const HomeMultichain: FC<{ account: AccountMultichain; compact?: boolean 
     const previewAssets = showMoreButton ? allAssets.slice(collapsedCount, collapsedCount + 2) : [];
 
     return (
-        <div className="mx-auto flex w-full max-w-[520px] flex-col gap-6 px-4 py-8 text-textPrimary">
-            {!compact && (
-                <header className="flex flex-col items-center gap-2 pt-4">
-                    <div className="text-3xl">{account.emoji}</div>
-                    <div className="text-label1 text-textSecondary">{account.name}</div>
-                    <div className="text-h1">{total ? formatFiatCurrency(fiat, total) : '—'}</div>
-                </header>
-            )}
-
-            <HomeMultichainActions />
-
-            <section className="flex flex-col">
-                <div className="flex items-center justify-between py-3">
-                    <button
-                        type="button"
-                        onClick={() => setCatalogOpen(true)}
-                        className="flex items-center gap-1 text-left text-label1 text-textPrimary"
-                    >
-                        <span>{t('wallet_crypto_section')}</span>
-                        <Chevron16 />
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => setManageOpen(true)}
-                        className="flex items-center gap-1.5 text-label2 text-textSecondary"
-                    >
-                        <span>{t('wallet_manage_assets')}</span>
-                        <Sliders16 />
-                    </button>
-                </div>
-                {allAssets.length === 0 ? (
-                    <div className="rounded-medium bg-backgroundContent px-4 py-6 text-center text-body2 text-textSecondary">
-                        {isFetching ? 'Loading assets…' : 'No assets yet'}
-                    </div>
-                ) : (
-                    <div className="overflow-hidden rounded-medium bg-backgroundContent">
-                        {visibleAssets.map((asset, idx) => (
-                            <div
-                                key={asset.assetId}
-                                className={idx === 0 ? '' : 'border-t border-separatorCommon'}
-                            >
-                                <HomeMultichainAssetRow asset={asset} />
-                            </div>
-                        ))}
-                        {showMoreButton && (
-                            <div className="border-t border-separatorCommon">
-                                <MoreAssetsButton
-                                    previewAssets={previewAssets}
-                                    onClick={() => setMoreExpanded(true)}
-                                />
-                            </div>
-                        )}
-                    </div>
+        <>
+            {!compact && <HomeMultichainHeaderBar />}
+            <div className="mx-auto flex w-full max-w-[520px] flex-col gap-6 px-4 pb-8 text-textPrimary">
+                {!compact && (
+                    <header className="flex flex-col items-center gap-2 pt-4">
+                        <div className="text-3xl">{account.emoji}</div>
+                        <div className="text-label1 text-textSecondary">{account.name}</div>
+                        <div className="text-h1">
+                            {total ? formatFiatCurrency(fiat, total) : '—'}
+                        </div>
+                    </header>
                 )}
-            </section>
 
-            {catalogOpen && (
-                <CryptoCatalogModal compact={compact} onClose={() => setCatalogOpen(false)} />
-            )}
-            {manageOpen && (
-                <ManageCryptoModal compact={compact} onClose={() => setManageOpen(false)} />
-            )}
-        </div>
+                <HomeMultichainActions />
+
+                <section className="flex flex-col">
+                    <div className="flex items-center justify-between py-3">
+                        <button
+                            type="button"
+                            onClick={() => setCatalogOpen(true)}
+                            className="flex items-center gap-1 text-left text-label1 text-textPrimary"
+                        >
+                            <span>{t('wallet_crypto_section')}</span>
+                            <Chevron16 />
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setManageOpen(true)}
+                            className="flex items-center gap-1.5 text-label2 text-textSecondary"
+                        >
+                            <span>{t('wallet_manage_assets')}</span>
+                            <Sliders16 />
+                        </button>
+                    </div>
+                    {allAssets.length === 0 ? (
+                        <div className="rounded-medium bg-backgroundContent px-4 py-6 text-center text-body2 text-textSecondary">
+                            {isFetching ? 'Loading assets…' : 'No assets yet'}
+                        </div>
+                    ) : (
+                        <div className="overflow-hidden rounded-medium bg-backgroundContent">
+                            {visibleAssets.map((asset, idx) => (
+                                <div
+                                    key={asset.assetId}
+                                    className={idx === 0 ? '' : 'border-t border-separatorCommon'}
+                                >
+                                    <HomeMultichainAssetRow asset={asset} />
+                                </div>
+                            ))}
+                            {showMoreButton && (
+                                <div className="border-t border-separatorCommon">
+                                    <MoreAssetsButton
+                                        previewAssets={previewAssets}
+                                        onClick={() => setMoreExpanded(true)}
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </section>
+
+                {catalogOpen && (
+                    <CryptoCatalogModal compact={compact} onClose={() => setCatalogOpen(false)} />
+                )}
+                {manageOpen && (
+                    <ManageCryptoModal compact={compact} onClose={() => setManageOpen(false)} />
+                )}
+            </div>
+        </>
     );
 };

@@ -5,7 +5,7 @@ import { CatalogSort } from '@tonkeeper/core/dist/service/multichainWalletServic
 import { useTranslation } from '../../../../hooks/translation';
 import { useAssetsCatalog } from '../../../../state/trading/useAssetsCatalog';
 import { ModalShell } from '../ModalShell';
-import { CryptoCatalogChainChips } from './CryptoCatalogChainChips';
+import { MultichainChainChips } from '../MultichainChainChips';
 import { CryptoCatalogHeader } from './CryptoCatalogHeader';
 import { CryptoCatalogRow } from './CryptoCatalogRow';
 import { CryptoCatalogSearch } from './CryptoCatalogSearch';
@@ -37,7 +37,7 @@ export const CryptoCatalogModal: FC<{ onClose: () => void; compact?: boolean }> 
                 <CryptoCatalogSearch value={search} onChange={setSearch} />
             </div>
             <div className="px-4 pb-3">
-                <CryptoCatalogChainChips value={chain} onChange={setChain} />
+                <MultichainChainChips value={chain} onChange={setChain} />
             </div>
             <div className="flex-1 overflow-y-auto pb-24 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 <div className="mx-4 overflow-hidden rounded-medium bg-backgroundContent">

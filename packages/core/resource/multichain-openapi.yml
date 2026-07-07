@@ -1,0 +1,1039 @@
+openapi: 3.0.3
+info:
+    title: Tonkeeper Multichain Backend
+    version: 0.1.0
+
+servers: []
+
+tags:
+    - name: system
+      description: 'System endpoints'
+    - name: nodes
+      description: 'Chain node manifest'
+    - name: assets
+      description: 'Asset catalog search'
+    - name: broadcast
+      description: 'Transaction broadcasting'
+    - name: fees
+      description: 'Fee estimation'
+    - name: wallets
+      description: 'Wallet registry (register, balances, activities)'
+
+components:
+    parameters:
+        LimitQuery:
+            name: limit
+            in: query
+            description: 'Pagination limit'
+            schema:
+                type: integer
+                default: 25
+                example: 50
+                minimum: 0
+                maximum: 50
+        CursorQuery:
+            name: cursor
+            in: query
+            description: 'Cursor for pagination'
+            schema:
+                type: string
+        AssetIdsQuery:
+            name: asset_ids
+            in: query
+            required: false
+            description: 'Filter by asset IDs'
+            explode: false
+            schema:
+                type: array
+                maxItems: 20
+                items:
+                    type: string
+                example:
+                    [
+                        'ton/mainnet/coin',
+                        'eth/mainnet/erc20/0xdAC17F958D2ee523a2206206994597C13D831ec7'
+                    ]
+        AssetIdQuery:
+            name: asset_id
+            in: query
+            required: true
+            description: 'Asset identifier in chain/network/type[/address] format'
+            schema:
+                type: string
+                example: 'eth/mainnet/erc20/0xdAC17F958D2ee523a2206206994597C13D831ec7'
+        SortQuery:
+            name: sort
+            in: query
+            required: true
+            description: 'Sort tokens by'
+            schema:
+                type: string
+                enum: [market_cap, volume]
+        CurrenciesQuery:
+            name: currencies
+            in: query
+            required: true
+            description: 'Base currencies'
+            explode: false
+            schema:
+                type: array
+                maxItems: 50
+                items:
+                    type: string
+                example: ['ton', 'usd', 'rub']
+        SearchQuery:
+            name: search
+            in: query
+            required: false
+            description: 'Name or symbol of token'
+            schema:
+                type: string
+        AvailableOnlyQuery:
+            name: available_only
+            in: query
+            required: false
+            description: 'Shows assets with 0 balances or not'
+            schema:
+                type: boolean
+                default: false
+        ShowAllQuery:
+            name: show_all
+            in: query
+            required: false
+            description: 'Shows all possible assets'
+            schema:
+                type: boolean
+                default: false
+        ShowHiddenQuery:
+            name: show_hidden
+            in: query
+            required: false
+            description: 'Flag to show hidden tokens'
+            schema:
+                type: boolean
+                default: false
+        ChainPath:
+            name: chain
+            in: path
+            required: true
+            description: 'Blockchain identifier'
+            schema:
+                $ref: '#/components/schemas/Chain'
+        AddressPath:
+            name: address
+            in: path
+            required: true
+            description: 'Wallet address on the chain'
+            schema:
+                type: string
+        WalletIdPath:
+            name: wallet_id
+            in: path
+            required: true
+            description: 'Stable wallet identifier'
+            schema:
+                type: string
+                minLength: 32
+                maxLength: 64
+                pattern: '^([a-f0-9]{64}|[a-z2-7]{32})$'
+        ChainQuery:
+            name: chain
+            in: query
+            required: false
+            description: 'Filter by chain'
+            schema:
+                $ref: '#/components/schemas/Chain'
+        ActivityTypeQuery:
+            name: activity_type
+            in: query
+            required: false
+            description: 'Filter by activity type'
+            schema:
+                $ref: '#/components/schemas/ActivityType'
+        IfNoneMatch:
+            name: If-None-Match
+            in: header
+            required: false
+            description: 'ETag value from previous response'
+            schema:
+                type: string
+
+    schemas:
+        Ok:
+            type: object
+            required:
+                - ok
+            properties:
+                ok:
+                    type: boolean
+        Chain:
+            type: string
+            enum: [ton, eth, base, btc, tron, arb, bsc]
+        Network:
+            type: string
+            enum: [mainnet, testnet]
+            default: mainnet
+        ChainNode:
+            type: object
+            required: [chain, network, name, explorer]
+            properties:
+                chain:
+                    $ref: '#/components/schemas/Chain'
+                network:
+                    $ref: '#/components/schemas/Network'
+                name:
+                    type: string
+                    description: 'Human-readable chain name'
+                explorer:
+                    $ref: '#/components/schemas/ChainExplorer'
+        ChainExplorer:
+            type: object
+            description:
+                'Block-explorer URL templates for this chain+network. Substitute placeholders (e.g.
+                {tx_hash}) to build a clickable link. EVM chains follow EIP-3091; non-EVM chains
+                expose the same template shape.'
+            required: [tx_url]
+            properties:
+                tx_url:
+                    type: string
+                    description:
+                        'Transaction URL template. Replace {tx_hash} with the on-chain transaction
+                        hash.'
+                    example: 'https://etherscan.io/tx/{tx_hash}'
+        SummaryAsset:
+            type: object
+            description: 'Balance envelope — token metadata + price + amount'
+            required: [asset, price, market_cap]
+            properties:
+                asset:
+                    $ref: '#/components/schemas/AssetInfo'
+                price:
+                    $ref: '#/components/schemas/AssetPrice'
+                market_cap:
+                    $ref: '#/components/schemas/AssetMarketCap'
+        Asset:
+            type: object
+            description: 'Balance envelope — token metadata + price + amount'
+            required: [asset, price, is_hidden, balance]
+            properties:
+                asset:
+                    $ref: '#/components/schemas/AssetInfo'
+                price:
+                    $ref: '#/components/schemas/AssetPrice'
+                is_hidden:
+                    type: boolean
+                    description: 'Is asset showed or hidden'
+                balance:
+                    type: string
+                    description: 'Balance in minimal units (wei, nanoton, satoshi, sun)'
+        AssetMarketCap:
+            type: object
+            additionalProperties:
+                type: string
+            description: 'Current price per currency, e.g. {"USD": "0.999", "TON": "0.789"}'
+        AssetPrice:
+            type: object
+            description: 'Price info with diffs, keyed by currency (e.g. USD, TON, RUB)'
+            properties:
+                prices:
+                    type: object
+                    additionalProperties:
+                        type: number
+                        format: double
+                    description: 'Current price per currency, e.g. {"USD": "0.999", "TON": "0.789"}'
+                diff_24h:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: 'Price change over 24h per currency, e.g. {"USD": "-0.06%"}'
+                diff_7d:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: 'Price change over 7d per currency, e.g. {"USD": "-0.05%"}'
+                diff_30d:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: 'Price change over 30d per currency, e.g. {"USD": "-0.06%"}'
+        AssetInfo:
+            type: object
+            description: 'Token metadata (used in both balances and activities)'
+            required: [asset_id, decimals, name, symbol, image]
+            properties:
+                asset_id:
+                    type: string
+                    description:
+                        'Universal asset ID in format chain/network/type/address (e.g.
+                        eth/mainnet/coin, ton/mainnet/jetton/EQC...)'
+                name:
+                    type: string
+                    description: 'Asset name'
+                symbol:
+                    type: string
+                    description: 'Asset symbol (ticker)'
+                decimals:
+                    type: integer
+                    description: 'Decimals of coin or token'
+                image:
+                    type: string
+                    description: 'Asset image URL'
+        FeeEstimate:
+            type: object
+            required: [slow, normal, fast]
+            properties:
+                slow:
+                    type: string
+                    description: 'Fee estimate for slow confirmation'
+                normal:
+                    type: string
+                    description: 'Fee estimate for normal confirmation'
+                fast:
+                    type: string
+                    description: 'Fee estimate for fast confirmation'
+        WalletAccount:
+            type: object
+            required: [chain, address]
+            properties:
+                chain:
+                    $ref: '#/components/schemas/Chain'
+                address:
+                    type: string
+                    minLength: 1
+                    maxLength: 128
+                type:
+                    type: string
+                    enum: [v3R1, v3R2, v4R1, v4R2, v5R1, p2pkh, p2sh-p2wpkh, p2wpkh, p2tr]
+                    description: |
+                        TON wallet contract revisions: v3R1, v3R2, v4R1, v4R2, v5R1.
+                        BTC script types: p2pkh, p2sh-p2wpkh, p2wpkh, p2tr.
+                        Omit for EVM/TRON.
+        WalletKind:
+            type: string
+            enum: [multichain, chain, unichain, watch]
+            description: |
+                v2 wallet kind:
+                - `multichain` — one ed25519 root key derives addresses across many chains.
+                - `chain`      — one ed25519 root key bound to a single chain.
+                - `unichain`   — one secp256k1 root key (EVM-style); compressed pub + DER ECDSA proof.
+                - `watch`      — read-only registration of a foreign address (no key, no proof).
+        WalletChallenge:
+            type: object
+            required: [challenge, expires_at]
+            properties:
+                challenge:
+                    type: string
+                    minLength: 98
+                    maxLength: 98
+                    pattern: '^[A-Za-z0-9_-]{98}$'
+                    description: Stateless HMAC challenge to bind into the next /sync proof
+                expires_at:
+                    type: string
+                    format: date-time
+        Wallet:
+            type: object
+            required: [wallet_id, accounts, created_at, sync_status]
+            properties:
+                wallet_id:
+                    type: string
+                    minLength: 32
+                    maxLength: 64
+                    pattern: '^([a-f0-9]{64}|[a-z2-7]{32})$'
+                    description: 'Stable wallet identifier'
+                accounts:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/WalletAccount'
+                created_at:
+                    type: string
+                    format: date-time
+                sync_status:
+                    $ref: '#/components/schemas/SyncStatus'
+        SyncStatus:
+            type: object
+            description: |
+                Wallet-level data freshness rollup. Returned on `POST /wallets` after
+                the priming window (≤5s) and on `GET /wallets/{wallet_id}/sync_status`
+                as the client polls until backfill completes. HTTP is always 200 when
+                the request itself is valid — branch on `status` instead.
+            required: [status, chains]
+            properties:
+                status:
+                    type: string
+                    enum: [ready, partial, degraded, failed]
+                    description: |
+                        Top-level rollup over per-chain statuses:
+                        - `ready`    — every chain is `ok`.
+                        - `partial`  — at least one chain is `stale` (cached snapshot served
+                          while a re-fetch is pending); rest are `ok`.
+                        - `degraded` — at least one chain is `unavailable`, but at least
+                          one chain is still serving `ok`/`stale` data.
+                        - `failed`  — every chain is `unavailable`; the wallet has nothing
+                          fresh to render. The client should surface a retryable error
+                          instead of drawing empty balances.
+                chains:
+                    type: object
+                    description:
+                        'Per-chain freshness, keyed by Chain enum value (e.g. "ton", "eth").'
+                    additionalProperties:
+                        $ref: '#/components/schemas/ChainSyncStatus'
+        ChainSyncStatus:
+            type: object
+            required: [status, backfill]
+            properties:
+                status:
+                    type: string
+                    enum: [ok, stale, unavailable]
+                    description: |
+                        - `ok`          — fresh snapshot from this priming/sync cycle.
+                        - `stale`       — current fetch failed, but a previous snapshot is
+                          still served from DB; client may show a "last updated …"
+                          affordance.
+                        - `unavailable` — fetch failed and no cached snapshot to fall back
+                          to.
+                balances_at:
+                    type: string
+                    format: date-time
+                    description: 'When balances for this chain were last successfully snapshotted.'
+                activity_at:
+                    type: string
+                    format: date-time
+                    description:
+                        'When the first activity page for this chain was last successfully fetched.'
+                reason:
+                    type: string
+                    enum:
+                        [
+                            provider_timeout,
+                            provider_5xx,
+                            rate_limited,
+                            circuit_open,
+                            capability_not_supported
+                        ]
+                    description:
+                        'Set when status is stale or unavailable, identifying the failure mode.'
+                retry_after_ms:
+                    type: integer
+                    minimum: 0
+                    description:
+                        'Server-suggested backoff for the client when this chain is rate-limited.'
+                backfill:
+                    type: string
+                    enum: [complete, in_progress, queued]
+                    description: 'Deep-history catch-up state; clients poll until `complete`.'
+        ActivityType:
+            type: string
+            enum: [send, receive, swap]
+        ActivityStatus:
+            type: string
+            enum: [pending, confirmed, failed, dropped]
+        ActivityDirection:
+            type: string
+            enum: [in, out, self]
+        Activity:
+            type: object
+            required: [activity_type, status, block_time, from_chain, to_chain, direction, tx_ids]
+            properties:
+                activity_type:
+                    $ref: '#/components/schemas/ActivityType'
+                status:
+                    $ref: '#/components/schemas/ActivityStatus'
+                block_time:
+                    type: string
+                    format: date-time
+                block_number:
+                    type: integer
+                    format: int64
+                from_chain:
+                    $ref: '#/components/schemas/Chain'
+                to_chain:
+                    $ref: '#/components/schemas/Chain'
+                wallet_address:
+                    type: string
+                direction:
+                    $ref: '#/components/schemas/ActivityDirection'
+                from_address:
+                    type: string
+                to_address:
+                    type: string
+                out_token:
+                    $ref: '#/components/schemas/AssetInfo'
+                out_amount:
+                    type: string
+                out_amount_usd:
+                    type: number
+                    format: double
+                in_token:
+                    $ref: '#/components/schemas/AssetInfo'
+                in_amount:
+                    type: string
+                in_amount_usd:
+                    type: number
+                    format: double
+                fee_token:
+                    $ref: '#/components/schemas/AssetInfo'
+                fee_amount:
+                    type: string
+                fee_amount_usd:
+                    type: number
+                    format: double
+                protocol:
+                    type: string
+                    description: 'DEX/bridge protocol name (uniswap_v3, stargate, etc.)'
+                tx_ids:
+                    type: array
+                    items:
+                        type: string
+                    description: 'On-chain tx identifiers, format: chain:txhash'
+                is_read:
+                    type: boolean
+                meta:
+                    type: object
+                    additionalProperties: true
+                    description: 'Chain-specific extras (memo, input data, etc.)'
+
+    requestBodies:
+        RegisterWallet:
+            description: 'Register a wallet with its accounts'
+            required: true
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        required: [wallet_id, accounts]
+                        properties:
+                            wallet_id:
+                                type: string
+                                minLength: 32
+                                maxLength: 64
+                                pattern: '^([a-f0-9]{64}|[a-z2-7]{32})$'
+                                description: 'Stable wallet identifier'
+                            accounts:
+                                type: array
+                                minItems: 1
+                                maxItems: 32
+                                items:
+                                    $ref: '#/components/schemas/WalletAccount'
+        WalletSync:
+            required: true
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        required: [kind, network, accounts]
+                        properties:
+                            kind:
+                                $ref: '#/components/schemas/WalletKind'
+                            network:
+                                $ref: '#/components/schemas/Network'
+                            version:
+                                type: integer
+                                minimum: 1
+                                maximum: 255
+                                default: 1
+                                description:
+                                    'Wallet derivation/registration scheme version. Bound into
+                                    wallet_id derivation.'
+                            challenge:
+                                type: string
+                                minLength: 98
+                                maxLength: 98
+                                pattern: '^[A-Za-z0-9_-]{98}$'
+                                description:
+                                    The base64url challenge previously minted via GET
+                                    /api/v2/wallets/challenge
+                            root_pub:
+                                type: string
+                                minLength: 64
+                                maxLength: 66
+                                pattern: '^[a-f0-9]+$'
+                                description:
+                                    'Root public key, hex-encoded. 32 bytes (64 hex) for ed25519
+                                    (multichain/chain); 33 bytes compressed (66 hex) for secp256k1
+                                    (unichain). Required when kind is not watch.'
+                            root_proof:
+                                type: string
+                                minLength: 128
+                                maxLength: 148
+                                pattern: '^[a-f0-9]+$'
+                                description:
+                                    'Root proof signature over the canonical registration message.
+                                    Ed25519: 64 bytes (128 hex). Secp256k1: DER-encoded ECDSA over
+                                    blake2b-256(message), variable length up to ~74 bytes (148 hex).
+                                    Required when kind is not watch.'
+                            accounts:
+                                type: array
+                                minItems: 1
+                                maxItems: 32
+                                description: 'For kind=watch this MUST contain exactly one entry.'
+                                items:
+                                    $ref: '#/components/schemas/WalletAccount'
+        BroadcastTx:
+            description: 'Signed transaction to broadcast'
+            required: true
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        required: [chain, tx]
+                        properties:
+                            chain:
+                                $ref: '#/components/schemas/Chain'
+                            tx:
+                                type: string
+                                format: byte
+                                description: 'Signed transaction bytes, base64-encoded'
+        SearchBatchAssets:
+            description: 'Batch search across multiple chains'
+            required: true
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        required: [currencies, sort]
+                        properties:
+                            currencies:
+                                type: array
+                                description: 'Base currencies'
+                                items:
+                                    type: string
+                                example: ['ton', 'usd', 'rub']
+                            assets:
+                                type: array
+                                description: 'Assets to show'
+                                items:
+                                    type: string
+                                example:
+                                    [
+                                        'ton/mainnet/coin',
+                                        'eth/mainnet/erc20/0x06decdcf842ac7e259e95906a02ebd16144d4306'
+                                    ]
+                            sort:
+                                type: string
+                                enum: [market_cap, volume]
+                            search:
+                                type: string
+                            limit:
+                                type: integer
+                                minimum: 0
+                                maximum: 50
+                                default: 25
+                                example: 50
+                            cursor:
+                                type: string
+        SetAssetFilters:
+            description: 'Set asset hidden/shown filter'
+            required: true
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        required: [changes]
+                        properties:
+                            changes:
+                                type: array
+                                items:
+                                    type: object
+                                    required: [asset_id, action]
+                                    properties:
+                                        asset_id:
+                                            type: string
+                                        action:
+                                            type: string
+                                            enum: [show, hide]
+
+    responses:
+        BadRequest:
+            description: 'Invalid request'
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        required: [error]
+                        properties:
+                            error:
+                                type: string
+        NotFound:
+            description: 'Resource not found'
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        required: [error]
+                        properties:
+                            error:
+                                type: string
+        InternalError:
+            description: 'Internal server error'
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        required: [error]
+                        properties:
+                            error:
+                                type: string
+        NotModified:
+            description: 'Content not modified (ETag match)'
+        Wallets:
+            description: 'Wallet details'
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/Wallet'
+        WalletSyncStatus:
+            description:
+                'Wallet data freshness snapshot used by the client to track loader progress and
+                backfill completion.'
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/SyncStatus'
+        WalletChallenge:
+            description: 'Stateless wallet registration challenge.'
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/WalletChallenge'
+        ChainNodes:
+            description: 'List of supported chains'
+            headers:
+                ETag:
+                    schema:
+                        type: string
+                    description: 'Entity tag for cache validation'
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        required: [nodes]
+                        properties:
+                            nodes:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/ChainNode'
+        Assets:
+            description: 'Assets for the address'
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        required: [assets, next_cursor]
+                        properties:
+                            assets:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/SummaryAsset'
+                            next_cursor:
+                                type: string
+        WalletAssets:
+            description: 'All assets for the wallet'
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        required: [assets, fiat_price, next_cursor]
+                        properties:
+                            assets:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/Asset'
+                            fiat_price:
+                                type: object
+                                additionalProperties:
+                                    type: string
+                                description:
+                                    'Current price per currency, e.g. {"USD": "0.999", "TON":
+                                    "0.789"}'
+                            next_cursor:
+                                type: string
+        WalletAsset:
+            description: 'Single asset of the wallet'
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/Asset'
+        BroadcastResult:
+            description: 'Transaction broadcast result'
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        required: [txHash]
+                        properties:
+                            txHash:
+                                type: string
+        FeeEstimates:
+            description: 'Fee estimates'
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/FeeEstimate'
+        Activities:
+            description: 'Activity history'
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        required: [activities]
+                        properties:
+                            activities:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/Activity'
+                            next_cursor:
+                                type: string
+                                description: 'Cursor for next page, empty if no more data'
+
+paths:
+    /api/v1/healthcheck:
+        get:
+            summary: Check server readiness
+            operationId: healthcheck
+            tags:
+                - system
+            responses:
+                '200':
+                    description: 'Server is ready'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Ok'
+                '500':
+                    $ref: '#/components/responses/InternalError'
+
+    /api/v1/nodes:
+        get:
+            operationId: getNodes
+            summary: Get manifest of supported chains
+            tags:
+                - nodes
+            parameters:
+                - $ref: '#/components/parameters/IfNoneMatch'
+            responses:
+                '200':
+                    $ref: '#/components/responses/ChainNodes'
+                '304':
+                    $ref: '#/components/responses/NotModified'
+                '500':
+                    $ref: '#/components/responses/InternalError'
+
+    /api/v1/assets/search:
+        get:
+            operationId: searchAssets
+            summary: Get assets for an address on a chain
+            tags:
+                - assets
+            parameters:
+                - $ref: '#/components/parameters/ChainQuery'
+                - $ref: '#/components/parameters/CurrenciesQuery'
+                - $ref: '#/components/parameters/SearchQuery'
+                - $ref: '#/components/parameters/SortQuery'
+                - $ref: '#/components/parameters/LimitQuery'
+                - $ref: '#/components/parameters/CursorQuery'
+            responses:
+                '200':
+                    $ref: '#/components/responses/Assets'
+                '400':
+                    $ref: '#/components/responses/BadRequest'
+                '500':
+                    $ref: '#/components/responses/InternalError'
+
+    /api/v1/broadcast:
+        post:
+            operationId: broadcastTx
+            summary: Broadcast a signed transaction
+            tags:
+                - broadcast
+            requestBody:
+                $ref: '#/components/requestBodies/BroadcastTx'
+            responses:
+                '200':
+                    $ref: '#/components/responses/BroadcastResult'
+                '400':
+                    $ref: '#/components/responses/BadRequest'
+                '500':
+                    $ref: '#/components/responses/InternalError'
+
+    /api/v1/fees/{chain}:
+        get:
+            operationId: getFees
+            summary: Get fee estimates for a chain
+            tags:
+                - fees
+            parameters:
+                - $ref: '#/components/parameters/ChainPath'
+            responses:
+                '200':
+                    $ref: '#/components/responses/FeeEstimates'
+                '400':
+                    $ref: '#/components/responses/BadRequest'
+                '500':
+                    $ref: '#/components/responses/InternalError'
+
+    /api/v1/wallets:
+        post:
+            operationId: registerWallet
+            summary: Register a wallet with its accounts
+            tags:
+                - wallets
+            requestBody:
+                $ref: '#/components/requestBodies/RegisterWallet'
+            responses:
+                '200':
+                    $ref: '#/components/responses/Wallets'
+                '400':
+                    $ref: '#/components/responses/BadRequest'
+                '500':
+                    $ref: '#/components/responses/InternalError'
+
+    /api/v2/wallets/challenge:
+        get:
+            operationId: getWalletChallenge
+            summary: Mint a short-lived challenge for signed wallet sync
+            tags:
+                - wallets
+            responses:
+                '200':
+                    $ref: '#/components/responses/WalletChallenge'
+                '500':
+                    $ref: '#/components/responses/InternalError'
+
+    /api/v2/wallets/sync:
+        post:
+            operationId: syncWalletV2
+            summary: Sync a signed v2 wallet registration
+            tags:
+                - wallets
+            requestBody:
+                $ref: '#/components/requestBodies/WalletSync'
+            responses:
+                '200':
+                    $ref: '#/components/responses/WalletSyncStatus'
+                '400':
+                    $ref: '#/components/responses/BadRequest'
+                '500':
+                    $ref: '#/components/responses/InternalError'
+
+    /api/v1/wallets/{wallet_id}:
+        get:
+            operationId: getWallet
+            summary: Get wallet by id
+            tags:
+                - wallets
+            parameters:
+                - $ref: '#/components/parameters/WalletIdPath'
+            responses:
+                '200':
+                    $ref: '#/components/responses/Wallets'
+                '400':
+                    $ref: '#/components/responses/BadRequest'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+                '500':
+                    $ref: '#/components/responses/InternalError'
+
+    /api/v1/wallets/{wallet_id}/sync_status:
+        get:
+            operationId: getWalletSyncStatus
+            summary: Poll per-chain freshness and backfill progress for a wallet
+            tags:
+                - wallets
+            parameters:
+                - $ref: '#/components/parameters/WalletIdPath'
+            responses:
+                '200':
+                    $ref: '#/components/responses/WalletSyncStatus'
+                '400':
+                    $ref: '#/components/responses/BadRequest'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+                '500':
+                    $ref: '#/components/responses/InternalError'
+
+    /api/v1/wallets/{wallet_id}/assets:
+        get:
+            operationId: getWalletAssets
+            summary: Get assets for all accounts of a registered wallet
+            tags:
+                - wallets
+            parameters:
+                - $ref: '#/components/parameters/WalletIdPath'
+                - $ref: '#/components/parameters/AssetIdsQuery'
+                - $ref: '#/components/parameters/ChainQuery'
+                - $ref: '#/components/parameters/SearchQuery'
+                - $ref: '#/components/parameters/AvailableOnlyQuery'
+                - $ref: '#/components/parameters/ShowHiddenQuery'
+                - $ref: '#/components/parameters/ShowAllQuery'
+                - $ref: '#/components/parameters/CurrenciesQuery'
+                - $ref: '#/components/parameters/LimitQuery'
+                - $ref: '#/components/parameters/CursorQuery'
+            responses:
+                '200':
+                    $ref: '#/components/responses/WalletAssets'
+                '400':
+                    $ref: '#/components/responses/BadRequest'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+                '500':
+                    $ref: '#/components/responses/InternalError'
+        post:
+            operationId: saveWalletAssetsFilters
+            summary: Set wallet's assets hidden/shown settings
+            tags:
+                - wallets
+            parameters:
+                - $ref: '#/components/parameters/WalletIdPath'
+            requestBody:
+                $ref: '#/components/requestBodies/SetAssetFilters'
+            responses:
+                '200':
+                    description: OK (no content)
+                '400':
+                    $ref: '#/components/responses/BadRequest'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+                '500':
+                    $ref: '#/components/responses/InternalError'
+
+    /api/v1/wallets/{wallet_id}/asset:
+        get:
+            operationId: getWalletAsset
+            summary: Get a single asset of a registered wallet by asset_id
+            tags:
+                - wallets
+            parameters:
+                - $ref: '#/components/parameters/WalletIdPath'
+                - $ref: '#/components/parameters/AssetIdQuery'
+                - $ref: '#/components/parameters/CurrenciesQuery'
+            responses:
+                '200':
+                    $ref: '#/components/responses/WalletAsset'
+                '400':
+                    $ref: '#/components/responses/BadRequest'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+                '500':
+                    $ref: '#/components/responses/InternalError'
+
+    /api/v1/wallets/{wallet_id}/activities:
+        get:
+            operationId: getWalletActivities
+            summary: Get activity history for a registered wallet
+            tags:
+                - wallets
+            parameters:
+                - $ref: '#/components/parameters/WalletIdPath'
+                - $ref: '#/components/parameters/LimitQuery'
+                - $ref: '#/components/parameters/CursorQuery'
+                - $ref: '#/components/parameters/ChainQuery'
+                - $ref: '#/components/parameters/ActivityTypeQuery'
+            responses:
+                '200':
+                    $ref: '#/components/responses/Activities'
+                '400':
+                    $ref: '#/components/responses/BadRequest'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+                '500':
+                    $ref: '#/components/responses/InternalError'

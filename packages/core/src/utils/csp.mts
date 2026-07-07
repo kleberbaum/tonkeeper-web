@@ -1,3 +1,8 @@
+// Default (namespace) import: `csp.mts` compiles to native ESM (`.mjs`), and
+// chain-kit is CommonJS — Node's ESM interop can't statically see its named
+// exports, but the default binding is the whole `module.exports`.
+import chainkit from '@tonkeeper/chainkit';
+
 export type CspConfig = Record<string, string[] | boolean>;
 
 export const baseCspConfig = {
@@ -31,20 +36,15 @@ export const baseCspConfig = {
         'https://*.tonapi.io',
         'https://tonconsole.com',
         'https://*.tonconsole.com',
-        'https://api.trongrid.io/',
         'https://duckduckgo.com',
         'https://oauth.telegram.org',
 
-        /* TEMPORARY: third-party node providers @tonkeeper/chainkit reaches
-         * for multichain estimate/broadcast (TON / EVM / BTC; TRON uses
-         * trongrid above). They rely on chain-kit's embedded shared API keys
-         * and widen the allowlist to non-first-party hosts. Remove once
-         * chain-kit defaults to Tonkeeper-hosted RPC (under *.tonkeeper.com).
-         * chain-kit exposes no host list to import, so they're listed here by
-         * host (CSP ignores the path). */
-        'https://toncenter.com',
-        'https://*.g.alchemy.com',
-        'https://go.getblock.io'
+        /* Third-party node providers @tonkeeper/chainkit reaches for
+         * multichain estimate/broadcast (TON / EVM / BTC / TRON). Sourced from
+         * chain-kit's own origin list so the allowlist tracks the SDK instead
+         * of a hand-maintained copy that silently drifts. CSP matches by host
+         * and ignores the path. */
+        ...chainkit.rpcOrigins()
     ],
 
     /* Allow loading pwa manifest */

@@ -125,6 +125,13 @@ run on Linux** — on macOS/Windows they're skipped (you'll see `skipped` in the
 `test(...)` blocks still run everywhere. This keeps a single committed source of truth and means a
 local `yarn test:ct` on your Mac can never accidentally write or clobber a baseline.
 
+> **Heads-up — local runs can OOM.** Even a single-file, behaviour-only `yarn test:ct` first has
+> Vite bundle the _entire_ component registry (wallet-core, ark-ui, …) for the browser, regardless
+> of the file filter. On macOS this can exhaust the Node heap and crash with a V8 OOM **before any
+> test runs** — bumping `--max-old-space-size` doesn't reliably help. Prefer the **Docker path**
+> below (or the CI workflow) to run the suite. `tsc` builds and `eslint` are unaffected — run those
+> locally to validate a change before handing the tests off.
+
 **CI runs inside the pinned Playwright Docker image** (`mcr.microsoft.com/playwright:v1.48.1-jammy`)
 — both the verify job and the snapshot-update job use it. That image is the rendering environment
 baselines are generated against. Keep the image tag in sync with the `@playwright/*` version in
@@ -159,10 +166,10 @@ ways:
 
     Two things the script handles / you should know:
 
-    - **GitHub Packages auth.** `@tonkeeper/chainkit` is fetched from
-      `npm.pkg.github.com`, so the container needs an auth token. Export `NODE_AUTH_TOKEN`,
-      `YARN_NPM_AUTH_TOKEN`, or `GITHUB_TOKEN` before running the script; the wrapper forwards it
-      into Docker as both `NODE_AUTH_TOKEN` and `YARN_NPM_AUTH_TOKEN` for Yarn.
+    - **GitHub Packages auth.** `@tonkeeper/chainkit` is fetched from `npm.pkg.github.com`, so the
+      container needs an auth token. Export `NODE_AUTH_TOKEN`, `YARN_NPM_AUTH_TOKEN`, or
+      `GITHUB_TOKEN` before running the script; the wrapper forwards it into Docker as both
+      `NODE_AUTH_TOKEN` and `YARN_NPM_AUTH_TOKEN` for Yarn.
     - **It shares your `node_modules`.** The repo (incl. `node_modules`) is bind-mounted, so the
       container's install rebuilds native modules (`esbuild`, `sharp`, …) as **Linux** binaries in
       place. After running, your macOS host deps are Linux ones — **run `yarn install` on the host

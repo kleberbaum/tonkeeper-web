@@ -5,7 +5,7 @@
     "description": "Your web wallet on The Open Network",
     "dependencies": {
         "@tanstack/react-query": "4.3.4",
-        "@tonkeeper/chainkit": "0.0.4",
+        "@tonkeeper/chainkit": "0.1.1",
         "@tonkeeper/core": "0.1.0",
         "@tonkeeper/locales": "0.1.0",
         "@tonkeeper/uikit": "0.1.0",

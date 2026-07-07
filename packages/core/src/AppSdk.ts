@@ -383,11 +383,13 @@ class WebConnectionService implements InternetConnectionService {
     isOnline = atom(this.checkIsOnline());
 
     constructor() {
+        if (typeof window === 'undefined') return;
         window.addEventListener('online', () => this.isOnline.next(true));
         window.addEventListener('offline', () => this.isOnline.next(false));
     }
 
     private checkIsOnline() {
+        if (typeof window === 'undefined') return true;
         return window.navigator.onLine;
     }
 

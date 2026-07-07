@@ -3,6 +3,7 @@ import { FC, ReactNode } from 'react';
 import { AccountMultichain } from '@tonkeeper/core/dist/entries/account';
 
 import { MultichainDesktopSidebar } from './MultichainDesktopSidebar';
+import { MultichainDesktopTabBar } from './MultichainDesktopTabBar';
 
 /**
  * Desktop layout for multichain accounts.
@@ -26,8 +27,11 @@ export const MultichainDesktopShell: FC<{
         <div className="flex h-screen gap-6 overflow-hidden bg-backgroundPage p-6">
             <MultichainDesktopSidebar account={account} />
             <main className="flex flex-1 justify-center">
-                <div className="flex h-full w-full max-w-[520px] flex-col overflow-y-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                    {children}
+                <div className="flex h-full w-full max-w-[520px] flex-col">
+                    <div className="flex-1 overflow-y-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                        {children}
+                    </div>
+                    <MultichainDesktopTabBar />
                 </div>
             </main>
         </div>

@@ -9,7 +9,7 @@ import {
     useMutateMultichainHiddenAssets
 } from '../../../../state/multichain/useMultichainHiddenAssets';
 import { useSaveMultichainAssetsFilters } from '../../../../state/multichain/useSaveMultichainAssetsFilters';
-import { CryptoCatalogChainChips } from '../catalog/CryptoCatalogChainChips';
+import { MultichainChainChips } from '../MultichainChainChips';
 import { CryptoCatalogSearch } from '../catalog/CryptoCatalogSearch';
 import { ModalShell } from '../ModalShell';
 import { parseAssetIdHead } from '../multichain-utils';
@@ -101,7 +101,7 @@ export const ManageCryptoModal: FC<{ onClose: () => void; compact?: boolean }> =
                 <CryptoCatalogSearch value={search} onChange={setSearch} />
             </div>
             <div className="px-4 pb-3">
-                <CryptoCatalogChainChips value={chain} onChange={setChain} />
+                <MultichainChainChips value={chain} onChange={setChain} />
             </div>
             <div
                 className={`flex-1 overflow-y-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${

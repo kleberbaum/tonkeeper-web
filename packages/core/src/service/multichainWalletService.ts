@@ -3,7 +3,7 @@ import { sha256_sync } from '@ton/crypto';
 
 import { ChainId } from '../chains/types';
 
-const MULTICHAIN_API_BASE_URL = 'https://multi.tonkeeper.com/api/v1';
+export const MULTICHAIN_API_BASE_URL = 'https://multi.tonkeeper.com/api/v1';
 
 /**
  * Compute the canonical wallet identifier the multichain backend keys

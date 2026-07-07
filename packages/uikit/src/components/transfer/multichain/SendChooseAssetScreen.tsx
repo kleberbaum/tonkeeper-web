@@ -8,17 +8,16 @@ import { isSupportedChainKitNetwork } from '@tonkeeper/core/dist/service/chainki
 import { Button, ChainChip } from '../../../primitives';
 import { Modal } from '../../../primitives/Modal';
 import { SearchField } from '../../../primitives/SearchField';
-import { cn } from '../../../libs/css';
 import { useTranslation } from '../../../hooks/translation';
 import { useAppContext } from '../../../hooks/appContext';
 import { formatFiatCurrency, formatter } from '../../../hooks/balance';
 import { useMultichainWalletAssets } from '../../../state/multichain/useMultichainWalletAssets';
 import {
     isNativeRow,
-    networkIcon,
     networkLabel,
     parseAssetIdHead
 } from '../../../pages/home/multichain/multichain-utils';
+import { MultichainChainChips } from '../../../pages/home/multichain/MultichainChainChips';
 import IcDonemarkOutline28 from '../../../icons/components/IcDonemarkOutline28';
 import IcFolder84 from '../../../icons/components/IcFolder84';
 import { AssetIcon } from './multichainSendShared';
@@ -34,45 +33,14 @@ export interface SendChooseAssetScreenProps {
     onAddFunds?: () => void;
 }
 
-interface ChainFilter {
-    network: string;
-    label: string;
-}
-
-const buildChainFilters = (assets: MultichainWalletAsset[]): ChainFilter[] => {
-    const seen = new Map<string, ChainFilter>();
+const buildChainFilters = (assets: MultichainWalletAsset[]): string[] => {
+    const seen = new Set<string>();
     for (const asset of assets) {
         const { network } = parseAssetIdHead(asset.assetId);
-        if (!network || seen.has(network)) continue;
-        seen.set(network, { network, label: networkLabel(network) });
+        if (network) seen.add(network);
     }
-    return Array.from(seen.values()).sort((a, b) => a.label.localeCompare(b.label));
+    return Array.from(seen).sort((a, b) => networkLabel(a).localeCompare(networkLabel(b)));
 };
-
-const FilterChip: FC<{
-    label: string;
-    icon?: React.ReactNode;
-    selected: boolean;
-    onClick: () => void;
-}> = ({ label, icon, selected, onClick }) => (
-    <button
-        type="button"
-        onClick={onClick}
-        className={cn(
-            'flex h-8 shrink-0 items-center gap-1.5 rounded-2xl px-3 text-label2 transition-colors',
-            selected
-                ? 'bg-backgroundContentAttention text-textPrimary'
-                : 'bg-buttonSecondaryBackground text-textPrimary hover:bg-buttonSecondaryBackgroundHighlighted'
-        )}
-    >
-        {icon && (
-            <span className="h-5 w-5 overflow-hidden rounded-full [&>svg]:h-5 [&>svg]:w-5">
-                {icon}
-            </span>
-        )}
-        <span>{label}</span>
-    </button>
-);
 
 const AssetRow: FC<{
     asset: MultichainWalletAsset;
@@ -174,24 +142,11 @@ export const SendChooseAssetScreen: FC<SendChooseAssetScreenProps> = ({
                         className="!p-0"
                     />
 
-                    <div className="-mx-4 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                        <div className="inline-flex w-max gap-1.5 px-4">
-                            <FilterChip
-                                label={t('add_funds_chain_filter_all')}
-                                selected={network === 'all'}
-                                onClick={() => setNetwork('all')}
-                            />
-                            {chainFilters.map(f => (
-                                <FilterChip
-                                    key={f.network}
-                                    label={f.label}
-                                    icon={networkIcon(f.network)}
-                                    selected={network === f.network}
-                                    onClick={() => setNetwork(f.network)}
-                                />
-                            ))}
-                        </div>
-                    </div>
+                    <MultichainChainChips
+                        value={network === 'all' ? undefined : network}
+                        onChange={next => setNetwork(next ?? 'all')}
+                        chains={chainFilters}
+                    />
                 </div>
 
                 {walletEmpty ? (

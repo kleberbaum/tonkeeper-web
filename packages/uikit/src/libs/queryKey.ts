@@ -42,6 +42,7 @@ export enum QueryKey {
 
     tronAssets = 'tronAssets',
     multichainWalletAssets = 'multichainWalletAssets',
+    multichainActivity = 'multichainActivity',
     tradingAssetDetails = 'tradingAssetDetails',
     tradingAssetCharts = 'tradingAssetCharts',
     tradingAssetsCatalog = 'tradingAssetsCatalog',

@@ -1,6 +1,7 @@
 import { Account, AccountMultichain } from '@tonkeeper/core/dist/entries/account';
 import { HomeMultichain } from '@tonkeeper/uikit/dist/pages/home/multichain/HomeMultichain';
 import { MultichainAssetPage } from '@tonkeeper/uikit/dist/pages/home/multichain/asset/MultichainAssetPage';
+import { MultichainHistory } from '@tonkeeper/uikit/dist/pages/home/multichain/history/MultichainHistory';
 import { InnerBody, useWindowsScroll } from '@tonkeeper/uikit/dist/components/Body';
 import { AppLayout } from '@tonkeeper/uikit/dist/components/layout/AppLayout';
 import { Loading } from '@tonkeeper/uikit/dist/components/Loading';
@@ -144,6 +145,9 @@ export const MobileContent: FC<{
             <Switch>
                 <Route path={`${MultichainRoute.asset}/:assetId`}>
                     <MultichainAssetRoute />
+                </Route>
+                <Route path={MultichainRoute.history}>
+                    <MultichainHistory />
                 </Route>
                 <Route path="*">
                     <HomeMultichain account={activeAccount as AccountMultichain} />

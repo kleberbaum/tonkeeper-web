@@ -92,7 +92,8 @@ export enum BrowserRoute {
 
 export enum MultichainRoute {
     home = '/multichain',
-    asset = '/multichain/asset'
+    asset = '/multichain/asset',
+    history = '/multichain/history'
 }
 
 export const any = (route: string): string => {
