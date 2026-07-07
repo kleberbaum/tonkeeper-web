@@ -102,6 +102,8 @@ const populated = {
     groups,
     isLoading: false,
     isEmpty: false,
+    isError: false,
+    onRetry: noop,
     hasFilter: false,
     showTypeFilter: true,
     isFetchingNextPage: false,
@@ -135,6 +137,30 @@ screenshot('MultichainHistoryView filtered empty', () => (
         <MultichainHistoryView {...populated} compact groups={[]} isEmpty hasFilter />
     </div>
 ));
+
+screenshot('MultichainHistoryView error', () => (
+    <div className="h-[720px] w-[520px] overflow-hidden">
+        <MultichainHistoryView {...populated} compact groups={[]} isError showTypeFilter={false} />
+    </div>
+));
+
+test('error state offers a retry', async ({ mount }) => {
+    let retried = 0;
+    const c = await mount(
+        <div className="w-[520px]">
+            <MultichainHistoryView
+                {...populated}
+                compact
+                groups={[]}
+                isError
+                showTypeFilter={false}
+                onRetry={() => (retried += 1)}
+            />
+        </div>
+    );
+    await c.getByRole('button', { name: 'Try Again' }).click();
+    expect(retried).toBe(1);
+});
 
 test('renders the date-group titles and rows', async ({ mount }) => {
     const c = await mount(

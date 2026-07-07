@@ -1,4 +1,4 @@
-import { FC, ReactNode, useState } from 'react';
+import { FC, ReactNode } from 'react';
 import BigNumber from 'bignumber.js';
 
 import {
@@ -15,7 +15,6 @@ import { useAppSdk } from '../../../../hooks/appSdk';
 import { formatFiatCurrency } from '../../../../hooks/balance';
 import { useTranslation } from '../../../../hooks/translation';
 import { networkIcon, networkLabel } from '../multichain-utils';
-import { MultichainCancelSheet } from './MultichainCancelSheet';
 import {
     detailAddress,
     formatHistoryAmount,
@@ -104,7 +103,6 @@ export const MultichainHistoryDetail: FC<{
         i18n: { language }
     } = useTranslation();
     const sdk = useAppSdk();
-    const [cancelOpen, setCancelOpen] = useState(false);
 
     if (!activity) return null;
 
@@ -297,32 +295,8 @@ export const MultichainHistoryDetail: FC<{
                             {t('multichain_history_transaction')} {explorer.shortHash}
                         </Button>
                     )}
-                    {isPending && (
-                        <Button
-                            variant="destructive"
-                            size="small"
-                            fullWidth
-                            onClick={() => setCancelOpen(true)}
-                        >
-                            {t('cancel')}
-                        </Button>
-                    )}
                 </ModalFooter>
             </ModalFooterPortal>
-
-            {isPending && (
-                <MultichainCancelSheet
-                    isOpen={cancelOpen}
-                    onClose={() => setCancelOpen(false)}
-                    onConfirm={() => {
-                        // Cancelling means broadcasting a replacement transaction,
-                        // which chain-kit doesn't expose — execution is a deferred
-                        // follow-up. Dismiss for now rather than fake a result.
-                        setCancelOpen(false);
-                        onClose();
-                    }}
-                />
-            )}
         </Modal>
     );
 };

@@ -11,6 +11,7 @@ import { cn } from '../../../../libs/css';
 import { useTranslation } from '../../../../hooks/translation';
 import { MultichainChainChips } from '../MultichainChainChips';
 import { MultichainHistoryEmptyState } from './MultichainHistoryEmptyState';
+import { MultichainHistoryErrorState } from './MultichainHistoryErrorState';
 import { MultichainHistoryRow } from './MultichainHistoryRow';
 import { MultichainHistoryTypeFilter } from './MultichainHistoryTypeFilter';
 import { historyGroupTitle } from './multichain-history-utils';
@@ -57,6 +58,8 @@ export interface MultichainHistoryViewProps {
     groups: MultichainHistoryGroup[];
     isLoading: boolean;
     isEmpty: boolean;
+    isError: boolean;
+    onRetry: () => void;
     hasFilter: boolean;
     showTypeFilter: boolean;
     isFetchingNextPage: boolean;
@@ -76,6 +79,8 @@ export const MultichainHistoryView: FC<MultichainHistoryViewProps> = ({
     groups,
     isLoading,
     isEmpty,
+    isError,
+    onRetry,
     hasFilter,
     showTypeFilter,
     isFetchingNextPage,
@@ -111,6 +116,12 @@ export const MultichainHistoryView: FC<MultichainHistoryViewProps> = ({
                 </div>
             )}
 
+            {isError && (
+                <div className="flex flex-1 items-center justify-center py-16">
+                    <MultichainHistoryErrorState onRetry={onRetry} />
+                </div>
+            )}
+
             {isEmpty && (
                 <div className="flex flex-1 items-center justify-center py-16">
                     <MultichainHistoryEmptyState
@@ -121,6 +132,7 @@ export const MultichainHistoryView: FC<MultichainHistoryViewProps> = ({
             )}
 
             {!isEmpty &&
+                !isError &&
                 groups.map(([key, items]) => (
                     <section key={key} className="flex flex-col">
                         <div className="px-4 pb-2 pt-4 text-label1 text-textPrimary">

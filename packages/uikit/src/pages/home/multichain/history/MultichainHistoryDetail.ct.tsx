@@ -194,9 +194,8 @@ test('swap shows both legs and their networks', async ({ mount, page }) => {
     await expect(page.getByText('Base → BSC')).toBeVisible();
 });
 
-test('pending shows a Cancel button that opens the cancel sheet', async ({ mount, page }) => {
+test('pending shows the status without a cancel affordance', async ({ mount, page }) => {
     await mount(<MultichainHistoryDetail activity={pending} isOpen onClose={noop} />);
     await expect(page.getByText('Pending')).toBeVisible();
-    await page.getByRole('button', { name: 'Cancel', exact: true }).click();
-    await expect(page.getByText('Cancel transaction?')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Cancel', exact: true })).toHaveCount(0);
 });

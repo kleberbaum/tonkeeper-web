@@ -96,6 +96,15 @@ export enum MultichainRoute {
     history = '/multichain/history'
 }
 
+/**
+ * Query flag the history empty-state appends to {@link MultichainRoute.home} so
+ * the home opens its Add Funds flow on arrival — that flow lives in the home's
+ * local state, so it can only be reached by asking the home to open it, not by
+ * a dedicated route.
+ */
+export const MULTICHAIN_ACTION_PARAM = 'action';
+export const MULTICHAIN_ACTION_ADD_FUNDS = 'add_funds';
+
 export const any = (route: string): string => {
     return `${route}/*`;
 };

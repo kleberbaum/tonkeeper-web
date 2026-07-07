@@ -1,10 +1,16 @@
-import { FC, useMemo, useState } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import { IconButton } from '../../../primitives';
 import { useAppSdk } from '../../../hooks/appSdk';
 import { useTranslation } from '../../../hooks/translation';
 import { useNavigate } from '../../../hooks/router/useNavigate';
-import { AppRoute } from '../../../libs/routes';
+import {
+    AppRoute,
+    MULTICHAIN_ACTION_ADD_FUNDS,
+    MULTICHAIN_ACTION_PARAM,
+    MultichainRoute
+} from '../../../libs/routes';
 import { SendIcon, ReceiveIcon } from '../../../components/home/HomeIcons';
 import IcSwapHorizontalOutline28 from '../../../icons/components/IcSwapHorizontalOutline28';
 import IcStakingOutline28 from '../../../icons/components/IcStakingOutline28';
@@ -46,6 +52,7 @@ export const HomeMultichainActions: FC = () => {
     const sdk = useAppSdk();
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const location = useLocation();
     const [, setSwapOpen] = useSwapMobileNotification();
     const [step, setStep] = useState<Step>('closed');
     const [sendOpen, setSendOpen] = useState(false);
@@ -62,6 +69,17 @@ export const HomeMultichainActions: FC = () => {
     const [pickerOrigin, setPickerOrigin] = useState<'payment_method' | 'enter_amount'>(
         'payment_method'
     );
+
+    // Deep-link entry: the history empty-state routes here with an action flag
+    // to open Add Funds. Consume the flag and strip it so a refresh or back-nav
+    // doesn't reopen the sheet.
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        if (params.get(MULTICHAIN_ACTION_PARAM) === MULTICHAIN_ACTION_ADD_FUNDS) {
+            setStep('add_funds');
+            navigate(MultichainRoute.home, { replace: true });
+        }
+    }, [location.search, navigate]);
 
     const { data: layout, isLoading: isLayoutLoading } = useExchangeLayout('deposit');
     const { data: configuration, isLoading: isConfigurationLoading } = useOnrampConfiguration();
