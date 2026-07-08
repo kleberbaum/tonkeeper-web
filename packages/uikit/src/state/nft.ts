@@ -1,6 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { NFT } from '@tonkeeper/core/dist/entries/nft';
-import { TonWalletConfig } from '@tonkeeper/core/dist/entries/wallet';
 import { getActiveWalletConfig } from '@tonkeeper/core/dist/service/wallet/configService';
 import {
     AccountsApi,
@@ -13,6 +12,7 @@ import {
 } from '@tonkeeper/core/dist/tonApiV2';
 import { isTONDNSDomain } from '@tonkeeper/core/dist/utils/nft';
 import { useMemo } from 'react';
+import { isSpamNft, isUnverifiedNft } from './nft-classification';
 import { useAppContext } from '../hooks/appContext';
 import { useAppSdk } from '../hooks/appSdk';
 import { useTranslation } from '../hooks/translation';
@@ -150,35 +150,8 @@ export function useIsUnverifiedNft(
     return isUnverifiedNft(nft, config);
 }
 
-export const isSpamNft = (
-    nft: (NftWithCollectionId & { trust: NFT['trust'] }) | undefined,
-    config: TonWalletConfig | undefined
-) => {
-    if (!nft) {
-        return true;
-    }
-    const address = nft.collection?.address || nft.address;
-    if (config?.spamNfts.includes(address)) {
-        return true;
-    }
+export { isSpamNft, isUnverifiedNft } from './nft-classification';
 
-    if (config?.trustedNfts.includes(address)) {
-        return false;
-    }
-
-    return ['blacklist', 'graylist'].includes(nft.trust);
-};
-
-export const isUnverifiedNft = (
-    nft: (NftWithCollectionId & { trust: NFT['trust'] }) | undefined,
-    config: TonWalletConfig | undefined
-) => {
-    return Boolean(
-        nft &&
-            nft.trust !== 'whitelist' &&
-            !config?.trustedNfts.includes(nft.collection?.address || nft.address)
-    );
-};
 export const useWalletNftList = () => {
     const wallet = useActiveWallet();
     const { tonApiV2 } = useActiveApi();
@@ -216,6 +189,25 @@ export const useWalletFilteredNftList = () => {
         ...rest
     };
 };
+/**
+ * Filtered NFT list for wallet-facing galleries: spam and user-hidden items
+ * removed (via `useWalletFilteredNftList`), plus items whose metadata asks
+ * not to be rendered (`render_type: 'hidden'`).
+ */
+export const useWalletVisibleNftList = () => {
+    const { data: nfts, ...rest } = useWalletFilteredNftList();
+
+    const visible = useMemo(
+        () => nfts?.filter(nft => nft.metadata?.render_type !== 'hidden'),
+        [nfts]
+    );
+
+    return {
+        data: visible,
+        ...rest
+    };
+};
+
 export const useNftDNSLinkData = (nft: NFT) => {
     const api = useActiveApi();
 

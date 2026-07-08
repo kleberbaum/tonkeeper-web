@@ -10,16 +10,16 @@ lands here when the feature is picked up.
 | --------------------------------- | ------ |
 | UI library                        | ✅     |
 | Wallet import / create (mnemonic) | ✅     |
-| Portfolio                         | ⚙️     |
-| Send                              |        |
-| Receive                           |        |
-| Asset                             |        |
-| History                           |        |
+| Portfolio                         | ✅     |
+| Send                              | ✅     |
+| Receive                           | ✅     |
+| Asset                             | ✅     |
+| History                           | ✅     |
 | WalletConnect                     |        |
 | Swap                              |        |
-| NFT                               |        |
+| NFT                               | ⚙️     |
 | Trading                           |        |
-| Ramps                             |        |
+| Ramps                             | ✅     |
 
 Legend: ✅ shipped · ⚙️ in progress · blank = not started.
 

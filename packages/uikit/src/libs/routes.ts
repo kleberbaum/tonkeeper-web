@@ -93,7 +93,9 @@ export enum BrowserRoute {
 export enum MultichainRoute {
     home = '/multichain',
     asset = '/multichain/asset',
-    history = '/multichain/history'
+    history = '/multichain/history',
+    collectibles = '/multichain/collectibles',
+    collectiblesSettings = '/multichain/collectibles/settings'
 }
 
 /**

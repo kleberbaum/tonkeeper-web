@@ -1,4 +1,5 @@
-import { FC, ReactNode } from 'react';
+import { FC, ReactNode, useLayoutEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import { AccountMultichain } from '@tonkeeper/core/dist/entries/account';
 
@@ -23,12 +24,24 @@ export const MultichainDesktopShell: FC<{
     account: AccountMultichain;
     children: ReactNode;
 }> = ({ account, children }) => {
+    const { pathname } = useLocation();
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    // The scroll container survives route changes, so a subpage opened from
+    // a scrolled column would otherwise inherit the previous scroll offset.
+    useLayoutEffect(() => {
+        scrollRef.current?.scrollTo(0, 0);
+    }, [pathname]);
+
     return (
         <div className="flex h-screen gap-6 overflow-hidden bg-backgroundPage p-6">
             <MultichainDesktopSidebar account={account} />
             <main className="flex flex-1 justify-center">
                 <div className="flex h-full w-full max-w-[520px] flex-col">
-                    <div className="flex-1 overflow-y-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                    <div
+                        ref={scrollRef}
+                        className="flex-1 overflow-y-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                    >
                         {children}
                     </div>
                     <MultichainDesktopTabBar />

@@ -2,6 +2,8 @@ import { Account, AccountMultichain } from '@tonkeeper/core/dist/entries/account
 import { HomeMultichain } from '@tonkeeper/uikit/dist/pages/home/multichain/HomeMultichain';
 import { MultichainAssetPage } from '@tonkeeper/uikit/dist/pages/home/multichain/asset/MultichainAssetPage';
 import { MultichainHistory } from '@tonkeeper/uikit/dist/pages/home/multichain/history/MultichainHistory';
+import { MultichainCollectiblesPage } from '@tonkeeper/uikit/dist/pages/home/multichain/collectibles/MultichainCollectiblesPage';
+import { MultichainCollectiblesSettingsPage } from '@tonkeeper/uikit/dist/pages/home/multichain/collectibles/MultichainCollectiblesSettingsPage';
 import { InnerBody, useWindowsScroll } from '@tonkeeper/uikit/dist/components/Body';
 import { AppLayout } from '@tonkeeper/uikit/dist/components/layout/AppLayout';
 import { Loading } from '@tonkeeper/uikit/dist/components/Loading';
@@ -142,17 +144,28 @@ export const MobileContent: FC<{
     // until the new chrome lands.
     if (activeAccount.type === 'multichain') {
         return (
-            <Switch>
-                <Route path={`${MultichainRoute.asset}/:assetId`}>
-                    <MultichainAssetRoute />
-                </Route>
-                <Route path={MultichainRoute.history}>
-                    <MultichainHistory />
-                </Route>
-                <Route path="*">
-                    <HomeMultichain account={activeAccount as AccountMultichain} />
-                </Route>
-            </Switch>
+            <>
+                <Switch>
+                    <Route path={`${MultichainRoute.asset}/:assetId`}>
+                        <MultichainAssetRoute />
+                    </Route>
+                    <Route path={MultichainRoute.history}>
+                        <MultichainHistory />
+                    </Route>
+                    <Route path={MultichainRoute.collectiblesSettings}>
+                        <MultichainCollectiblesSettingsPage />
+                    </Route>
+                    <Route path={MultichainRoute.collectibles}>
+                        <MultichainCollectiblesPage />
+                    </Route>
+                    <Route path="*">
+                        <HomeMultichain account={activeAccount as AccountMultichain} />
+                    </Route>
+                </Switch>
+                {/* Pages scroll the window; without this, a subpage opened from a
+                    scrolled portfolio inherits the portfolio's scroll offset. */}
+                <MemoryScroll />
+            </>
         );
     }
 

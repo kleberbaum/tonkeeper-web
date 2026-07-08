@@ -3,6 +3,8 @@ import { HomeMultichain } from '@tonkeeper/uikit/dist/pages/home/multichain/Home
 import { MultichainAssetPage } from '@tonkeeper/uikit/dist/pages/home/multichain/asset/MultichainAssetPage';
 import { MultichainDesktopShell } from '@tonkeeper/uikit/dist/pages/home/multichain/desktop/MultichainDesktopShell';
 import { MultichainHistory } from '@tonkeeper/uikit/dist/pages/home/multichain/history/MultichainHistory';
+import { MultichainCollectiblesPage } from '@tonkeeper/uikit/dist/pages/home/multichain/collectibles/MultichainCollectiblesPage';
+import { MultichainCollectiblesSettingsPage } from '@tonkeeper/uikit/dist/pages/home/multichain/collectibles/MultichainCollectiblesSettingsPage';
 import { useWindowsScroll } from '@tonkeeper/uikit/dist/components/Body';
 import { AppLayout } from '@tonkeeper/uikit/dist/components/layout/AppLayout';
 import MemoryScroll from '@tonkeeper/uikit/dist/components/MemoryScroll';
@@ -207,6 +209,12 @@ export const DesktopContent: FC<{
                     </Route>
                     <Route path={MultichainRoute.history}>
                         <MultichainHistory compact />
+                    </Route>
+                    <Route path={MultichainRoute.collectiblesSettings}>
+                        <MultichainCollectiblesSettingsPage compact />
+                    </Route>
+                    <Route path={MultichainRoute.collectibles}>
+                        <MultichainCollectiblesPage compact />
                     </Route>
                     <Route path="*">
                         <HomeMultichain account={account} compact />

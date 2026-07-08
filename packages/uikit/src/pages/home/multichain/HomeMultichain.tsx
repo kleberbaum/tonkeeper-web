@@ -9,35 +9,13 @@ import { useMultichainWalletAssets } from '../../../state/multichain/useMulticha
 import { useEnsureChainKitReady } from '../../../state/multichain/transfer/useMultichainTransfer';
 import { CryptoCatalogModal } from './catalog/CryptoCatalogModal';
 import { HomeMultichainActions } from './HomeMultichainActions';
+import { HomeMultichainCollectibles } from './collectibles/HomeMultichainCollectibles';
 import { HomeMultichainHeaderBar } from './HomeMultichainHeaderBar';
 import { HomeMultichainAssetRow } from './HomeMultichainAssetRow';
 import { ManageCryptoModal } from './manage/ManageCryptoModal';
 import { MoreAssetsButton } from './MoreAssetsButton';
-
-const Chevron16 = () => (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="opacity-40">
-        <path
-            d="M6 4L10 8L6 12"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        />
-    </svg>
-);
-
-const Sliders16 = () => (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path
-            d="M2 4H10M2 12H6M14 4H13M14 12H10"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-        />
-        <circle cx="11.5" cy="4" r="1.5" stroke="currentColor" strokeWidth="1.5" />
-        <circle cx="8" cy="12" r="1.5" stroke="currentColor" strokeWidth="1.5" />
-    </svg>
-);
+import IcChevronRight16 from '../../../icons/components/IcChevronRight16';
+import IcSliders16 from '../../../icons/components/IcSliders16';
 
 /**
  * Asset-list expansion thresholds. Same algorithm as iOS
@@ -105,10 +83,14 @@ export const HomeMultichain: FC<{ account: AccountMultichain; compact?: boolean 
                         <button
                             type="button"
                             onClick={() => setCatalogOpen(true)}
-                            className="flex items-center gap-1 text-left text-label1 text-textPrimary"
+                            className="flex items-center text-left text-label1 text-textPrimary"
                         >
                             <span>{t('wallet_crypto_section')}</span>
-                            <Chevron16 />
+                            {/* Chevron offsets from the List Title spec: 2px side
+                                padding, nudged 1px below center. */}
+                            <span className="px-0.5 pb-[3px] pt-[5px]">
+                                <IcChevronRight16 className="size-4 opacity-40" />
+                            </span>
                         </button>
                         <button
                             type="button"
@@ -116,7 +98,7 @@ export const HomeMultichain: FC<{ account: AccountMultichain; compact?: boolean 
                             className="flex items-center gap-1.5 text-label2 text-textSecondary"
                         >
                             <span>{t('wallet_manage_assets')}</span>
-                            <Sliders16 />
+                            <IcSliders16 className="size-4" />
                         </button>
                     </div>
                     {allAssets.length === 0 ? (
@@ -144,6 +126,8 @@ export const HomeMultichain: FC<{ account: AccountMultichain; compact?: boolean 
                         </div>
                     )}
                 </section>
+
+                <HomeMultichainCollectibles compact={compact} />
 
                 {catalogOpen && (
                     <CryptoCatalogModal compact={compact} onClose={() => setCatalogOpen(false)} />
