@@ -59,7 +59,7 @@
     },
     "packageManager": "yarn@4.3.0",
     "dependencies": {
-        "@tonkeeper/chainkit": "0.0.4",
+        "@tonkeeper/chainkit": "0.1.1",
         "@tonkeeper/uikit": "workspace:^"
     },
     "resolutions": {
