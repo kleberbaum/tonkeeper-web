@@ -2,6 +2,7 @@
 import BigNumber from 'bignumber.js';
 import {
     Address as ChainkitAddress,
+    AddressType as ChainkitAddressType,
     Chain as ChainkitChain,
     CryptoWallet as ChainkitCryptoWallet
 } from '@tonkeeper/chainkit';
@@ -47,6 +48,15 @@ const chainOf = (id: ChainId): unknown => {
             );
     }
 };
+
+/**
+ * chain-kit's `getAddress()` refuses a bare chain for formats with more than
+ * one address encoding — it needs the variant named explicitly. Bitcoin must
+ * pick SegWit (the only supported variant; Taproot throws in chain-kit); every
+ * other chain has a single canonical form and takes the default.
+ */
+const addressTypeOf = (id: ChainId): unknown =>
+    id === 'btc' ? (ChainkitAddressType as any).BtcSegwit : (ChainkitAddressType as any).Default;
 
 /** Default smallest-unit decimals for the chain's native coin. */
 const DEFAULT_DECIMALS: Record<ChainId, number> = {
@@ -105,7 +115,7 @@ class ChainkitAdapter implements ChainAdapter {
             );
         }
         const wallet = (ChainkitCryptoWallet as any).Companion.fromMnemonic(args.mnemonic);
-        const address = wallet.getAddress(chainOf(this.chain));
+        const address = wallet.getAddress(chainOf(this.chain), addressTypeOf(this.chain));
         return address.display;
     }
 
