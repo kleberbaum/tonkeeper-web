@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
-import { localizationText } from '@tonkeeper/core/dist/entries/language';
+import { Language, localizationText } from '@tonkeeper/core/dist/entries/language';
 import { getApiConfig } from '@tonkeeper/core/dist/entries/network';
 import { WalletVersion } from '@tonkeeper/core/dist/entries/wallet';
 import { CopyNotification } from '@tonkeeper/uikit/dist/components/CopyNotification';
@@ -133,6 +133,41 @@ const StubApp: FC<{ sdk: TwaAppSdk }> = ({ sdk }) => {
     );
 };
 
+// The TWA never shipped a language picker, so almost no one has a stored
+// preference; fall back to the user's Telegram client language. Telegram gives
+// an IETF tag (e.g. 'ru', 'en-US', 'zh-hans'); map it to a locale we actually
+// ship, or undefined when we don't.
+const SUPPORTED_TWA_LOCALES = new Set([
+    'en',
+    'ru',
+    'it',
+    'tr',
+    'bg',
+    'es',
+    'id',
+    'uk',
+    'uz',
+    'bn',
+    'fr',
+    'pa',
+    'pt',
+    'vi',
+    'hi',
+    'ar',
+    'de',
+    'fa'
+]);
+
+const telegramLangToLocale = (code?: string): string | undefined => {
+    if (!code) return undefined;
+    const normalized = code.toLowerCase();
+    if (normalized.startsWith('zh')) {
+        return /hant|tw|hk|mo/.test(normalized) ? 'zh_TW' : 'zh_CN';
+    }
+    const base = normalized.split(/[-_]/)[0];
+    return SUPPORTED_TWA_LOCALES.has(base) ? base : undefined;
+};
+
 const Loader: FC<{ sdk: TwaAppSdk }> = ({ sdk }) => {
     const { data: lang, isLoading: isLangLoading } = useUserLanguage();
     const { data: fiat } = useUserFiatQuery();
@@ -145,15 +180,23 @@ const Loader: FC<{ sdk: TwaAppSdk }> = ({ sdk }) => {
 
     useTwaAppViewport(false, sdk);
 
-    // Apply the user's stored language (set in the old app) to i18next so the
-    // stub renders localized; falls back to English when unset/unsupported.
+    // Pick the stub's locale. An explicit non-English preference saved in the
+    // old app always wins; otherwise fall back to the Telegram client language
+    // (mapped to a supported locale), and finally to English. `useUserLanguage`
+    // returns EN both when nothing was ever stored and — since Language.EN is
+    // 0/falsy and the picker never existed in the TWA — for every user without
+    // a real preference, so EN here reliably means "unset".
     useEffect(() => {
-        if (lang && i18n.language !== localizationText(lang)) {
-            i18n.reloadResources([localizationText(lang)]).then(() =>
-                i18n.changeLanguage(localizationText(lang))
-            );
+        if (lang === undefined) return;
+
+        const storedLocale = lang !== Language.EN ? localizationText(lang) : undefined;
+        const telegramLocale = telegramLangToLocale(sdk.launchParams.initData?.user?.languageCode);
+        const targetLocale = storedLocale ?? telegramLocale ?? 'en';
+
+        if (i18n.language !== targetLocale) {
+            i18n.reloadResources([targetLocale]).then(() => i18n.changeLanguage(targetLocale));
         }
-    }, [lang, i18n]);
+    }, [lang, i18n, sdk]);
 
     const tonendpoint = useTonendpoint({
         build: sdk.version,
