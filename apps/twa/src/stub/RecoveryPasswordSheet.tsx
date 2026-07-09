@@ -3,7 +3,6 @@ import {
     AccountSecret,
     isMnemonicAndPassword
 } from '@tonkeeper/core/dist/entries/account';
-import { accountsStorage } from '@tonkeeper/core/dist/service/accountsStorage';
 import { decryptWalletSecret } from '@tonkeeper/core/dist/service/mnemonicService';
 import { validatePassword } from '@tonkeeper/core/dist/service/passwordService';
 import { Notification } from '@tonkeeper/uikit/dist/components/Notification';
@@ -12,7 +11,7 @@ import { Input } from '@tonkeeper/uikit/dist/components/fields/Input';
 import { useAppSdk } from '@tonkeeper/uikit/dist/hooks/appSdk';
 import { useAnalyticsTrack } from '@tonkeeper/uikit/dist/hooks/analytics';
 import { useTranslation } from '@tonkeeper/uikit/dist/hooks/translation';
-import { FC, FormEventHandler, useEffect, useState } from 'react';
+import { FC, FormEventHandler, useState } from 'react';
 import styled from 'styled-components';
 
 const Form = styled.form`
@@ -36,6 +35,12 @@ const Form = styled.form`
  * decrypt. We use decryptWalletSecret directly (not getAccountSecret) to keep
  * this read-only: no v1->v2 re-encrypt write back to the deprecated app's
  * CloudStorage.
+ *
+ * The encrypted secret is read straight off the in-memory account (already
+ * loaded into the account list) rather than re-fetched from Telegram
+ * CloudStorage. That keeps the whole reveal flow working with no connection:
+ * the Continue button gates only on the client-side password length check, and
+ * decryption is pure crypto that needs no network.
  */
 export const RecoveryPasswordSheet: FC<{
     account: Account | null;
@@ -45,45 +50,40 @@ export const RecoveryPasswordSheet: FC<{
     const { t } = useTranslation();
     const sdk = useAppSdk();
     const track = useAnalyticsTrack();
-    const [encryptedSecret, setEncryptedSecret] = useState<string | undefined>(undefined);
     const [password, setPassword] = useState('');
     const [error, setError] = useState(false);
     const [submitting, setSubmitting] = useState(false);
 
-    // Reset the form whenever a different account's sheet opens.
+    const encryptedSecret =
+        account && isMnemonicAndPassword(account) && account.auth.kind === 'password'
+            ? account.auth.encryptedSecret
+            : undefined;
+
+    // Reset the form whenever the sheet opens for a different account or closes
+    // (account -> null). Clearing on close matters for privacy: it wipes the
+    // typed password so reopening the same account — e.g. after the stub drops
+    // back to the list on backgrounding — never shows a stale password.
     const [lastId, setLastId] = useState<string | undefined>(undefined);
-    if (account && account.id !== lastId) {
-        setLastId(account.id);
+    if (account?.id !== lastId) {
+        setLastId(account?.id);
         setPassword('');
         setError(false);
         setSubmitting(false);
-        setEncryptedSecret(undefined);
     }
-
-    useEffect(() => {
-        if (!account) return undefined;
-        let cancelled = false;
-        (async () => {
-            const stored = await accountsStorage(sdk.storage).getAccount(account.id);
-            if (
-                !cancelled &&
-                stored &&
-                isMnemonicAndPassword(stored) &&
-                stored.auth.kind === 'password'
-            ) {
-                setEncryptedSecret(stored.auth.encryptedSecret);
-            }
-        })();
-        return () => {
-            cancelled = true;
-        };
-    }, [account, sdk]);
 
     const submit =
         (afterClose: (cb: () => void) => void): FormEventHandler<HTMLFormElement> =>
         async e => {
             e.preventDefault();
-            if (!account || !encryptedSecret || submitting || !validatePassword(password)) {
+            if (!account || submitting || !validatePassword(password)) {
+                return;
+            }
+            // The secret is loaded with the account list, so this only trips if
+            // that list never loaded (e.g. the app was opened with no
+            // connection); surface it instead of silently doing nothing.
+            if (!encryptedSecret) {
+                sdk.hapticNotification('error');
+                sdk.topMessage(t('twa_recovery_no_connection'));
                 return;
             }
             setSubmitting(true);
@@ -123,7 +123,7 @@ export const RecoveryPasswordSheet: FC<{
                         primary
                         fullWidth
                         type="submit"
-                        disabled={!encryptedSecret || !validatePassword(password)}
+                        disabled={!validatePassword(password)}
                         loading={submitting}
                     >
                         {t('continue')}

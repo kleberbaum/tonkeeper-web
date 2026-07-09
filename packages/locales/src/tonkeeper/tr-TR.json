@@ -1700,6 +1700,7 @@
     "twa_open_web": "Web Uygulamasını Aç",
     "twa_show_recovery_phrase": "Kurtarma İfadesini Göster",
     "twa_enter_password": "Parolayı girin",
+    "twa_recovery_no_connection": "İnternet bağlantısı yok. Lütfen yeniden bağlanıp tekrar deneyin.",
     "twa_sign_out": "Çıkış Yap",
     "twa_recovery_title": "Kurtarma İfadesi",
     "twa_recovery_subtitle": "Bu kelimeleri numaralarıyla birlikte yazın ve güvenli bir yerde saklayın.",

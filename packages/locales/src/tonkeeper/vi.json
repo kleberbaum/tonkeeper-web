@@ -450,6 +450,7 @@
     "twa_open_web": "Mở ứng dụng Web",
     "twa_show_recovery_phrase": "Hiển thị cụm từ khôi phục",
     "twa_enter_password": "Nhập mật khẩu",
+    "twa_recovery_no_connection": "Không có kết nối Internet. Vui lòng kết nối lại và thử lại.",
     "twa_sign_out": "Đăng xuất",
     "twa_recovery_title": "Cụm từ khôi phục",
     "twa_recovery_subtitle": "Viết ra những từ này cùng với số thứ tự của chúng và lưu giữ ở nơi an toàn.",

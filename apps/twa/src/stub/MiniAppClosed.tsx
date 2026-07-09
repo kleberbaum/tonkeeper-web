@@ -243,6 +243,23 @@ export const MiniAppClosed: FC<{ sdk: TwaAppSdk }> = ({ sdk }) => {
         }
     }, [signOutAccount, passwordAccount, recovery, sdk]);
 
+    // Drop back to the initial list whenever the mini app is backgrounded (the
+    // user switches chats/windows or the OS takes an app-switcher snapshot), so
+    // a revealed recovery phrase or a typed password is never left on screen for
+    // someone returning to the app or peeking at the task switcher. Resetting on
+    // `hidden` (not on return) also keeps the phrase out of that snapshot.
+    useEffect(() => {
+        const onHidden = () => {
+            if (document.hidden) {
+                setSignOutAccount(null);
+                setPasswordAccount(null);
+                setRecovery(null);
+            }
+        };
+        document.addEventListener('visibilitychange', onHidden);
+        return () => document.removeEventListener('visibilitychange', onHidden);
+    }, []);
+
     // Show Telegram's native back button on every sub-screen (the recovery page
     // and the password / sign-out sheets); on the root list let Telegram show
     // its own close control.
@@ -251,12 +268,21 @@ export const MiniAppClosed: FC<{ sdk: TwaAppSdk }> = ({ sdk }) => {
 
     const onSignOutConfirm = useCallback(async () => {
         if (!signOutAccount) return;
-        await accountsStorage(sdk.storage).removeAccountFromState(signOutAccount.id);
-        await client.invalidateQueries([QueryKey.account]);
-        track({ eventName: 'twa_sunset_sign_out' });
-        setSignOutAccount(null);
-        setRecovery(null);
-    }, [signOutAccount, sdk, client, track]);
+        // Unlike revealing the phrase (pure client-side crypto), signing out has
+        // to persist the removal to Telegram CloudStorage. With no connection
+        // that write throws; surface a toast instead of failing silently and
+        // leaving the account in place.
+        try {
+            await accountsStorage(sdk.storage).removeAccountFromState(signOutAccount.id);
+            await client.invalidateQueries([QueryKey.account]);
+            track({ eventName: 'twa_sunset_sign_out' });
+            setSignOutAccount(null);
+            setRecovery(null);
+        } catch (e) {
+            sdk.hapticNotification('error');
+            sdk.topMessage(t('twa_recovery_no_connection'));
+        }
+    }, [signOutAccount, sdk, client, track, t]);
 
     if (recovery) {
         return (

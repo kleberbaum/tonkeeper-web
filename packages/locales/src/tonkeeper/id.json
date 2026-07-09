@@ -1691,6 +1691,7 @@
     "twa_open_web": "Buka Aplikasi Web",
     "twa_show_recovery_phrase": "Tampilkan Frasa Pemulihan",
     "twa_enter_password": "Masukkan kata sandi",
+    "twa_recovery_no_connection": "Tidak ada koneksi internet. Silakan sambungkan kembali dan coba lagi.",
     "twa_sign_out": "Keluar",
     "twa_recovery_title": "Frasa Pemulihan",
     "twa_recovery_subtitle": "Tuliskan kata-kata ini beserta nomornya dan simpan di tempat yang aman.",

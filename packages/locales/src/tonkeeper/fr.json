@@ -450,6 +450,7 @@
   "twa_open_web": "Ouvrir l’application Web",
   "twa_show_recovery_phrase": "Afficher la phrase de récupération",
   "twa_enter_password": "Saisissez le mot de passe",
+  "twa_recovery_no_connection": "Pas de connexion Internet. Veuillez vous reconnecter et réessayer.",
   "twa_sign_out": "Se déconnecter",
   "twa_recovery_title": "Phrase de récupération",
   "twa_recovery_subtitle": "Notez ces mots avec leurs numéros et conservez-les en lieu sûr.",

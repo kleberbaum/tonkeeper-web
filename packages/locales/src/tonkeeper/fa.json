@@ -596,6 +596,7 @@
     "twa_open_web": "باز کردن برنامه وب",
     "twa_show_recovery_phrase": "نمایش عبارت بازیابی",
     "twa_enter_password": "رمز عبور را وارد کنید",
+    "twa_recovery_no_connection": "اتصال اینترنت وجود ندارد. لطفاً دوباره متصل شوید و مجدداً تلاش کنید.",
     "twa_sign_out": "خروج",
     "twa_recovery_title": "عبارت بازیابی",
     "twa_recovery_subtitle": "این کلمات را همراه با شماره‌هایشان یادداشت کنید و در مکانی امن نگه دارید.",

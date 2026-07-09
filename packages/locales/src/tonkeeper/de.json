@@ -1655,6 +1655,7 @@
     "twa_open_web": "Web-App öffnen",
     "twa_show_recovery_phrase": "Wiederherstellungsphrase anzeigen",
     "twa_enter_password": "Passwort eingeben",
+    "twa_recovery_no_connection": "Keine Internetverbindung. Bitte stelle die Verbindung wieder her und versuche es erneut.",
     "twa_sign_out": "Abmelden",
     "twa_recovery_title": "Wiederherstellungsphrase",
     "twa_recovery_subtitle": "Schreibe diese Wörter mit ihren Nummern auf und bewahre sie an einem sicheren Ort auf.",

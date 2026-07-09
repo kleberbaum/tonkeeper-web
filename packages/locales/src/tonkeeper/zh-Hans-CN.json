@@ -1698,6 +1698,7 @@
     "twa_open_web": "打开网页版应用",
     "twa_show_recovery_phrase": "显示助记词",
     "twa_enter_password": "输入密码",
+    "twa_recovery_no_connection": "无网络连接。请重新连接后再试。",
     "twa_sign_out": "退出登录",
     "twa_recovery_title": "助记词",
     "twa_recovery_subtitle": "请按编号抄写这些单词，并保存在安全的地方。",

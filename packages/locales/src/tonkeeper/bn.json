@@ -1658,6 +1658,7 @@
     "twa_open_web": "ওয়েব অ্যাপ খুলুন",
     "twa_show_recovery_phrase": "রিকভারি ফ্রেজ দেখান",
     "twa_enter_password": "পাসওয়ার্ড লিখুন",
+    "twa_recovery_no_connection": "ইন্টারনেট সংযোগ নেই। অনুগ্রহ করে পুনরায় সংযোগ করে আবার চেষ্টা করুন।",
     "twa_sign_out": "সাইন আউট",
     "twa_recovery_title": "রিকভারি ফ্রেজ",
     "twa_recovery_subtitle": "এই শব্দগুলো তাদের নম্বরসহ লিখে রাখুন এবং নিরাপদ স্থানে সংরক্ষণ করুন।",

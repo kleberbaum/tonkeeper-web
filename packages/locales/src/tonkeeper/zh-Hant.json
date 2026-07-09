@@ -1746,6 +1746,7 @@
     "twa_open_web": "開啟網頁版應用程式",
     "twa_show_recovery_phrase": "顯示助記詞",
     "twa_enter_password": "輸入密碼",
+    "twa_recovery_no_connection": "沒有網路連線。請重新連線後再試一次。",
     "twa_sign_out": "登出",
     "twa_recovery_title": "助記詞",
     "twa_recovery_subtitle": "請按編號抄寫這些單字，並保存在安全的地方。",

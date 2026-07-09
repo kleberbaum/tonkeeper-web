@@ -1700,6 +1700,7 @@
     "twa_open_web": "Abrir app web",
     "twa_show_recovery_phrase": "Mostrar frase de recuperación",
     "twa_enter_password": "Ingresa la contraseña",
+    "twa_recovery_no_connection": "Sin conexión a Internet. Vuelve a conectarte e inténtalo de nuevo.",
     "twa_sign_out": "Cerrar sesión",
     "twa_recovery_title": "Frase de recuperación",
     "twa_recovery_subtitle": "Anota estas palabras con sus números y guárdalas en un lugar seguro.",

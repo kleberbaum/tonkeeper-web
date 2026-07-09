@@ -1714,6 +1714,7 @@
     "twa_open_web": "Открыть веб-версию",
     "twa_show_recovery_phrase": "Показать секретную фразу",
     "twa_enter_password": "Введите пароль",
+    "twa_recovery_no_connection": "Нет подключения к интернету. Переподключитесь и попробуйте снова.",
     "twa_sign_out": "Выйти",
     "twa_recovery_title": "Секретная фраза",
     "twa_recovery_subtitle": "Запишите эти слова вместе с их номерами и храните в надёжном месте.",

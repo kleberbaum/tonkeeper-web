@@ -1706,6 +1706,7 @@
     "twa_open_web": "Veb ilovani ochish",
     "twa_show_recovery_phrase": "Tiklash iborasini ko‘rsatish",
     "twa_enter_password": "Parolni kiriting",
+    "twa_recovery_no_connection": "Internet aloqasi yo'q. Iltimos, qayta ulaning va yana urinib ko'ring.",
     "twa_sign_out": "Chiqish",
     "twa_recovery_title": "Tiklash iborasi",
     "twa_recovery_subtitle": "Ushbu so‘zlarni raqamlari bilan yozib oling va xavfsiz joyda saqlang.",

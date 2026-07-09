@@ -1658,6 +1658,7 @@
     "twa_open_web": "Open Web App",
     "twa_show_recovery_phrase": "Show Recovery Phrase",
     "twa_enter_password": "Enter password",
+    "twa_recovery_no_connection": "No internet connection. Please reconnect and try again.",
     "twa_sign_out": "Sign Out",
     "twa_recovery_title": "Recovery Phrase",
     "twa_recovery_subtitle": "Write down these words with their numbers and store them in a safe place.",

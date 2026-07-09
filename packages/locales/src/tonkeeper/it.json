@@ -994,6 +994,7 @@
     "twa_open_web": "Apri l’app web",
     "twa_show_recovery_phrase": "Mostra la frase di recupero",
     "twa_enter_password": "Inserisci la password",
+    "twa_recovery_no_connection": "Nessuna connessione a Internet. Riconnettiti e riprova.",
     "twa_sign_out": "Esci",
     "twa_recovery_title": "Frase di recupero",
     "twa_recovery_subtitle": "Annota queste parole con i loro numeri e conservale in un luogo sicuro.",
