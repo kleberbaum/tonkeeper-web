@@ -77,7 +77,7 @@ const Subtitle = styled(Body2)`
     text-align: center;
     color: ${p => p.theme.textSecondary};
     text-wrap: balance;
-    max-width: 320px;
+    padding: 0 32px;
 `;
 
 // The only scrollable element: the wallet list. The rounded ListBlock clips its
@@ -122,15 +122,16 @@ const Bottom = styled.div`
 `;
 
 const WarningTriangle = () => (
-    <svg width="68" height="68" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width="84" height="96" viewBox="0 0 84 96" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path
-            d="M12 3.5 21 19H3L12 3.5Z"
-            fill="currentColor"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinejoin="round"
+            d="M31.9806 16.3996C36.6295 8.56242 47.9734 8.56232 52.6222 16.3996L74.8527 53.8781C79.5975 61.8772 73.8328 72 64.5324 72.0002H20.0705C10.77 72.0002 5.00451 61.8772 9.7492 53.8781L31.9806 16.3996ZM42.0002 54.0002C39.791 54.0002 38.0002 55.791 38.0002 58.0002C38.0003 60.2092 39.7911 62.0002 42.0002 62.0002C44.2092 62.0001 46.0001 60.2092 46.0002 58.0002C46.0002 55.7911 44.2093 54.0002 42.0002 54.0002ZM42.0002 28.0002C39.8211 28.0002 38.0829 29.8194 38.1818 31.9962L38.8644 47.0031C38.9407 48.6797 40.3218 50.0001 42.0002 50.0002C43.6785 50.0001 45.0606 48.6797 45.1369 47.0031L45.8185 31.9962C45.9175 29.8194 44.1792 28.0002 42.0002 28.0002Z"
+            fill="#45AEF5"
         />
-        <path d="M12 9.5v4M12 16.2v.1" stroke="#10161F" strokeWidth="2" strokeLinecap="round" />
+        <path
+            opacity="0.32"
+            d="M42 54C44.2091 54 46 55.7909 46 58C46 60.2091 44.2091 62 42 62C39.7909 62 38 60.2091 38 58C38 55.7909 39.7909 54 42 54ZM42 28C44.1791 28 45.9173 29.8192 45.8184 31.9961L45.1367 47.0029C45.0605 48.6796 43.6784 50 42 50C40.3216 50 38.9405 48.6796 38.8643 47.0029L38.1816 31.9961C38.0827 29.8192 39.8209 28 42 28Z"
+            fill="#45AEF5"
+        />
     </svg>
 );
 
