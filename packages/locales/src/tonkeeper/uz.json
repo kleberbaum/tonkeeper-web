@@ -1703,7 +1703,7 @@
     "twa_closed_subtitle_wallets": "Hamyonlaringiz xavfsiz. Iltimos, tiklash iboralaringizni saqlang va iOS, Android yoki Vebda to‘xtagan joyingizdan davom eting.",
     "twa_download_ios": "iOS uchun ilovani yuklab olish",
     "twa_download_android": "Android uchun ilovani yuklab olish",
-    "twa_open_web": "Veb ilovani ochish",
+    "twa_download_desktop": "Desktop uchun ilovani yuklab olish",
     "twa_show_recovery_phrase": "Tiklash iborasini ko‘rsatish",
     "twa_enter_password": "Parolni kiriting",
     "twa_recovery_no_connection": "Internet aloqasi yo'q. Iltimos, qayta ulaning va yana urinib ko'ring.",

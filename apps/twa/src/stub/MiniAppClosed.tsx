@@ -31,7 +31,7 @@ import { SignOutSheet } from './SignOutSheet';
 // TODO(open item): confirm final store / web URLs before production deploy.
 const APP_STORE_URL = 'https://apps.apple.com/app/tonkeeper/id1587742107';
 const GOOGLE_PLAY_URL = 'https://play.google.com/store/apps/details?id=com.ton_keeper';
-const WEB_APP_URL = 'https://wallet.tonkeeper.com';
+const DESKTOP_APP_URL = 'https://tonkeeper.com/pro';
 
 const Root = styled.div`
     display: flex;
@@ -186,7 +186,7 @@ const DownloadButton: FC<{ sdk: TwaAppSdk }> = ({ sdk }) => {
             ? { labelKey: 'twa_download_ios', url: APP_STORE_URL, destination: 'app_store' }
             : platform === 'android' || platform === 'android_x'
             ? { labelKey: 'twa_download_android', url: GOOGLE_PLAY_URL, destination: 'google_play' }
-            : { labelKey: 'twa_open_web', url: WEB_APP_URL, destination: 'web' };
+            : { labelKey: 'twa_download_desktop', url: DESKTOP_APP_URL, destination: 'web' };
 
     const onClick = () => {
         track({ eventName: 'twa_sunset_download_click', destination });

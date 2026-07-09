@@ -1697,7 +1697,7 @@
     "twa_closed_subtitle_wallets": "Cüzdanlarınız güvende. Lütfen kurtarma ifadelerinizi kaydedin ve iOS, Android veya Web’de kaldığınız yerden devam edin.",
     "twa_download_ios": "iOS Uygulamasını İndir",
     "twa_download_android": "Android Uygulamasını İndir",
-    "twa_open_web": "Web Uygulamasını Aç",
+    "twa_download_desktop": "Masaüstü Uygulamasını İndir",
     "twa_show_recovery_phrase": "Kurtarma İfadesini Göster",
     "twa_enter_password": "Parolayı girin",
     "twa_recovery_no_connection": "İnternet bağlantısı yok. Lütfen yeniden bağlanıp tekrar deneyin.",

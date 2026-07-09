@@ -1654,7 +1654,7 @@
     "twa_closed_subtitle_wallets": "محافظك آمنة. يرجى حفظ عبارات الاسترداد والمتابعة من حيث توقفت على iOS أو Android أو الويب.",
     "twa_download_ios": "تنزيل تطبيق iOS",
     "twa_download_android": "تنزيل تطبيق Android",
-    "twa_open_web": "فتح تطبيق الويب",
+    "twa_download_desktop": "تنزيل تطبيق سطح المكتب",
     "twa_show_recovery_phrase": "إظهار عبارة الاسترداد",
     "twa_enter_password": "أدخل كلمة المرور",
     "twa_recovery_no_connection": "لا يوجد اتصال بالإنترنت. يُرجى إعادة الاتصال والمحاولة مرة أخرى.",

@@ -1711,7 +1711,7 @@
     "twa_closed_subtitle_wallets": "Ваши кошельки в безопасности. Пожалуйста, сохраните секретные фразы и продолжите с того места, где остановились — на iOS, Android или в вебе.",
     "twa_download_ios": "Скачать приложение для iOS",
     "twa_download_android": "Скачать приложение для Android",
-    "twa_open_web": "Открыть веб-версию",
+    "twa_download_desktop": "Скачать приложение для десктопа",
     "twa_show_recovery_phrase": "Показать секретную фразу",
     "twa_enter_password": "Введите пароль",
     "twa_recovery_no_connection": "Нет подключения к интернету. Переподключитесь и попробуйте снова.",

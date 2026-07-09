@@ -447,7 +447,7 @@
   "twa_closed_subtitle_wallets": "Vos portefeuilles sont en sécurité. Veuillez enregistrer vos phrases de récupération et reprendre là où vous vous êtes arrêté sur iOS, Android ou le Web.",
   "twa_download_ios": "Télécharger l’application pour iOS",
   "twa_download_android": "Télécharger l’application pour Android",
-  "twa_open_web": "Ouvrir l’application Web",
+  "twa_download_desktop": "Télécharger l’application pour ordinateur",
   "twa_show_recovery_phrase": "Afficher la phrase de récupération",
   "twa_enter_password": "Saisissez le mot de passe",
   "twa_recovery_no_connection": "Pas de connexion Internet. Veuillez vous reconnecter et réessayer.",

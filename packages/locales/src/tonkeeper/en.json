@@ -1655,7 +1655,7 @@
     "twa_closed_subtitle_wallets": "Your wallets are safe. Please save your recovery phrases and pick up where you left off on iOS, Android, or the Web.",
     "twa_download_ios": "Download App for iOS",
     "twa_download_android": "Download App for Android",
-    "twa_open_web": "Open Web App",
+    "twa_download_desktop": "Download App for Desktop",
     "twa_show_recovery_phrase": "Show Recovery Phrase",
     "twa_enter_password": "Enter password",
     "twa_recovery_no_connection": "No internet connection. Please reconnect and try again.",

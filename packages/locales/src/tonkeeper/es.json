@@ -1697,7 +1697,7 @@
     "twa_closed_subtitle_wallets": "Tus billeteras están seguras. Guarda tus frases de recuperación y retoma donde lo dejaste en iOS, Android o la Web.",
     "twa_download_ios": "Descargar app para iOS",
     "twa_download_android": "Descargar app para Android",
-    "twa_open_web": "Abrir app web",
+    "twa_download_desktop": "Descargar app para escritorio",
     "twa_show_recovery_phrase": "Mostrar frase de recuperación",
     "twa_enter_password": "Ingresa la contraseña",
     "twa_recovery_no_connection": "Sin conexión a Internet. Vuelve a conectarte e inténtalo de nuevo.",

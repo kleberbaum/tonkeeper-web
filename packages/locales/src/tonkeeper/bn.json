@@ -1655,7 +1655,7 @@
     "twa_closed_subtitle_wallets": "আপনার ওয়ালেটগুলো নিরাপদ। অনুগ্রহ করে আপনার রিকভারি ফ্রেজ সংরক্ষণ করুন এবং iOS, Android বা ওয়েবে যেখানে ছিলেন সেখান থেকে চালিয়ে যান।",
     "twa_download_ios": "iOS-এর জন্য অ্যাপ ডাউনলোড করুন",
     "twa_download_android": "Android-এর জন্য অ্যাপ ডাউনলোড করুন",
-    "twa_open_web": "ওয়েব অ্যাপ খুলুন",
+    "twa_download_desktop": "ডেস্কটপের জন্য অ্যাপ ডাউনলোড করুন",
     "twa_show_recovery_phrase": "রিকভারি ফ্রেজ দেখান",
     "twa_enter_password": "পাসওয়ার্ড লিখুন",
     "twa_recovery_no_connection": "ইন্টারনেট সংযোগ নেই। অনুগ্রহ করে পুনরায় সংযোগ করে আবার চেষ্টা করুন।",

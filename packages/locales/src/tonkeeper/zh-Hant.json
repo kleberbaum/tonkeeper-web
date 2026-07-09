@@ -1743,7 +1743,7 @@
     "twa_closed_subtitle_wallets": "您的錢包是安全的。請儲存您的助記詞，並在 iOS、Android 或網頁版上從上次中斷的地方繼續。",
     "twa_download_ios": "下載 iOS 應用程式",
     "twa_download_android": "下載 Android 應用程式",
-    "twa_open_web": "開啟網頁版應用程式",
+    "twa_download_desktop": "下載桌面版應用程式",
     "twa_show_recovery_phrase": "顯示助記詞",
     "twa_enter_password": "輸入密碼",
     "twa_recovery_no_connection": "沒有網路連線。請重新連線後再試一次。",
