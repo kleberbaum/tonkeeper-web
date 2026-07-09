@@ -1,7 +1,9 @@
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
+import { FiatCurrencies } from '@tonkeeper/core/dist/entries/fiat';
 import { Language, localizationText } from '@tonkeeper/core/dist/entries/language';
 import { getApiConfig } from '@tonkeeper/core/dist/entries/network';
 import { WalletVersion } from '@tonkeeper/core/dist/entries/wallet';
+import { defaultTonendpointConfig } from '@tonkeeper/core/dist/tonkeeperApi/tonendpoint';
 import { CopyNotification } from '@tonkeeper/uikit/dist/components/CopyNotification';
 import { DarkThemeContext } from '@tonkeeper/uikit/dist/components/Icon';
 import { GlobalListStyle } from '@tonkeeper/uikit/dist/components/List';
@@ -175,8 +177,6 @@ const Loader: FC<{ sdk: TwaAppSdk }> = ({ sdk }) => {
     const network = useActiveTonNetwork();
     const { i18n } = useTranslation();
 
-    useTwaErrorReporting();
-
     useTwaAppViewport(false, sdk);
 
     // Pick the stub's locale. An explicit non-English preference saved in the
@@ -212,16 +212,20 @@ const Loader: FC<{ sdk: TwaAppSdk }> = ({ sdk }) => {
         serverConfig?.mainnetConfig
     );
 
-    const context = useMemo<IAppContext | undefined>(() => {
-        if (!serverConfig || !fiat) {
-            return undefined;
-        }
+    // Revealing a recovery phrase is pure client-side crypto over locally stored
+    // account data, so the stub must reach MiniAppClosed even with no network.
+    // The Tonendpoint config only feeds the api clients and analytics, neither of
+    // which the offline recovery path touches, so fall back to defaults until it
+    // loads rather than blocking the whole UI on it.
+    const context = useMemo<IAppContext>(() => {
+        const mainnetConfig = serverConfig?.mainnetConfig ?? defaultTonendpointConfig;
+        const testnetConfig = serverConfig?.testnetConfig ?? defaultTonendpointConfig;
         return {
-            mainnetApi: getApiConfig(serverConfig.mainnetConfig),
-            testnetApi: getApiConfig(serverConfig.testnetConfig),
-            fiat,
-            mainnetConfig: serverConfig.mainnetConfig,
-            testnetConfig: serverConfig.testnetConfig,
+            mainnetApi: getApiConfig(mainnetConfig),
+            testnetApi: getApiConfig(testnetConfig),
+            fiat: fiat ?? FiatCurrencies.USD,
+            mainnetConfig,
+            testnetConfig,
             tonendpoint,
             standalone: true,
             extension: false,
@@ -240,14 +244,23 @@ const Loader: FC<{ sdk: TwaAppSdk }> = ({ sdk }) => {
         };
     }, [serverConfig, fiat, tonendpoint, tracker]);
 
-    if (isLangLoading || !context) {
+    if (isLangLoading) {
         return <Loading />;
     }
 
     return (
         <AppContext.Provider value={context}>
+            {/* Registers the error reporter here, inside the provider, so
+                useAnalyticsTrack reads the real tracker instead of the default
+                context's undefined one. */}
+            <ErrorReporting />
             <MiniAppClosed sdk={sdk} />
             <CopyNotification />
         </AppContext.Provider>
     );
+};
+
+const ErrorReporting: FC = () => {
+    useTwaErrorReporting();
+    return null;
 };
