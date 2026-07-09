@@ -28,7 +28,6 @@ import { RecoveryPasswordSheet } from './RecoveryPasswordSheet';
 import { RecoveryPhrase } from './RecoveryPhrase';
 import { SignOutSheet } from './SignOutSheet';
 
-// TODO(open item): confirm final store / web URLs before production deploy.
 const APP_STORE_URL = 'https://apps.apple.com/app/tonkeeper/id1587742107';
 const GOOGLE_PLAY_URL = 'https://play.google.com/store/apps/details?id=com.ton_keeper';
 const DESKTOP_APP_URL = 'https://tonkeeper.com/pro';

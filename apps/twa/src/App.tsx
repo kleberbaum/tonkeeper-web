@@ -175,7 +175,6 @@ const Loader: FC<{ sdk: TwaAppSdk }> = ({ sdk }) => {
     const network = useActiveTonNetwork();
     const { i18n } = useTranslation();
 
-    const { data: tracker } = useStubAnalytics(accounts, network, sdk.version);
     useTwaErrorReporting();
 
     useTwaAppViewport(false, sdk);
@@ -205,6 +204,13 @@ const Loader: FC<{ sdk: TwaAppSdk }> = ({ sdk }) => {
         platform: 'twa'
     });
     const { data: serverConfig } = useTonenpointConfig(tonendpoint);
+
+    const { data: tracker } = useStubAnalytics(
+        accounts,
+        network,
+        sdk.version,
+        serverConfig?.mainnetConfig
+    );
 
     const context = useMemo<IAppContext | undefined>(() => {
         if (!serverConfig || !fiat) {

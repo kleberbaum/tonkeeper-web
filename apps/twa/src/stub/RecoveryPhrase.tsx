@@ -65,6 +65,7 @@ export const RecoveryPhrase: FC<{ secret: AccountSecret; onSignOut: () => void }
             <Heading>{t('twa_recovery_title')}</Heading>
             <Caption>{t('twa_recovery_subtitle')}</Caption>
 
+            {/* probably unavailable for twa since it had no sk acc import path */}
             {secret.type === 'sk' ? (
                 <SkBox>{secret.sk}</SkBox>
             ) : (

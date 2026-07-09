@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Viewport } from '@tma.js/sdk';
 import { Account } from '@tonkeeper/core/dist/entries/account';
 import { Network } from '@tonkeeper/core/dist/entries/network';
+import { TonendpointConfig } from '@tonkeeper/core/dist/tonkeeperApi/tonendpoint';
 import {
     Analytics,
     Aptabase,
@@ -75,28 +76,39 @@ export const useTwaAppViewport = (setAppHeight: boolean, sdk: TwaAppSdk) => {
     }, [sdk]);
 };
 
-const APTABASE_HOST = import.meta.env.VITE_APP_APTABASE_HOST;
-const APTABASE_KEY = import.meta.env.VITE_APP_APTABASE;
-
 /**
- * Builds the Aptabase tracker for the sunset stub. There is no active account
- * here, so events are attributed to the persistent user id and session id from
- * the SDK identity and the tracker initialises from the wallet list alone.
- * Returns no tracker when the Aptabase env keys are absent (e.g. dev builds),
- * which leaves AppContext.tracker undefined and turns tracking into a no-op.
+ * Builds the Aptabase tracker for the sunset stub. Like the web app, the
+ * Aptabase endpoint and key come from the runtime Tonendpoint config rather
+ * than build-time env vars. There is no active account here, so events are
+ * attributed to the persistent user id and session id from the SDK identity and
+ * the tracker initialises from the wallet list alone. Returns no tracker when
+ * the config lacks an Aptabase key, which leaves AppContext.tracker undefined
+ * and turns tracking into a no-op.
  */
 export const useStubAnalytics = (
     accounts: Account[] | undefined,
     network: Network | undefined,
-    version: string
+    version: string,
+    config: TonendpointConfig | undefined
 ) => {
     const sdk = useAppSdk();
-    return useQuery<Analytics>(
-        [QueryKey.analytics, 'twa-stub', accounts?.length ?? 0, network],
+    return useQuery<Analytics | undefined>(
+        [
+            QueryKey.analytics,
+            'twa-stub',
+            accounts?.length ?? 0,
+            network,
+            config?.aptabaseEndpoint,
+            config?.aptabaseKey
+        ],
         async () => {
+            if (!config?.aptabaseEndpoint || !config?.aptabaseKey) {
+                return undefined;
+            }
+
             const tracker = new Aptabase({
-                host: APTABASE_HOST,
-                key: APTABASE_KEY,
+                host: config.aptabaseEndpoint,
+                key: config.aptabaseKey,
                 appVersion: version,
                 userIdentity: sdk.userIdentity
             });
@@ -111,7 +123,7 @@ export const useStubAnalytics = (
 
             return tracker;
         },
-        { enabled: !!APTABASE_HOST && !!APTABASE_KEY && accounts !== undefined }
+        { enabled: accounts !== undefined && config != null }
     );
 };
 
