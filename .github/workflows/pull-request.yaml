@@ -11,8 +11,9 @@ permissions:
 #   build:desktop    → run the desktop matrix (6 jobs)
 #   build:extension  → run the Chrome/Firefox extension build
 #   build:ipad       → run the iPad TestFlight build
+#   build:twa        → build the TWA and deploy a Cloudflare preview
 # Web build runs on every PR so reviewers always get a Cloudflare preview.
-# All three gated builds also expose workflow_dispatch for off-PR manual runs.
+# All gated builds also expose workflow_dispatch for off-PR manual runs.
 #
 # The `if:` on each gated job runs the build when:
 #   - the build's label was just added (labeled event with matching name), OR
@@ -49,4 +50,13 @@ jobs:
         uses: ./.github/workflows/ipad-build.yaml
         with:
             version-mode: next-patch
+        secrets: inherit
+
+    twa-build:
+        if: |
+            (github.event.action == 'labeled' && github.event.label.name == 'build:twa') ||
+            (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'build:twa'))
+        uses: ./.github/workflows/twa-deploy.yaml
+        with:
+            branch: twa-${{ github.head_ref }}
         secrets: inherit

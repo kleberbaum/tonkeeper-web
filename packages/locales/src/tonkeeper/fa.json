@@ -587,5 +587,21 @@
     "staking_details_pool_address_label": "آدرس استخر",
     "staking_pending_deposit": "{amount} %{coinSymbolWithEx} در انتظار استیک",
     "staking_pools_min_deposit": "حداقل واریز {minDeposit} %{coinSymbolWithEx}",
-    "staking_tf_full_withdrawal_only": "فقط برداشت کامل ممکن است"
+    "staking_tf_full_withdrawal_only": "فقط برداشت کامل ممکن است",
+    "twa_closed_title": "برنامک بسته شد",
+    "twa_closed_subtitle": "از همان جایی که رها کردید در iOS، Android یا وب ادامه دهید.",
+    "twa_closed_subtitle_wallets": "کیف‌پول‌های شما امن هستند. لطفاً عبارات بازیابی خود را ذخیره کنید و از همان جایی که رها کردید در iOS، Android یا وب ادامه دهید.",
+    "twa_download_ios": "دانلود برنامه برای iOS",
+    "twa_download_android": "دانلود برنامه برای Android",
+    "twa_download_desktop": "دانلود برنامه برای دسکتاپ",
+    "twa_show_recovery_phrase": "نمایش عبارت بازیابی",
+    "twa_enter_password": "رمز عبور را وارد کنید",
+    "twa_recovery_no_connection": "اتصال اینترنت وجود ندارد. لطفاً دوباره متصل شوید و مجدداً تلاش کنید.",
+    "twa_sign_out": "خروج",
+    "twa_recovery_title": "عبارت بازیابی",
+    "twa_recovery_subtitle": "این کلمات را همراه با شماره‌هایشان یادداشت کنید و در مکانی امن نگه دارید.",
+    "twa_copy_phrase": "کپی عبارت",
+    "twa_sign_out_subtitle": "کلیدهای کیف‌پول از این برنامک پاک خواهند شد.",
+    "twa_sign_out_backed_up": "من یک نسخه پشتیبان از عبارت بازیابی برای %{name} دارم",
+    "twa_back_up": "پشتیبان‌گیری"
 }

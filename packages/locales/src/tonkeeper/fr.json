@@ -441,5 +441,21 @@
   "staking_details_pool_address_label": "Adresse du pool",
   "staking_pending_deposit": "{amount} %{coinSymbolWithEx} en attente de dépôt",
   "staking_pools_min_deposit": "Dépôt min. {minDeposit} %{coinSymbolWithEx}",
-  "staking_tf_full_withdrawal_only": "Seul le retrait intégral est disponible"
+  "staking_tf_full_withdrawal_only": "Seul le retrait intégral est disponible",
+  "twa_closed_title": "Mini-application fermée",
+  "twa_closed_subtitle": "Reprenez là où vous vous êtes arrêté sur iOS, Android ou le Web.",
+  "twa_closed_subtitle_wallets": "Vos portefeuilles sont en sécurité. Veuillez enregistrer vos phrases de récupération et reprendre là où vous vous êtes arrêté sur iOS, Android ou le Web.",
+  "twa_download_ios": "Télécharger l’application pour iOS",
+  "twa_download_android": "Télécharger l’application pour Android",
+  "twa_download_desktop": "Télécharger l’application pour ordinateur",
+  "twa_show_recovery_phrase": "Afficher la phrase de récupération",
+  "twa_enter_password": "Saisissez le mot de passe",
+  "twa_recovery_no_connection": "Pas de connexion Internet. Veuillez vous reconnecter et réessayer.",
+  "twa_sign_out": "Se déconnecter",
+  "twa_recovery_title": "Phrase de récupération",
+  "twa_recovery_subtitle": "Notez ces mots avec leurs numéros et conservez-les en lieu sûr.",
+  "twa_copy_phrase": "Copier la phrase",
+  "twa_sign_out_subtitle": "Les clés du portefeuille seront effacées de cette mini-application.",
+  "twa_sign_out_backed_up": "J’ai une copie de sauvegarde de la phrase de récupération pour %{name}",
+  "twa_back_up": "Sauvegarder"
 }

@@ -1649,5 +1649,21 @@
     "wallet_send": "Send",
     "wallet_swap": "Swap",
     "wallet_title": "Wallet",
-    "yesterday": "Yesterday"
+    "yesterday": "Yesterday",
+    "twa_closed_title": "Mini App Closed",
+    "twa_closed_subtitle": "Pick up where you left off on iOS, Android, or the Web.",
+    "twa_closed_subtitle_wallets": "Your wallets are safe. Please save your recovery phrases and pick up where you left off on iOS, Android, or the Web.",
+    "twa_download_ios": "Download App for iOS",
+    "twa_download_android": "Download App for Android",
+    "twa_download_desktop": "Download App for Desktop",
+    "twa_show_recovery_phrase": "Show Recovery Phrase",
+    "twa_enter_password": "Enter password",
+    "twa_recovery_no_connection": "No internet connection. Please reconnect and try again.",
+    "twa_sign_out": "Sign Out",
+    "twa_recovery_title": "Recovery Phrase",
+    "twa_recovery_subtitle": "Write down these words with their numbers and store them in a safe place.",
+    "twa_copy_phrase": "Copy Phrase",
+    "twa_sign_out_subtitle": "Wallet keys will be erased from this mini app.",
+    "twa_sign_out_backed_up": "I have a backup copy of the recovery phrase for %{name}",
+    "twa_back_up": "Back up"
 }

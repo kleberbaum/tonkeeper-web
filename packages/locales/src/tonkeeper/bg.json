@@ -1673,5 +1673,21 @@
     "staking_details_pool_address_label": "Адрес на пула",
     "staking_pending_deposit": "{amount} %{coinSymbolWithEx} чакат залагане",
     "staking_pools_min_deposit": "Мин. депозит {minDeposit} %{coinSymbolWithEx}",
-    "staking_tf_full_withdrawal_only": "Налично е само пълно теглене"
+    "staking_tf_full_withdrawal_only": "Налично е само пълно теглене",
+    "twa_closed_title": "Мини приложението е затворено",
+    "twa_closed_subtitle": "Продължете оттам, докъдето сте стигнали — на iOS, Android или в уеб.",
+    "twa_closed_subtitle_wallets": "Портфейлите ви са в безопасност. Моля, запазете фразите си за възстановяване и продължете оттам, докъдето сте стигнали — на iOS, Android или в уеб.",
+    "twa_download_ios": "Изтегли приложението за iOS",
+    "twa_download_android": "Изтегли приложението за Android",
+    "twa_download_desktop": "Изтегли приложението за десктоп",
+    "twa_show_recovery_phrase": "Покажи фразата за възстановяване",
+    "twa_enter_password": "Въведете парола",
+    "twa_recovery_no_connection": "Няма интернет връзка. Моля, свържете се отново и опитайте пак.",
+    "twa_sign_out": "Изход",
+    "twa_recovery_title": "Фраза за възстановяване",
+    "twa_recovery_subtitle": "Запишете тези думи с техните номера и ги съхранявайте на сигурно място.",
+    "twa_copy_phrase": "Копирай фразата",
+    "twa_sign_out_subtitle": "Ключовете на портфейла ще бъдат изтрити от това мини приложение.",
+    "twa_sign_out_backed_up": "Имам резервно копие на фразата за възстановяване за %{name}",
+    "twa_back_up": "Архивирай"
 }

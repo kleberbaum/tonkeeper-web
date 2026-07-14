@@ -319,12 +319,6 @@ const SwapConfirmContent: FC<{
         }
     }, [isAlmostExpired, isSending, mutateAsync, sdk, handleClose]);
 
-    useEffect(() => {
-        if (sdk.twaExpand) {
-            sdk.twaExpand();
-        }
-    }, [sdk]);
-
     const done = sendResult !== undefined;
 
     // --- Wallet info ---

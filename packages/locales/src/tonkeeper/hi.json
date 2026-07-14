@@ -613,5 +613,21 @@
     "staking_details_pool_address_label": "पूल पता",
     "staking_pending_deposit": "{amount} %{coinSymbolWithEx} स्टेकिंग लंबित",
     "staking_pools_min_deposit": "न्यूनतम जमा {minDeposit} %{coinSymbolWithEx}",
-    "staking_tf_full_withdrawal_only": "केवल पूर्ण निकासी उपलब्ध है"
+    "staking_tf_full_withdrawal_only": "केवल पूर्ण निकासी उपलब्ध है",
+    "twa_closed_title": "मिनी ऐप बंद हो गया",
+    "twa_closed_subtitle": "iOS, Android या वेब पर वहीं से जारी रखें जहाँ आपने छोड़ा था।",
+    "twa_closed_subtitle_wallets": "आपके वॉलेट सुरक्षित हैं। कृपया अपने रिकवरी वाक्यांश सहेजें और iOS, Android या वेब पर वहीं से जारी रखें जहाँ आपने छोड़ा था।",
+    "twa_download_ios": "iOS के लिए ऐप डाउनलोड करें",
+    "twa_download_android": "Android के लिए ऐप डाउनलोड करें",
+    "twa_download_desktop": "डेस्कटॉप के लिए ऐप डाउनलोड करें",
+    "twa_show_recovery_phrase": "रिकवरी वाक्यांश दिखाएं",
+    "twa_enter_password": "पासवर्ड दर्ज करें",
+    "twa_recovery_no_connection": "कोई इंटरनेट कनेक्शन नहीं है। कृपया दोबारा कनेक्ट करें और फिर से प्रयास करें।",
+    "twa_sign_out": "साइन आउट करें",
+    "twa_recovery_title": "रिकवरी वाक्यांश",
+    "twa_recovery_subtitle": "इन शब्दों को उनके नंबरों के साथ लिखें और सुरक्षित स्थान पर रखें।",
+    "twa_copy_phrase": "वाक्यांश कॉपी करें",
+    "twa_sign_out_subtitle": "वॉलेट कीज़ इस मिनी ऐप से मिटा दी जाएंगी।",
+    "twa_sign_out_backed_up": "मेरे पास %{name} के रिकवरी वाक्यांश की बैकअप कॉपी है",
+    "twa_back_up": "बैकअप लें"
 }

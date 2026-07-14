@@ -441,5 +441,21 @@
     "staking_details_pool_address_label": "Địa chỉ pool",
     "staking_pending_deposit": "{amount} %{coinSymbolWithEx} đang chờ stake",
     "staking_pools_min_deposit": "Nạp tối thiểu {minDeposit} %{coinSymbolWithEx}",
-    "staking_tf_full_withdrawal_only": "Chỉ có thể rút toàn bộ"
+    "staking_tf_full_withdrawal_only": "Chỉ có thể rút toàn bộ",
+    "twa_closed_title": "Mini App đã đóng",
+    "twa_closed_subtitle": "Tiếp tục từ nơi bạn đã dừng trên iOS, Android hoặc Web.",
+    "twa_closed_subtitle_wallets": "Ví của bạn vẫn an toàn. Vui lòng lưu các cụm từ khôi phục của bạn và tiếp tục từ nơi bạn đã dừng trên iOS, Android hoặc Web.",
+    "twa_download_ios": "Tải ứng dụng cho iOS",
+    "twa_download_android": "Tải ứng dụng cho Android",
+    "twa_download_desktop": "Tải ứng dụng cho máy tính",
+    "twa_show_recovery_phrase": "Hiển thị cụm từ khôi phục",
+    "twa_enter_password": "Nhập mật khẩu",
+    "twa_recovery_no_connection": "Không có kết nối Internet. Vui lòng kết nối lại và thử lại.",
+    "twa_sign_out": "Đăng xuất",
+    "twa_recovery_title": "Cụm từ khôi phục",
+    "twa_recovery_subtitle": "Viết ra những từ này cùng với số thứ tự của chúng và lưu giữ ở nơi an toàn.",
+    "twa_copy_phrase": "Sao chép cụm từ",
+    "twa_sign_out_subtitle": "Khóa ví sẽ bị xóa khỏi mini app này.",
+    "twa_sign_out_backed_up": "Tôi có một bản sao lưu của cụm từ khôi phục cho %{name}",
+    "twa_back_up": "Sao lưu"
 }

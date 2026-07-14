@@ -1646,5 +1646,21 @@
     "staking_details_pool_address_label": "Pool-Adresse",
     "staking_pending_deposit": "{amount} %{coinSymbolWithEx} warten auf Staking",
     "staking_pools_min_deposit": "Min. Einzahlung {minDeposit} %{coinSymbolWithEx}",
-    "staking_tf_full_withdrawal_only": "Nur vollständige Auszahlung möglich"
+    "staking_tf_full_withdrawal_only": "Nur vollständige Auszahlung möglich",
+    "twa_closed_title": "Mini-App geschlossen",
+    "twa_closed_subtitle": "Mach auf iOS, Android oder im Web dort weiter, wo du aufgehört hast.",
+    "twa_closed_subtitle_wallets": "Deine Wallets sind sicher. Bitte sichere deine Wiederherstellungsphrasen und mach auf iOS, Android oder im Web dort weiter, wo du aufgehört hast.",
+    "twa_download_ios": "App für iOS herunterladen",
+    "twa_download_android": "App für Android herunterladen",
+    "twa_download_desktop": "App für Desktop herunterladen",
+    "twa_show_recovery_phrase": "Wiederherstellungsphrase anzeigen",
+    "twa_enter_password": "Passwort eingeben",
+    "twa_recovery_no_connection": "Keine Internetverbindung. Bitte stelle die Verbindung wieder her und versuche es erneut.",
+    "twa_sign_out": "Abmelden",
+    "twa_recovery_title": "Wiederherstellungsphrase",
+    "twa_recovery_subtitle": "Schreibe diese Wörter mit ihren Nummern auf und bewahre sie an einem sicheren Ort auf.",
+    "twa_copy_phrase": "Phrase kopieren",
+    "twa_sign_out_subtitle": "Die Wallet-Schlüssel werden aus dieser Mini-App gelöscht.",
+    "twa_sign_out_backed_up": "Ich habe eine Sicherungskopie der Wiederherstellungsphrase für %{name}",
+    "twa_back_up": "Sichern"
 }

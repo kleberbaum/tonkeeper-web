@@ -57,7 +57,7 @@ export interface UserProperties {
     application: string;
     walletType: string;
     accounts: Account[];
-    activeAccount: Account;
+    activeAccount?: Account;
     network?: Network;
     aptabaseEndpoint: string;
     aptabaseKey: string;

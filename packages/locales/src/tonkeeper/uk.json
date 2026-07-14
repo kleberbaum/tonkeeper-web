@@ -1694,5 +1694,21 @@
     "staking_details_pool_address_label": "Адреса пулу",
     "staking_pending_deposit": "{amount} %{coinSymbolWithEx} очікують на стейкінг",
     "staking_pools_min_deposit": "Мін. депозит {minDeposit} %{coinSymbolWithEx}",
-    "staking_tf_full_withdrawal_only": "Доступний лише повний вивід"
+    "staking_tf_full_withdrawal_only": "Доступний лише повний вивід",
+    "twa_closed_title": "Міні-застосунок закрито",
+    "twa_closed_subtitle": "Продовжуйте з того місця, де зупинилися — на iOS, Android або у вебі.",
+    "twa_closed_subtitle_wallets": "Ваші гаманці в безпеці. Будь ласка, збережіть свої секретні фрази та продовжуйте з того місця, де зупинилися — на iOS, Android або у вебі.",
+    "twa_download_ios": "Завантажити застосунок для iOS",
+    "twa_download_android": "Завантажити застосунок для Android",
+    "twa_download_desktop": "Завантажити застосунок для десктопа",
+    "twa_show_recovery_phrase": "Показати секретну фразу",
+    "twa_enter_password": "Введіть пароль",
+    "twa_recovery_no_connection": "Немає з'єднання з інтернетом. Будь ласка, підключіться знову та спробуйте ще раз.",
+    "twa_sign_out": "Вийти",
+    "twa_recovery_title": "Секретна фраза",
+    "twa_recovery_subtitle": "Запишіть ці слова разом з їхніми номерами та зберігайте в безпечному місці.",
+    "twa_copy_phrase": "Скопіювати фразу",
+    "twa_sign_out_subtitle": "Ключі гаманця буде стерто з цього міні-застосунку.",
+    "twa_sign_out_backed_up": "Я маю резервну копію секретної фрази для %{name}",
+    "twa_back_up": "Створити копію"
 }

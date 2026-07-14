@@ -1697,5 +1697,21 @@
     "staking_details_pool_address_label": "Havuz manzili",
     "staking_pending_deposit": "{amount} %{coinSymbolWithEx} steyk kutilmoqda",
     "staking_pools_min_deposit": "Min. depozit {minDeposit} %{coinSymbolWithEx}",
-    "staking_tf_full_withdrawal_only": "Faqat to‘liq yechish mumkin"
+    "staking_tf_full_withdrawal_only": "Faqat to‘liq yechish mumkin",
+    "twa_closed_title": "Mini ilova yopildi",
+    "twa_closed_subtitle": "iOS, Android yoki Vebda to‘xtagan joyingizdan davom eting.",
+    "twa_closed_subtitle_wallets": "Hamyonlaringiz xavfsiz. Iltimos, tiklash iboralaringizni saqlang va iOS, Android yoki Vebda to‘xtagan joyingizdan davom eting.",
+    "twa_download_ios": "iOS uchun ilovani yuklab olish",
+    "twa_download_android": "Android uchun ilovani yuklab olish",
+    "twa_download_desktop": "Desktop uchun ilovani yuklab olish",
+    "twa_show_recovery_phrase": "Tiklash iborasini ko‘rsatish",
+    "twa_enter_password": "Parolni kiriting",
+    "twa_recovery_no_connection": "Internet aloqasi yo'q. Iltimos, qayta ulaning va yana urinib ko'ring.",
+    "twa_sign_out": "Chiqish",
+    "twa_recovery_title": "Tiklash iborasi",
+    "twa_recovery_subtitle": "Ushbu so‘zlarni raqamlari bilan yozib oling va xavfsiz joyda saqlang.",
+    "twa_copy_phrase": "Iborani nusxalash",
+    "twa_sign_out_subtitle": "Hamyon kalitlari ushbu mini ilovadan o‘chiriladi.",
+    "twa_sign_out_backed_up": "Menda %{name} uchun tiklash iborasining zaxira nusxasi bor",
+    "twa_back_up": "Zaxiralash"
 }

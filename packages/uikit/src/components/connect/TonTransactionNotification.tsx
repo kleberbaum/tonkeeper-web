@@ -236,13 +236,6 @@ const TonTransactionContent: FC<{
         senderChoice
     });
 
-    useEffect(() => {
-        if (sdk.twaExpand) {
-            sdk.twaExpand();
-            sdk.hapticNotification('success');
-        }
-    }, [sdk]);
-
     const onSubmit = async () => {
         try {
             const result = await mutateAsync();

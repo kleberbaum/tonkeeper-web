@@ -441,5 +441,21 @@
     "staking_details_pool_address_label": "ਪੂਲ ਪਤਾ",
     "staking_pending_deposit": "{amount} %{coinSymbolWithEx} ਸਟੇਕਿੰਗ ਲੰਬਿਤ",
     "staking_pools_min_deposit": "ਘੱਟੋ-ਘੱਟ ਜਮਾ {minDeposit} %{coinSymbolWithEx}",
-    "staking_tf_full_withdrawal_only": "ਸਿਰਫ਼ ਪੂਰਾ ਕਢਾਈ ਉਪਲਬਧ ਹੈ"
+    "staking_tf_full_withdrawal_only": "ਸਿਰਫ਼ ਪੂਰਾ ਕਢਾਈ ਉਪਲਬਧ ਹੈ",
+    "twa_closed_title": "ਮਿਨੀ ਐਪ ਬੰਦ ਹੋ ਗਈ",
+    "twa_closed_subtitle": "iOS, Android ਜਾਂ ਵੈੱਬ ’ਤੇ ਉੱਥੋਂ ਜਾਰੀ ਰੱਖੋ ਜਿੱਥੇ ਤੁਸੀਂ ਛੱਡਿਆ ਸੀ।",
+    "twa_closed_subtitle_wallets": "ਤੁਹਾਡੇ ਵਾਲਿਟ ਸੁਰੱਖਿਅਤ ਹਨ। ਕਿਰਪਾ ਕਰਕੇ ਆਪਣੇ ਰਿਕਵਰੀ ਵਾਕਾਂਸ਼ ਸੰਭਾਲੋ ਅਤੇ iOS, Android ਜਾਂ ਵੈੱਬ ’ਤੇ ਉੱਥੋਂ ਜਾਰੀ ਰੱਖੋ ਜਿੱਥੇ ਤੁਸੀਂ ਛੱਡਿਆ ਸੀ।",
+    "twa_download_ios": "iOS ਲਈ ਐਪ ਡਾਊਨਲੋਡ ਕਰੋ",
+    "twa_download_android": "Android ਲਈ ਐਪ ਡਾਊਨਲੋਡ ਕਰੋ",
+    "twa_download_desktop": "ਡੈਸਕਟਾਪ ਲਈ ਐਪ ਡਾਊਨਲੋਡ ਕਰੋ",
+    "twa_show_recovery_phrase": "ਰਿਕਵਰੀ ਵਾਕਾਂਸ਼ ਵਿਖਾਓ",
+    "twa_enter_password": "ਪਾਸਵਰਡ ਦਾਖਲ ਕਰੋ",
+    "twa_recovery_no_connection": "ਕੋਈ ਇੰਟਰਨੈੱਟ ਕਨੈਕਸ਼ਨ ਨਹੀਂ। ਕਿਰਪਾ ਕਰਕੇ ਦੁਬਾਰਾ ਕਨੈਕਟ ਕਰੋ ਅਤੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
+    "twa_sign_out": "ਸਾਈਨ ਆਊਟ",
+    "twa_recovery_title": "ਰਿਕਵਰੀ ਵਾਕਾਂਸ਼",
+    "twa_recovery_subtitle": "ਇਹ ਸ਼ਬਦ ਉਹਨਾਂ ਦੇ ਨੰਬਰਾਂ ਸਮੇਤ ਲਿਖੋ ਅਤੇ ਸੁਰੱਖਿਅਤ ਥਾਂ ’ਤੇ ਰੱਖੋ।",
+    "twa_copy_phrase": "ਵਾਕਾਂਸ਼ ਕਾਪੀ ਕਰੋ",
+    "twa_sign_out_subtitle": "ਵਾਲਿਟ ਕੁੰਜੀਆਂ ਇਸ ਮਿਨੀ ਐਪ ਤੋਂ ਮਿਟਾ ਦਿੱਤੀਆਂ ਜਾਣਗੀਆਂ।",
+    "twa_sign_out_backed_up": "ਮੇਰੇ ਕੋਲ %{name} ਲਈ ਰਿਕਵਰੀ ਵਾਕਾਂਸ਼ ਦੀ ਬੈਕਅੱਪ ਕਾਪੀ ਹੈ",
+    "twa_back_up": "ਬੈਕਅੱਪ"
 }

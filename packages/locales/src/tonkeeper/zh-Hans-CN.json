@@ -1689,5 +1689,21 @@
     "staking_details_pool_address_label": "池地址",
     "staking_pending_deposit": "{amount} %{coinSymbolWithEx} 待质押",
     "staking_pools_min_deposit": "最低存入 {minDeposit} %{coinSymbolWithEx}",
-    "staking_tf_full_withdrawal_only": "仅支持全额提取"
+    "staking_tf_full_withdrawal_only": "仅支持全额提取",
+    "twa_closed_title": "小程序已关闭",
+    "twa_closed_subtitle": "在 iOS、Android 或网页版上从上次中断的地方继续。",
+    "twa_closed_subtitle_wallets": "您的钱包是安全的。请保存您的助记词，并在 iOS、Android 或网页版上从上次中断的地方继续。",
+    "twa_download_ios": "下载 iOS 应用",
+    "twa_download_android": "下载 Android 应用",
+    "twa_download_desktop": "下载桌面版应用",
+    "twa_show_recovery_phrase": "显示助记词",
+    "twa_enter_password": "输入密码",
+    "twa_recovery_no_connection": "无网络连接。请重新连接后再试。",
+    "twa_sign_out": "退出登录",
+    "twa_recovery_title": "助记词",
+    "twa_recovery_subtitle": "请按编号抄写这些单词，并保存在安全的地方。",
+    "twa_copy_phrase": "复制助记词",
+    "twa_sign_out_subtitle": "钱包密钥将从此小程序中删除。",
+    "twa_sign_out_backed_up": "我已备份 %{name} 的助记词",
+    "twa_back_up": "备份"
 }

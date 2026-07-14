@@ -1691,5 +1691,21 @@
     "staking_details_pool_address_label": "Havuz adresi",
     "staking_pending_deposit": "{amount} %{coinSymbolWithEx} stake bekliyor",
     "staking_pools_min_deposit": "Min. yatırma {minDeposit} %{coinSymbolWithEx}",
-    "staking_tf_full_withdrawal_only": "Yalnızca tam çekim mümkün"
+    "staking_tf_full_withdrawal_only": "Yalnızca tam çekim mümkün",
+    "twa_closed_title": "Mini Uygulama Kapatıldı",
+    "twa_closed_subtitle": "iOS, Android veya Web’de kaldığınız yerden devam edin.",
+    "twa_closed_subtitle_wallets": "Cüzdanlarınız güvende. Lütfen kurtarma ifadelerinizi kaydedin ve iOS, Android veya Web’de kaldığınız yerden devam edin.",
+    "twa_download_ios": "iOS Uygulamasını İndir",
+    "twa_download_android": "Android Uygulamasını İndir",
+    "twa_download_desktop": "Masaüstü Uygulamasını İndir",
+    "twa_show_recovery_phrase": "Kurtarma İfadesini Göster",
+    "twa_enter_password": "Parolayı girin",
+    "twa_recovery_no_connection": "İnternet bağlantısı yok. Lütfen yeniden bağlanıp tekrar deneyin.",
+    "twa_sign_out": "Çıkış Yap",
+    "twa_recovery_title": "Kurtarma İfadesi",
+    "twa_recovery_subtitle": "Bu kelimeleri numaralarıyla birlikte yazın ve güvenli bir yerde saklayın.",
+    "twa_copy_phrase": "İfadeyi Kopyala",
+    "twa_sign_out_subtitle": "Cüzdan anahtarları bu mini uygulamadan silinecek.",
+    "twa_sign_out_backed_up": "%{name} için kurtarma ifadesinin bir yedek kopyası bende var",
+    "twa_back_up": "Yedekle"
 }
