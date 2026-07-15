@@ -1,6 +1,7 @@
 import { NFT } from '@tonkeeper/core/dist/entries/nft';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useAppSdk } from '../../hooks/appSdk';
+import TonDiamondsAppearanceNotification from '../appearance/TonDiamondsAppearanceNotification';
 import { Notification } from '../Notification';
 import { NftPreview } from './NftView';
 
@@ -29,15 +30,18 @@ const NftNotification = () => {
     }, [nftItem, handleClose]);
 
     return (
-        <Notification
-            isOpen={nftItem !== undefined}
-            hideButton
-            handleClose={handleClose}
-            backShadow
-            mobileFullScreen
-        >
-            {Content}
-        </Notification>
+        <>
+            <Notification
+                isOpen={nftItem !== undefined}
+                hideButton
+                handleClose={handleClose}
+                backShadow
+                mobileFullScreen
+            >
+                {Content}
+            </Notification>
+            <TonDiamondsAppearanceNotification />
+        </>
     );
 };
 

@@ -30,6 +30,7 @@ import { RoundedButton } from '../fields/RoundedButton';
 import { Body, CroppedBodyText } from '../jettons/CroppedText';
 import { NftAction } from './NftAction';
 import { NftDetails } from './NftDetails';
+import { TonDiamondsFeature } from './TonDiamondsFeature';
 import { Image, NftBlock } from './Nfts';
 import { UnverifiedNftNotification } from './UnverifiedNftNotification';
 
@@ -308,6 +309,8 @@ export const NftPreview: FC<{
                     </>
                 )}
             </NftBlock>
+
+            <TonDiamondsFeature nftItem={nftItem} />
 
             <NftAction nftItem={nftItem} kind={itemKind} />
 
