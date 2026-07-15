@@ -1,5 +1,14 @@
 # Tonkeeper Web Monorepo
 
+> **Unofficial fork.** This fork reimplements the TON Diamonds NFT accent theming from the
+> discontinued React Native Tonkeeper app and deploys the web wallet to
+> [wallet.emailwerk.com](https://wallet.emailwerk.com) via GitHub Pages. It is not affiliated
+> with or endorsed by Tonkeeper. Changes against upstream: TON Diamonds accent themes
+> (`packages/uikit/src/styles/tonDiamonds.ts` and related state/components), a boot-config
+> fallback to bundled defaults, and a GitHub Pages deploy workflow. The RN app additionally
+> swapped the TON coin icon to the NFT's diamond image; this port covers the accent color
+> theming only. Licensed under Apache-2.0 like the upstream project.
+
 Tonkeeper Web is a non-custodial crypto wallet and gateway to blockchain dApps.
 
 Tonkeeper Extension supports Firefox 109.0 or higher version, Google Chrome, and Chromium-based
