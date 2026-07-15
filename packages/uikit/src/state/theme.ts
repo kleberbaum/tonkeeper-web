@@ -30,6 +30,7 @@ export interface UIPreferences {
     theme: 'dark' | 'pro';
     accent?: string;
     accentWallet?: string;
+    accentNftImage?: string;
     dismissMobileQRBanner: boolean;
 }
 

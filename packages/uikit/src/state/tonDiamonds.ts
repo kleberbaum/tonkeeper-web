@@ -1,16 +1,19 @@
 import { useQuery } from '@tanstack/react-query';
+import { AppKey } from '@tonkeeper/core/dist/Keys';
 import { NFT } from '@tonkeeper/core/dist/entries/nft';
 import { AccountsApi } from '@tonkeeper/core/dist/tonApiV2';
 import { useCallback, useEffect, useMemo } from 'react';
+import { useAppSdk } from '../hooks/appSdk';
 import { QueryKey } from '../libs/queryKey';
 import {
     TonDiamondsAccentKey,
     TonDiamondsCollectionAddress,
     isTonDiamondsAccentKey,
     isTonDiamondsNft,
-    tonDiamondsAccentKeyByNft
+    tonDiamondsAccentKeyByNft,
+    tonDiamondsNftImage
 } from '../styles/tonDiamonds';
-import { useMutateUserUIPreferences, useUserUIPreferences } from './theme';
+import { UIPreferences, useMutateUserUIPreferences, useUserUIPreferences } from './theme';
 import { useActiveApi, useActiveWallet } from './wallet';
 
 export const useTonDiamondsAccentValue = (): TonDiamondsAccentKey | undefined => {
@@ -66,10 +69,11 @@ export const useMutateTonDiamondsAccent = () => {
     const { mutateAsync, ...rest } = useMutateUserUIPreferences();
     const wallet = useActiveWallet();
     const mutateAccent = useCallback(
-        (accent: TonDiamondsAccentKey | undefined) =>
+        (accent: TonDiamondsAccentKey | undefined, nft?: NFT) =>
             mutateAsync({
                 accent,
-                accentWallet: accent === undefined ? undefined : wallet.rawAddress
+                accentWallet: accent === undefined ? undefined : wallet.rawAddress,
+                accentNftImage: accent === undefined ? undefined : tonDiamondsNftImage(nft) ?? ''
             }),
         [mutateAsync, wallet.rawAddress]
     );
@@ -77,6 +81,51 @@ export const useMutateTonDiamondsAccent = () => {
         ...rest,
         mutateAsync: mutateAccent
     };
+};
+
+/**
+ * The diamond render of the NFT (metadata.image_diamond) that replaces the native
+ * coin icon while its accent is applied, mirroring the RN app's tonCustomIcon.
+ * For accents applied before the image was persisted alongside the accent, the
+ * image is backfilled once from the granting wallet's NFTs; an empty string marks
+ * "checked, no image available" so the lookup does not stay enabled forever.
+ */
+export const useTonDiamondsCoinImage = (): string | undefined => {
+    const accent = useTonDiamondsAccentValue();
+    const { data: uiPreferences } = useUserUIPreferences();
+    const { mutateAsync } = useMutateUserUIPreferences();
+    const sdk = useAppSdk();
+    const wallet = useActiveWallet();
+
+    const storedImage = uiPreferences?.accentNftImage;
+    const needsBackfill =
+        accent !== undefined &&
+        storedImage === undefined &&
+        uiPreferences?.accentWallet === wallet.rawAddress;
+
+    const { data: diamonds } = useTonDiamondsNfts({ enabled: needsBackfill });
+
+    useEffect(() => {
+        if (!needsBackfill || !diamonds) {
+            return;
+        }
+        const nft = diamonds.find(item => tonDiamondsAccentKeyByNft(item) === accent);
+        const image = tonDiamondsNftImage(nft) ?? '';
+        (async () => {
+            // The preferences write is read-merge-write; re-check the stored accent
+            // right before writing so a concurrent accent change is not resurrected.
+            const current = await sdk.storage.get<Partial<UIPreferences>>(AppKey.UI_PREFERENCES);
+            if (current?.accent !== accent) {
+                return;
+            }
+            await mutateAsync({ accentNftImage: image });
+        })();
+    }, [needsBackfill, diamonds, accent, mutateAsync, sdk]);
+
+    if (accent === undefined || !storedImage) {
+        return undefined;
+    }
+    return storedImage;
 };
 
 /**

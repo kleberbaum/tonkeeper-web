@@ -57,6 +57,14 @@ const nftThemeMain = (nft: NFT): string | undefined => {
 export const isTonDiamondsNft = (nft: NFT): boolean =>
     nft.collection?.address === TonDiamondsCollectionAddress && !!nftThemeMain(nft);
 
+export const tonDiamondsNftImage = (nft: NFT | undefined): string | undefined => {
+    if (!nft) {
+        return undefined;
+    }
+    const image = (nft.metadata as { image_diamond?: unknown } | undefined)?.image_diamond;
+    return typeof image === 'string' ? image : undefined;
+};
+
 export const tonDiamondsAccentKeyByNft = (nft: NFT): TonDiamondsAccentKey | undefined => {
     if (nft.collection?.address !== TonDiamondsCollectionAddress) {
         return undefined;

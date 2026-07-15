@@ -87,7 +87,11 @@ const TonDiamondsAppearanceContent: FC<{ onClose: () => void }> = ({ onClose }) 
     const { mutateAsync } = useMutateTonDiamondsAccent();
 
     const handleSelect = async (key: TonDiamondsAccentKey | 'default') => {
-        await mutateAsync(key === 'default' ? undefined : key);
+        if (key === 'default') {
+            await mutateAsync(undefined);
+        } else {
+            await mutateAsync(key, owned.get(key));
+        }
         onClose();
     };
 

@@ -28,6 +28,8 @@ import { TON_ASSET } from '@tonkeeper/core/dist/entries/crypto/asset/constants';
 import { useNavigate } from '../../hooks/router/useNavigate';
 import { useIsFullWidthMode } from '../../hooks/useIsFullWidthMode';
 import { StakingPoolIcon } from '../staking/StakingPoolIcon';
+import { useTonDiamondsCoinImage } from '../../state/tonDiamonds';
+import { TonDiamondsCoinLogo } from './TonDiamondsCoinLogo';
 import {
     getPortfolioBalanceId,
     PortfolioBalance,
@@ -60,6 +62,7 @@ export const TonAsset = forwardRef<
     const { data } = useRate(CryptoCurrency.TON);
     const { fiatPrice, fiatAmount } = useFormatFiat(data, balance.relativeAmount);
     const isFullWidth = useIsFullWidthMode();
+    const diamondImage = useTonDiamondsCoinImage();
 
     return (
         <ListItem
@@ -69,7 +72,11 @@ export const TonAsset = forwardRef<
             backgroundHighlighted={isFullWidth}
         >
             <ListItemPayload>
-                <TokenLogo src={TON_ASSET.image} noRadius={TON_ASSET.noImageCorners} />
+                {diamondImage ? (
+                    <TonDiamondsCoinLogo image={diamondImage} />
+                ) : (
+                    <TokenLogo src={TON_ASSET.image} noRadius={TON_ASSET.noImageCorners} />
+                )}
                 <TokenLayout
                     name={t('Toncoin')}
                     symbol={BRAND_CONFIG.coinSymbolWithEx}
