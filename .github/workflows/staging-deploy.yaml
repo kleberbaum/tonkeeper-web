@@ -1,9 +1,7 @@
 name: Staging Deploy
 
 on:
-    push:
-        branches:
-            - main
+    workflow_dispatch:
 
 # Latest push wins; older in-flight deploys cancel.
 concurrency:
