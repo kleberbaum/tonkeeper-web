@@ -377,7 +377,15 @@ export const getServerConfig = async (
     tonendpoint: Tonendpoint,
     network: Network
 ): Promise<TonendpointConfig> => {
-    const result = await tonendpoint.boot(network);
+    // Fall back to the bundled defaults when both boot endpoints are unreachable;
+    // the app degrades (no remote keys) instead of hanging on the loading screen.
+    let result: Partial<TonendpointConfig>;
+    try {
+        result = await tonendpoint.boot(network);
+    } catch (e) {
+        console.error('Boot config unavailable, using bundled defaults', e);
+        result = {};
+    }
 
     return {
         ...defaultTonendpointConfig,
