@@ -7,6 +7,7 @@ import {
 } from '../state/theme';
 import { usePrevious } from '../hooks/usePrevious';
 import { getUserOS } from '../libs/web';
+import { applyTonDiamondsAccent, isTonDiamondsAccentKey } from '../styles/tonDiamonds';
 export const UserThemeProvider: FC<
     PropsWithChildren<{
         displayType?: 'compact' | 'full-width';
@@ -65,9 +66,15 @@ export const UserThemeProvider: FC<
             };
         }
 
+        const accent = uiPreferences?.accent;
+        if (isTonDiamondsAccentKey(accent)) {
+            theme = applyTonDiamondsAccent(theme, accent);
+        }
+
         return [theme, themeName];
     }, [
         uiPreferences?.theme,
+        uiPreferences?.accent,
         displayType,
         isPro,
         isProPrev,

@@ -28,6 +28,8 @@ export interface UIPreferences {
     asideWidth: number;
     showTokensChart: boolean;
     theme: 'dark' | 'pro';
+    accent?: string;
+    accentWallet?: string;
     dismissMobileQRBanner: boolean;
 }
 
