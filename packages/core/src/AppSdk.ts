@@ -56,6 +56,7 @@ export interface UIEvents {
     receive: ReceiveInitParams;
     nft: NFT;
     transferNft: NFT;
+    appearance: { nftAddress?: string };
     keyboard: KeyboardParams;
     addSuggestion: LatestSuggestion;
     editSuggestion: FavoriteSuggestion;
